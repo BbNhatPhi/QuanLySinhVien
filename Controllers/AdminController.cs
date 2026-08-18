@@ -33,11 +33,11 @@ namespace StudentManagementSystem.Controllers
 
         // POST: /Admin/CreateUser
         [HttpPost]
-        public ActionResult CreateUser(string username, string password, int roleId)
+        public ActionResult CreateUser(string username, string password, int roleId, string hoTen)
         {
             try
             {
-                _adminDAO.CreateUser(username, password, roleId);
+                _adminDAO.CreateUser(username, password, roleId, hoTen);
                 TempData["SuccessMsg"] = "Tạo tài khoản thành công!";
             }
             catch

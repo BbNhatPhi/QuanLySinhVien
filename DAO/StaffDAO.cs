@@ -6,6 +6,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Configuration;
 using StudentManagementSystem.Models;
+
 namespace StudentManagementSystem.DAO
 {
     public class StaffDAO
@@ -187,6 +188,7 @@ namespace StudentManagementSystem.DAO
                 }
             }
         }
+
         // ==========================================
         // QUẢN LÝ LỚP DANH NGHĨA
         // ==========================================
@@ -208,8 +210,8 @@ namespace StudentManagementSystem.DAO
                         {
                             MaLop = reader["MaLop"].ToString(),
                             TenLop = reader["TenLop"].ToString(),
-                            NganhID = Convert.ToInt32(reader["NganhID"]),
-                            TenNganh = reader["TenNganh"].ToString(),
+                            KhoaID = Convert.ToInt32(reader["KhoaID"]),
+                            TenKhoa = reader["TenKhoa"].ToString(),
                             KhoaHoc = reader["KhoaHoc"].ToString()
                         });
                     }
@@ -229,7 +231,10 @@ namespace StudentManagementSystem.DAO
 
                     cmd.Parameters.AddWithValue("@MaLop", lop.MaLop);
                     cmd.Parameters.AddWithValue("@TenLop", lop.TenLop);
-                    cmd.Parameters.AddWithValue("@NganhID", lop.NganhID);
+
+                    // ✅ Đã sửa @NganhID thành @KhoaID
+                    cmd.Parameters.AddWithValue("@KhoaID", lop.KhoaID);
+
                     cmd.Parameters.AddWithValue("@KhoaHoc", lop.KhoaHoc);
 
                     conn.Open();
@@ -241,7 +246,9 @@ namespace StudentManagementSystem.DAO
                 }
             }
         }
-        public bool UpdateLop(string maLop, string tenLop, int nganhId, string khoaHoc)
+
+        // ✅ Đã sửa tham số int nganhId thành int khoaId
+        public bool UpdateLop(string maLop, string tenLop, int khoaId, string khoaHoc)
         {
             using (SqlConnection conn = new SqlConnection(connStr))
             {
@@ -252,7 +259,10 @@ namespace StudentManagementSystem.DAO
 
                     cmd.Parameters.AddWithValue("@MaLop", maLop);
                     cmd.Parameters.AddWithValue("@TenLop", tenLop);
-                    cmd.Parameters.AddWithValue("@NganhID", nganhId);
+
+                    // ✅ Đã sửa @NganhID thành @KhoaID
+                    cmd.Parameters.AddWithValue("@KhoaID", khoaId);
+
                     cmd.Parameters.AddWithValue("@KhoaHoc", khoaHoc);
 
                     conn.Open();
@@ -264,6 +274,11 @@ namespace StudentManagementSystem.DAO
                 }
             }
         }
+
+        // ==========================================
+        // CÁC CHỨC NĂNG CÒN LẠI GIỮ NGUYÊN BÊN DƯỚI
+        // ==========================================
+
         public List<LopHocPhan> GetAllLopHocPhan()
         {
             List<LopHocPhan> list = new List<LopHocPhan>();

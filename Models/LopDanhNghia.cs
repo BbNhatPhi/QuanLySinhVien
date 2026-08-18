@@ -9,7 +9,9 @@ namespace StudentManagementSystem.Models
         public string MaLop { get; set; }
         public string TenLop { get; set; }
         public int NganhID { get; set; }
-        public string TenNganh { get; set; } // Lấy từ lệnh JOIN để hiển thị ra View
+        public string TenNganh { get; set; }
+        public int KhoaID { get; set; }
+        public string TenKhoa { get; set; }// Lấy từ lệnh JOIN để hiển thị ra View
         public string KhoaHoc { get; set; }
     }
 }

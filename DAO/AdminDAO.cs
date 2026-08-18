@@ -62,8 +62,10 @@ namespace StudentManagementSystem.DAO
                             RoleID = Convert.ToInt32(reader["RoleID"]),
                             RoleName = reader["RoleName"].ToString(),
                             IsActive = Convert.ToBoolean(reader["IsActive"]),
-                            HoTen = reader["HoTen"].ToString(),
-                            Email = reader["Email"].ToString()
+                            HoTen = reader["HoTen"] != DBNull.Value ? reader["HoTen"].ToString() : "Chưa cập nhật",
+                            Email = reader["Email"].ToString(),
+
+
                         });
                     }
                 }
@@ -71,17 +73,22 @@ namespace StudentManagementSystem.DAO
             return list;
         }
 
-        public bool CreateUser(string username, string rawPassword, int roleId)
+        public bool CreateUser(string username, string rawPassword, int roleId, string hoTen)
         {
             using (SqlConnection conn = new SqlConnection(connStr))
             {
+                // Mã hóa mật khẩu như cũ
                 string hash = SecurityHelper.HashPassword(rawPassword);
 
                 SqlCommand cmd = new SqlCommand("sp_CreateUser", conn);
                 cmd.CommandType = CommandType.StoredProcedure;
+
                 cmd.Parameters.AddWithValue("@Username", username);
                 cmd.Parameters.AddWithValue("@PasswordHash", hash);
                 cmd.Parameters.AddWithValue("@RoleID", roleId);
+
+                // Bổ sung thêm dòng này để truyền Họ Tên xuống SQL Server
+                cmd.Parameters.AddWithValue("@HoTen", hoTen);
 
                 conn.Open();
                 return cmd.ExecuteNonQuery() > 0;

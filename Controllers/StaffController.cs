@@ -86,7 +86,7 @@ namespace StudentManagementSystem.Controllers
 
             return RedirectToAction("ManageMonHoc");
         }
-        // POST: /Staff/EditMonHoc
+
         [HttpPost]
         public ActionResult EditMonHoc(string maMon, string tenMon, int soTinChi)
         {
@@ -115,9 +115,8 @@ namespace StudentManagementSystem.Controllers
             StaffDAO dao = new StaffDAO();
             List<LopDanhNghia> list = dao.GetAllLop();
 
-            // SỬA LỖI: Đổ dữ liệu vào Dropdown Ngành để View hiển thị
-            StudentManagementSystem.DAO.AdminDAO adminDAO = new StudentManagementSystem.DAO.AdminDAO();
-            ViewBag.ListNganh = adminDAO.GetAllNganh();
+            // ĐÃ SỬA: Đổi tên thành ViewBag.ListKhoa để đồng bộ với View
+            ViewBag.ListKhoa = _staffDAO.GetAllKhoa();
 
             return View(list);
         }
@@ -141,11 +140,12 @@ namespace StudentManagementSystem.Controllers
             return RedirectToAction("ClassList");
         }
 
-        // 3. SỬA LỖI: Cập nhật thông tin lớp (Đổi Redirect về ClassList)
+        // 3. ĐÃ SỬA: Thay thế nganhId thành khoaId
         [HttpPost]
-        public ActionResult EditLop(string maLop, string tenLop, int nganhId, string khoaHoc)
+        public ActionResult EditLop(string maLop, string tenLop, int khoaId, string khoaHoc)
         {
-            bool result = _staffDAO.UpdateLop(maLop, tenLop, nganhId, khoaHoc);
+            // Cập nhật hàm gọi DAO sang khoaId
+            bool result = _staffDAO.UpdateLop(maLop, tenLop, khoaId, khoaHoc);
 
             if (result)
             {
@@ -159,7 +159,7 @@ namespace StudentManagementSystem.Controllers
             return RedirectToAction("ClassList");
         }
 
-        // 4. SỬA LỖI: Thêm Action Xóa Lớp
+        // 4. Xóa Lớp
         [HttpPost]
         public ActionResult DeleteLop(string maLop)
         {
@@ -284,7 +284,6 @@ namespace StudentManagementSystem.Controllers
         // QUẢN LÝ LỊCH THI
         // ==========================================
 
-        // GET: /Staff/ManageLichThi
         public ActionResult ManageLichThi()
         {
             ViewBag.DsLopHP = _staffDAO.GetAllLopHocPhan();
@@ -292,7 +291,6 @@ namespace StudentManagementSystem.Controllers
             return View(lichThi);
         }
 
-        // POST: Lên lịch thi
         [HttpPost]
         public ActionResult AddLichThi(string maLopHP, DateTime ngayThi, int caThi, string phongThi)
         {
@@ -303,7 +301,6 @@ namespace StudentManagementSystem.Controllers
             return RedirectToAction("ManageLichThi");
         }
 
-        // Gọi bằng AJAX khi người dùng đổi Ngày thi hoặc Ca thi
         [HttpGet]
         public JsonResult GetPhongTrong(DateTime ngayThi, int caThi)
         {
@@ -311,11 +308,30 @@ namespace StudentManagementSystem.Controllers
             return Json(phongTrong, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost]
+        public ActionResult EditLichThi(string maLopHP, DateTime ngayThi, int caThi, string phongThi)
+        {
+            string result = _staffDAO.UpdateLichThi(maLopHP, ngayThi, caThi, phongThi);
+            if (result == "Success") TempData["SuccessMsg"] = "Đã cập nhật lịch thi thành công!";
+            else TempData["ErrorMsg"] = result;
+
+            return RedirectToAction("ManageLichThi");
+        }
+
+        [HttpPost]
+        public ActionResult DeleteLichThi(string maLopHP)
+        {
+            if (_staffDAO.DeleteLichThi(maLopHP)) TempData["SuccessMsg"] = $"Đã hủy lịch thi của lớp {maLopHP} thành công!";
+            else TempData["ErrorMsg"] = "Lỗi: Không thể xóa lịch thi này do dữ liệu đang được ràng buộc!";
+
+            return RedirectToAction("ManageLichThi");
+        }
+
+
         // ==========================================
         // QUẢN LÝ THÔNG BÁO
         // ==========================================
 
-        // GET: /Staff/ManageThongBao
         public ActionResult ManageThongBao()
         {
             var dsThongBao = _staffDAO.GetAllThongBao();
@@ -340,26 +356,8 @@ namespace StudentManagementSystem.Controllers
 
             return RedirectToAction("ManageThongBao");
         }
-        // POST: Sửa lịch thi
-        [HttpPost]
-        public ActionResult EditLichThi(string maLopHP, DateTime ngayThi, int caThi, string phongThi)
-        {
-            string result = _staffDAO.UpdateLichThi(maLopHP, ngayThi, caThi, phongThi);
-            if (result == "Success") TempData["SuccessMsg"] = "Đã cập nhật lịch thi thành công!";
-            else TempData["ErrorMsg"] = result;
 
-            return RedirectToAction("ManageLichThi");
-        }
 
-        // POST: Xóa lịch thi
-        [HttpPost]
-        public ActionResult DeleteLichThi(string maLopHP)
-        {
-            if (_staffDAO.DeleteLichThi(maLopHP)) TempData["SuccessMsg"] = $"Đã hủy lịch thi của lớp {maLopHP} thành công!";
-            else TempData["ErrorMsg"] = "Lỗi: Không thể xóa lịch thi này do dữ liệu đang được ràng buộc!";
-
-            return RedirectToAction("ManageLichThi");
-        }
         // ==========================================
         // QUẢN LÝ ĐIỂM RÈN LUYỆN
         // ==========================================
@@ -369,7 +367,6 @@ namespace StudentManagementSystem.Controllers
             return View(dsDiem);
         }
 
-        // Hàm hỗ trợ tự động xếp loại
         private string TinhXepLoai(int diem)
         {
             if (diem >= 90) return "Xuất sắc";
