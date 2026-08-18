@@ -1,0 +1,134 @@
+﻿@model List<StudentManagementSystem.Models.LopHocPhan>
+@{
+    ViewBag.Title = "Quản lý Lớp Học Phần";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4"><i class="fas fa-layer-group"></i> Quản Lý Mở Lớp Học Phần</h2>
+
+    <!-- Nút gọi form -->
+    <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addLopHocPhanModal">
+        + Mở Lớp Học Phần Mới
+    </button>
+
+    <!-- Khu vực hiển thị thông báo -->
+    @if (TempData["SuccessMsg"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMsg"]</div>
+    }
+    @if (TempData["ErrorMsg"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMsg"]</div>
+    }
+
+    <!-- Bảng danh sách Lớp học phần -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-bordered table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="text-center">Mã Lớp HP</th>
+                        <th>Tên Môn</th>
+                        <th>Giảng Viên</th>
+                        <th class="text-center">Học Kỳ</th>
+                        <th class="text-center">Năm Học</th>
+                        <th class="text-center">Sỉ số</th>
+                        <th class="text-center">Trạng Thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Count > 0)
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="text-center fw-bold">@item.MaLopHP</td>
+                                <td><span class="text-muted text-sm">@item.MaMon</span><br />@item.TenMon</td>
+                                <td>@item.TenGV</td>
+                                <td class="text-center">@item.HocKy</td>
+                                <td class="text-center">@item.NamHoc</td>
+                                <td class="text-center">@item.SoLuongMax</td>
+                                <td class="text-center"><span class="badge bg-success">@item.TrangThai</span></td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center text-muted">Chưa có lớp học phần nào được mở.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Form Mở Lớp (Bị ẩn đi, chỉ hiện khi bấm nút) -->
+<div class="modal fade" id="addLopHocPhanModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="@Url.Action("AddLopHocPhan", "Staff")" method="post">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title">Khởi Tạo Lớp Học Phần Mới</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Ruột Form xịn xò với Dropdown -->
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mã Lớp Học Phần (Tự đặt)</label>
+                        <input type="text" name="MaLopHP" class="form-control" placeholder="VD: LHP_PRJ301_02" required />
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label fw-bold">Môn Học</label>
+                            <select name="MaMon" class="form-select" required>
+                                <option value="">-- Chọn Môn Học --</option>
+                                @if (ViewBag.ListMonHoc != null)
+                                {
+                                    foreach (var mon in ViewBag.ListMonHoc)
+                                    {
+                                        <option value="@mon.MaMon">@mon.TenMon (@mon.MaMon)</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold">Giảng Viên</label>
+                            <select name="MaGV" class="form-select" required>
+                                <option value="">-- Chọn Giảng Viên --</option>
+                                @if (ViewBag.ListGiangVien != null)
+                                {
+                                    foreach (var gv in ViewBag.ListGiangVien)
+                                    {
+                                        <option value="@gv.MaGV">@gv.HoTen</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-4">
+                            <label class="form-label fw-bold">Học Kỳ</label>
+                            <input type="number" name="HocKy" class="form-control" value="1" required />
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label fw-bold">Năm Học</label>
+                            <input type="text" name="NamHoc" class="form-control" value="2026-2027" required />
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label fw-bold">Sỉ Số Max</label>
+                            <input type="number" name="SoLuongMax" class="form-control" value="40" required />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-success">Mở Lớp Học Phần</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

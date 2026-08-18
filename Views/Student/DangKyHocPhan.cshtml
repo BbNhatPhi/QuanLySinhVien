@@ -1,0 +1,78 @@
+﻿@model List<StudentManagementSystem.Models.LopHocPhan>
+@{
+    ViewBag.Title = "Đăng Ký Học Phần";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4"><i class="fas fa-mouse-pointer text-primary"></i> Đăng Ký Học Phần</h2>
+
+    @if (TempData["SuccessMsg"] != null)
+    {
+        <div class="alert alert-success fw-bold"><i class="fas fa-check-circle"></i> @TempData["SuccessMsg"]</div>
+    }
+    @if (TempData["ErrorMsg"] != null)
+    {
+        <div class="alert alert-danger fw-bold"><i class="fas fa-exclamation-triangle"></i> @TempData["ErrorMsg"]</div>
+    }
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-dark text-white fw-bold">
+            Danh sách Lớp học phần đang mở
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-hover table-bordered mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center">Mã Lớp HP</th>
+                        <th>Môn Học</th>
+                        <th>Giảng Viên</th>
+                        <th class="text-center">Học Kỳ / Năm</th>
+                        <th class="text-center">Sỉ số</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Count > 0)
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="text-center fw-bold text-primary">@item.MaLopHP</td>
+                                <td class="fw-bold">@item.TenMon</td>
+                                <td>@item.TenGV</td>
+                                <td class="text-center">HK @item.HocKy<br /><small class="text-muted">@item.NamHoc</small></td>
+                                <td class="text-center">
+                                    <!-- Hiển thị Sỉ số hiện tại / Sỉ số Max -->
+                                    <span class="badge @(Convert.ToInt32(item.TrangThai) >= item.SoLuongMax ? "bg-danger" : "bg-success") fs-6">
+                                        @item.TrangThai / @item.SoLuongMax
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <form action="@Url.Action("XuLyDangKy", "Student")" method="post">
+                                        <input type="hidden" name="maLopHP" value="@item.MaLopHP" />
+                                        @if (Convert.ToInt32(item.TrangThai) >= item.SoLuongMax)
+                                        {
+                                            <button type="button" class="btn btn-secondary btn-sm" disabled>Đã đầy</button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit" class="btn btn-primary btn-sm fw-bold">
+                                                <i class="fas fa-plus"></i> Đăng Ký
+                                            </button>
+                                        }
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">Hiện tại không có lớp học phần nào mở đăng ký!</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

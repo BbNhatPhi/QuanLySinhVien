@@ -1,0 +1,39 @@
+﻿@model List<StudentManagementSystem.Models.LichThi>
+@{ ViewBag.Title = "Lịch Thi Cá Nhân"; }
+
+<div class="container mt-4">
+    <h2 class="mb-4"><i class="fas fa-calendar-check text-danger"></i> Lịch Thi Kết Thúc Học Phần</h2>
+
+    <div class="card shadow-sm border-0">
+        <table class="table table-hover table-bordered mb-0 align-middle">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th>Mã Lớp HP</th>
+                    <th>Tên Môn Học</th>
+                    <th>Ngày Thi</th>
+                    <th>Ca Thi</th>
+                    <th>Phòng Thi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Count > 0)
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-center fw-bold text-primary">@item.MaLopHP</td>
+                            <td class="fw-bold">@item.TenMon</td>
+                            <td class="text-center fw-bold text-danger">@item.NgayThi.ToString("dd/MM/yyyy")</td>
+                            <td class="text-center">Ca @item.CaThi</td>
+                            <td class="text-center fw-bold">@item.PhongThi</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="5" class="text-center py-4">Chưa có lịch thi nào được công bố!</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

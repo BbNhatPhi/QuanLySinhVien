@@ -1,0 +1,48 @@
+﻿@model IEnumerable<StudentManagementSystem.Models.ThoiKhoaBieuSV>
+@{
+    ViewBag.Title = "Thời Khóa Biểu";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="mb-4"><i class="fas fa-calendar-check text-primary"></i> Thời Khóa Biểu Của Tôi</h2>
+
+<div class="card shadow border-0">
+    <div class="card-body">
+        <table class="table table-hover table-bordered align-middle">
+            <thead class="table-primary text-center">
+                <tr>
+                    <th>Thứ</th>
+                    <th>Ca Học</th>
+                    <th>Môn Học</th>
+                    <th>Mã Lớp TC</th>
+                    <th>Phòng Học</th>
+                    <th>Giảng Viên</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="6" class="text-center text-muted py-4">Bạn chưa có lịch học nào trong học kỳ này.</td></tr>
+                }
+                @foreach (var item in Model)
+                {
+                    <tr class="text-center">
+                        <td><b>@item.NgayHoc</b></td>
+                        <td>
+                            @if (item.CaHoc == 1)
+                            {<span class="badge bg-success">Sáng</span> }
+                            else if (item.CaHoc == 2)
+                            { <span class="badge bg-warning text-dark">Chiều</span> }
+                            else
+                            { <span class="badge bg-dark">Tối</span>}
+                        </td>
+                        <td class="text-start fw-bold">@item.TenMon</td>
+                        <td>@item.MaLopHP</td>
+                        <td><span class="badge bg-info text-dark">@item.PhongHoc</span></td>
+                        <td>@item.TenGiangVien</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

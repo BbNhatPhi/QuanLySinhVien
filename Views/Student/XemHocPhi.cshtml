@@ -1,0 +1,152 @@
+﻿@model List<StudentManagementSystem.Models.HocPhi>
+@{
+    ViewBag.Title = "Thông Tin Học Phí";
+    var lichSuGiaoDich = ViewBag.LichSuGiaoDich as List<StudentManagementSystem.Models.HocPhi>;
+}
+
+<div class="container mt-4 mb-5">
+    <h2 class="mb-4"><i class="fas fa-file-invoice-dollar text-success"></i> Quản Lý Công Nợ & Học Phí</h2>
+
+    @if (TempData["SuccessMsg"] != null)
+    {
+        <div class="alert alert-success fw-bold shadow-sm">
+            <i class="fas fa-check-circle"></i> @TempData["SuccessMsg"]
+        </div>
+    }
+
+    <!-- Nút Tab Bootstrap -->
+    <ul class="nav nav-tabs fw-bold mb-3" id="hocPhiTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active text-danger" id="congno-tab" data-bs-toggle="tab" data-bs-target="#congno" type="button" role="tab">
+                <i class="fas fa-exclamation-circle"></i> Học Phí Chưa Đóng
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link text-success" id="lichsu-tab" data-bs-toggle="tab" data-bs-target="#lichsu" type="button" role="tab">
+                <i class="fas fa-history"></i> Lịch Sử Giao Dịch
+            </button>
+        </li>
+    </ul>
+
+    <!-- Nội dung của các Tab -->
+    <div class="tab-content" id="hocPhiTabsContent">
+
+        <!-- ================= TAB 1: CÔNG NỢ ================= -->
+        <div class="tab-pane fade show active" id="congno" role="tabpanel">
+            <div class="card shadow-sm border-0 border-start border-4 border-danger">
+                <div class="card-body p-0">
+                    <table class="table table-hover table-bordered mb-0 align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th class="text-center">STT</th>
+                                <th class="text-center">Mã Lớp HP</th>
+                                <th>Môn Học</th>
+                                <th class="text-center">Số Tín Chỉ</th>
+                                <th class="text-end">Đơn Giá / Tín Chỉ</th>
+                                <th class="text-end">Thành Tiền</th>
+                                <th class="text-center">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Count > 0)
+                            {
+                                int stt = 1;
+                                double tongTien = 0;
+                                int tongTinChi = 0;
+
+                                foreach (var item in Model)
+                                {
+                                    tongTien += item.ThanhTien;
+                                    tongTinChi += item.SoTinChi;
+                                    <tr>
+                                        <td class="text-center fw-bold">@(stt++)</td>
+                                        <td class="text-center fw-bold text-primary">@item.MaLopHP</td>
+                                        <td class="fw-bold">@item.TenMon</td>
+                                        <td class="text-center text-danger fw-bold">@item.SoTinChi</td>
+                                        <td class="text-end">@string.Format("{0:N0}", item.DonGia) đ</td>
+                                        <td class="text-end text-danger fw-bold">@string.Format("{0:N0}", item.ThanhTien) đ</td>
+                                        <td class="text-center">
+                                            <a href="@Url.Action("ThanhToan", "Student", new { maLopHP = item.MaLopHP, tenMon = item.TenMon, soTien = item.ThanhTien })" class="btn btn-sm btn-outline-primary fw-bold shadow-sm">
+                                                <i class="fas fa-credit-card"></i> Thanh toán
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                                <tr class="table-warning fw-bold fs-5">
+                                    <td colspan="3" class="text-end text-danger">TỔNG NỢ CẦN ĐÓNG:</td>
+                                    <td class="text-center text-danger">@tongTinChi</td>
+                                    <td></td>
+                                    <td class="text-end text-danger">@string.Format("{0:N0}", tongTien) VNĐ</td>
+                                    <td></td>
+                                </tr>
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="7" class="text-center py-5 text-success fw-bold fs-5">
+                                        <i class="fas fa-laugh-beam fa-2x mb-2"></i><br />
+                                         Bạn không có khoản công nợ nào cần thanh toán.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 2: LỊCH SỬ GIAO DỊCH ================= -->
+        <div class="tab-pane fade" id="lichsu" role="tabpanel">
+            <div class="card shadow-sm border-0 border-start border-4 border-success">
+                <div class="card-body p-0">
+                    <table class="table table-hover table-bordered mb-0 align-middle">
+                        <thead class="table-success text-dark">
+                            <tr>
+                                <th class="text-center">STT</th>
+                                <th class="text-center">Mã Lớp HP</th>
+                                <th>Môn Học</th>
+                                <th class="text-end">Số Tiền Đã Nộp</th>
+                                <th class="text-center">Trạng Thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (lichSuGiaoDich != null && lichSuGiaoDich.Count > 0)
+                            {
+                                int stt = 1;
+                                double tongDaNop = 0;
+
+                                foreach (var item in lichSuGiaoDich)
+                                {
+                                    tongDaNop += item.ThanhTien;
+                                    <tr>
+                                        <td class="text-center fw-bold">@(stt++)</td>
+                                        <td class="text-center fw-bold text-primary">@item.MaLopHP</td>
+                                        <td class="fw-bold text-secondary">@item.TenMon</td>
+                                        <td class="text-end fw-bold">@string.Format("{0:N0}", item.ThanhTien) đ</td>
+                                        <td class="text-center">
+                                            <span class="badge bg-success"><i class="fas fa-check"></i> Đã thanh toán</span>
+                                        </td>
+                                    </tr>
+                                }
+                                <tr class="table-light fw-bold fs-5">
+                                    <td colspan="3" class="text-end text-success">TỔNG HỌC PHÍ ĐÃ NỘP:</td>
+                                    <td class="text-end text-success">@string.Format("{0:N0}", tongDaNop) VNĐ</td>
+                                    <td></td>
+                                </tr>
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">
+                                        Bạn chưa thực hiện giao dịch thanh toán nào!
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

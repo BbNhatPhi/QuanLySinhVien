@@ -1,0 +1,84 @@
+﻿@model List<StudentManagementSystem.Models.DanhGiaItem>
+@{ ViewBag.Title = "Khảo Sát Đánh Giá Giảng Viên"; }
+
+<div class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0"><i class="fas fa-poll text-primary"></i> Khảo Sát Ý Kiến Sinh Viên Về Giảng Viên</h2>
+        <a href="@Url.Action("XemDiem", "Student")" class="btn btn-outline-primary fw-bold">
+            <i class="fas fa-arrow-right"></i> Đến Trang Xem Điểm
+        </a>
+    </div>
+
+    @if (TempData["WarningMsg"] != null)
+    {
+        <div class="alert alert-warning fw-bold shadow-sm border-2 border-warning">
+            <i class="fas fa-lock"></i> @TempData["WarningMsg"]
+        </div>
+    }
+    @if (TempData["SuccessMsg"] != null)
+    {
+        <div class="alert alert-success fw-bold shadow-sm">
+            <i class="fas fa-check-circle"></i> @TempData["SuccessMsg"]
+        </div>
+    }
+
+    <div class="row">
+        @if (Model != null && Model.Count > 0)
+        {
+            foreach (var item in Model)
+            {
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm border-0 h-100 border-top border-4 @(item.DaDanhGia ? "border-success" : "border-danger")">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title fw-bold text-primary mb-0">@item.TenMon</h5>
+                                @if (item.DaDanhGia)
+                                {
+                                    <span class="badge bg-success"><i class="fas fa-check"></i> Đã đánh giá</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger"><i class="fas fa-exclamation-triangle"></i> Chưa đánh giá</span>
+                                }
+                            </div>
+                            <p class="text-muted mb-1">Mã LHP: <strong>@item.MaLopHP</strong></p>
+                            <p class="text-muted mb-3"><i class="fas fa-user-tie text-secondary"></i> Giảng viên: <strong class="text-dark">@item.TenGV</strong></p>
+
+                            <hr />
+
+                            <form action="@Url.Action("LuuDanhGia", "Student")" method="post">
+                                <input type="hidden" name="maLopHP" value="@item.MaLopHP" />
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold small">Mức độ hài lòng về chất lượng giảng dạy:</label>
+                                    <select name="diemDanhGia" class="form-select border-primary" required>
+                                        <option value="5" @(item.DiemDanhGia == 5 ? "selected" : "")>⭐⭐⭐⭐⭐ Rất Hài Lòng (5 sao)</option>
+                                        <option value="4" @(item.DiemDanhGia == 4 ? "selected" : "")>⭐⭐⭐⭐ Hài Lòng (4 sao)</option>
+                                        <option value="3" @(item.DiemDanhGia == 3 ? "selected" : "")>⭐⭐⭐ Bình Thường (3 sao)</option>
+                                        <option value="2" @(item.DiemDanhGia == 2 ? "selected" : "")>⭐⭐ Chưa Hài Lòng (2 sao)</option>
+                                        <option value="1" @(item.DiemDanhGia == 1 ? "selected" : "")>⭐ Rất Không Hài Lòng (1 sao)</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold small">Ý kiến đóng góp / Góp ý:</label>
+                                    <textarea name="nhanXet" class="form-control" rows="2" placeholder="Nhập nhận xét về phương pháp giảng dạy, thái độ phục vụ...">@item.NhanXet</textarea>
+                                </div>
+
+                                <button type="submit" class="btn @(item.DaDanhGia ? "btn-outline-success" : "btn-primary") w-100 fw-bold">
+                                    <i class="fas fa-paper-plane"></i> @(item.DaDanhGia ? "Cập Nhật Lại Đánh Giá" : "Gửi Phiếu Đánh Giá")
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12">
+                <div class="alert alert-secondary text-center py-4">Bạn chưa đăng ký môn học nào trong kỳ này để thực hiện khảo sát.</div>
+            </div>
+        }
+    </div>
+</div>

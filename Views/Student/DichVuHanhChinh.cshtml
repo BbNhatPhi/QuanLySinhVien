@@ -1,0 +1,98 @@
+﻿@model List<StudentManagementSystem.Models.YeuCauHanhChinh>
+@{ ViewBag.Title = "Dịch Vụ Hành Chính Một Cửa"; }
+
+<div class="container mt-4 mb-5">
+    <h2 class="mb-4"><i class="fas fa-university text-primary"></i> Dịch Vụ Hành Chính "Một Cửa"</h2>
+
+    @if (TempData["SuccessMsg"] != null)
+    {
+        <div class="alert alert-success fw-bold shadow-sm"><i class="fas fa-check-circle"></i> @TempData["SuccessMsg"]</div>
+    }
+
+    <div class="row">
+        <!-- Form Gửi Yêu Cầu -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white fw-bold">
+                    <i class="fas fa-paper-plane"></i> Gửi Yêu Cầu Mới
+                </div>
+                <div class="card-body">
+                    <form action="@Url.Action("GuiYeuCau", "Student")" method="post">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Loại Dịch Vụ</label>
+                            <select name="loaiDichVu" class="form-select border-primary" required>
+                                <option value="">-- Chọn loại giấy tờ/yêu cầu --</option>
+                                <option value="Cấp bản sao Bảng điểm">Cấp bản sao Bảng điểm</option>
+                                <option value="Giấy xác nhận Sinh viên">Giấy xác nhận Sinh viên (Vay vốn, Tạm hoãn NVQS)</option>
+                                <option value="Đơn xin cấp lại Thẻ SV">Đơn xin cấp lại Thẻ SV</option>
+                                <option value="Đơn xin bảo lưu học tập">Đơn xin bảo lưu học tập</option>
+                                <option value="Khác">Yêu cầu khác...</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Mô tả chi tiết / Lý do</label>
+                            <textarea name="lyDo" class="form-control" rows="4" required placeholder="Ghi rõ số lượng bản sao cần cấp, mục đích sử dụng, hoặc lý do bảo lưu..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 fw-bold shadow-sm">
+                            Gửi Yêu Cầu
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bảng Theo Dõi Trạng Thái -->
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-dark text-white fw-bold">
+                    <i class="fas fa-tasks"></i> Tình Trạng Xử Lý Hồ Sơ
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover table-bordered mb-0 align-middle">
+                        <thead class="table-light text-center">
+                            <tr>
+                                <th width="10%">Mã YC</th>
+                                <th width="35%">Loại Dịch Vụ</th>
+                                <th width="25%">Ngày Gửi</th>
+                                <th width="30%">Trạng Thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Count > 0)
+                            {
+                                foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td class="text-center fw-bold text-secondary">#@item.MaYeuCau</td>
+                                        <td class="fw-bold text-primary">@item.LoaiDichVu</td>
+                                        <td class="text-center">@item.NgayGui.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td class="text-center">
+                                            @if (item.TrangThai == "Chờ xử lý")
+                                            {
+                                                <span class="badge bg-warning text-dark px-3 py-2"><i class="fas fa-hourglass-half"></i> Đang chờ xử lý</span>
+                                            }
+                                            else if (item.TrangThai == "Đã hoàn thành")
+                                            {
+                                                <span class="badge bg-success px-3 py-2"><i class="fas fa-check"></i> Đã hoàn thành</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger px-3 py-2">@item.TrangThai</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">Bạn chưa gửi yêu cầu hành chính nào!</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

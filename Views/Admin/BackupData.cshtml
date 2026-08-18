@@ -1,0 +1,47 @@
+﻿@{ ViewBag.Title = "Sao Lưu Dữ Liệu"; }
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h2 class="mb-4"><i class="fas fa-database text-primary"></i> Sao Lưu Hệ Thống</h2>
+
+            @if (TempData["SuccessMsg"] != null)
+            {
+                <div class="alert alert-success fw-bold text-start"><i class="fas fa-check-circle"></i> @TempData["SuccessMsg"]</div>
+            }
+            @if (TempData["ErrorMsg"] != null)
+            {
+                <div class="alert alert-danger fw-bold text-start"><i class="fas fa-exclamation-triangle"></i> @TempData["ErrorMsg"]</div>
+            }
+
+            <div class="card shadow border-0 mt-3">
+                <div class="card-body py-5 bg-light">
+                    <i class="fas fa-server text-secondary mb-3" style="font-size: 4rem;"></i>
+                    <h4 class="card-title fw-bold">Tạo Bản Sao Lưu (Backup)</h4>
+                    <p class="card-text text-muted mb-4">
+                        Việc sao lưu sẽ tạo ra một bản copy toàn bộ dữ liệu hiện tại của hệ thống (Sinh viên, Điểm số, Lịch học, Tài khoản...)
+                        và lưu vào ổ cứng máy chủ. Khuyến nghị thực hiện việc này định kỳ mỗi tuần.
+                    </p>
+
+                    <form action="@Url.Action("ExecuteBackup", "Admin")" method="post" onsubmit="return showLoading();">
+                        <button type="submit" class="btn btn-primary btn-lg fw-bold shadow-sm" id="btnBackup">
+                            <i class="fas fa-cloud-download-alt"></i> Tiến Hành Sao Lưu Ngay
+                        </button>
+                    </form>
+
+                    <div id="loadingDiv" class="mt-3 text-primary fw-bold" style="display:none;">
+                        <i class="fas fa-spinner fa-spin fs-5"></i> Đang nén dữ liệu, vui lòng đợi trong giây lát...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showLoading() {
+        document.getElementById('btnBackup').disabled = true;
+        document.getElementById('loadingDiv').style.display = 'block';
+        return true;
+    }
+</script>

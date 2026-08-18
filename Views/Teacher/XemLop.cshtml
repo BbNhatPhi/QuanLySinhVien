@@ -1,0 +1,45 @@
+﻿@model IEnumerable<StudentManagementSystem.Models.LichDay>
+@{
+    // Xóa dòng ViewBag.Title gán cứng ở đây để nó có thể nhận giá trị động từ Controller truyền sang
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Tiêu đề sẽ tự động thay đổi dựa vào việc bạn bấm menu nào -->
+<h2 class="mb-4">
+    <i class="fas fa-users text-primary"></i>
+    @(ViewBag.Title != null ? ViewBag.Title : "Các Lớp Đang Phụ Trách")
+</h2>
+
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm border-start border-4 border-primary">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">@item.MaLopHP</h5>
+                    <p class="card-text mb-1"><i class="fas fa-book"></i> Môn: @item.TenMon</p>
+                    <p class="card-text"><i class="fas fa-map-marker-alt"></i> Phòng: @item.PhongHoc</p>
+                    <div class="d-flex justify-content-between mt-3">
+
+                        <!-- Logic ẩn/hiện nút tự động -->
+                        @if (ViewBag.ChucNang == "DiemDanh" || ViewBag.ChucNang == null)
+                        {
+                            <a href="@Url.Action("DanhSachSinhVien", "Teacher", new { maLopTC = item.MaLopHP })" class="btn btn-outline-primary btn-sm"><i class="fas fa-list"></i> Điểm danh</a>
+                        }
+
+                        @if (ViewBag.ChucNang == "NhapDiem" || ViewBag.ChucNang == null)
+                        {
+                            <a href="@Url.Action("NhapDiem", "Teacher", new { maLopTC = item.MaLopHP })" class="btn btn-outline-warning btn-sm"><i class="fas fa-edit"></i> Nhập điểm</a>
+                        }
+
+                        @if (ViewBag.ChucNang == "InDiem" || ViewBag.ChucNang == null)
+                        {
+                            <a href="@Url.Action("InBangDiem", "Teacher", new { maLopTC = item.MaLopHP })" target="_blank" class="btn btn-outline-success btn-sm"><i class="fas fa-print"></i> In điểm</a>
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

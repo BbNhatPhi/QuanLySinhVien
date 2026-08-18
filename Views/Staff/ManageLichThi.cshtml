@@ -1,0 +1,263 @@
+﻿@model List<StudentManagementSystem.Models.LichThi>
+@{
+    ViewBag.Title = "Quản Lý Lịch Thi";
+    var dsLop = ViewBag.DsLopHP as List<StudentManagementSystem.Models.LopHocPhan>;
+}
+
+<div class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0"><i class="fas fa-calendar-check text-primary"></i> Quản Lý Lịch Thi</h2>
+        <button type="button" class="btn btn-success fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addLichThiModal">
+            <i class="fas fa-plus"></i> Lên Lịch Thi Mới
+        </button>
+    </div>
+
+    @if (TempData["SuccessMsg"] != null)
+    {
+        <div class="alert alert-success fw-bold shadow-sm"><i class="fas fa-check-circle"></i> @TempData["SuccessMsg"]</div>
+    }
+    @if (TempData["ErrorMsg"] != null)
+    {
+        <div class="alert alert-danger fw-bold shadow-sm"><i class="fas fa-exclamation-triangle"></i> @TempData["ErrorMsg"]</div>
+    }
+
+    <!-- Bảng danh sách lịch thi đã lên -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <table class="table table-hover table-bordered mb-0 align-middle">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th width="5%">STT</th>
+                        <th width="15%">Mã Lớp HP</th>
+                        <th>Môn Học</th>
+                        <th width="15%">Ngày Thi</th>
+                        <th width="15%">Ca Thi</th>
+                        <th width="15%">Phòng Thi</th>
+                        <th width="15%">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Count > 0)
+                    {
+                        int stt = 1;
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="text-center fw-bold">@(stt++)</td>
+                                <td class="text-center fw-bold text-primary">@item.MaLopHP</td>
+                                <td class="fw-bold">@item.TenMon</td>
+                                <td class="text-center text-danger fw-bold">@item.NgayThi.ToString("dd/MM/yyyy")</td>
+                                <td class="text-center">Ca @item.CaThi</td>
+                                <td class="text-center fw-bold text-success">@item.PhongThi</td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <!-- Nút Sửa gắn data để load Modal -->
+                                        <button type="button" class="btn btn-sm btn-outline-warning fw-bold edit-lichthi-btn shadow-sm"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editLichThiModal"
+                                                data-malophp="@item.MaLopHP"
+                                                data-ngaythiiso="@item.NgayThi.ToString("yyyy-MM-dd")"
+                                                data-cathi="@item.CaThi"
+                                                data-phongthi="@item.PhongThi">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+
+                                        <!-- Nút Xóa có xác nhận -->
+                                        <form action="@Url.Action("DeleteLichThi", "Staff")" method="post" onsubmit="return confirm('Hủy bỏ lịch thi của Lớp học phần @item.MaLopHP?');">
+                                            <input type="hidden" name="maLopHP" value="@item.MaLopHP" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger fw-bold shadow-sm">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">Chưa có lịch thi nào được hệ thống ghi nhận!</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- 1. MODAL THÊM LỊCH THI MỚI -->
+<!-- ========================================== -->
+<div class="modal fade" id="addLichThiModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form action="@Url.Action("AddLichThi", "Staff")" method="post">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-calendar-plus"></i> Sắp Xếp Lịch Thi</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Chọn Lớp Học Phần</label>
+                        <select name="maLopHP" class="form-select border-primary" required>
+                            <option value="">-- Vui lòng chọn lớp học phần --</option>
+                            @if (dsLop != null)
+                            {
+                                foreach (var lop in dsLop)
+                                {
+                                    <option value="@lop.MaLopHP">@lop.MaLopHP - @lop.TenMon</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-bold">Ngày Thi</label>
+                            <input type="date" name="ngayThi" id="addNgayThi" class="form-control" required />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-bold">Ca Thi</label>
+                            <select name="caThi" id="addCaThi" class="form-select" required>
+                                <option value="">-- Chọn Ca --</option>
+                                <option value="1">Ca 1 (07:00 - 09:00)</option>
+                                <option value="2">Ca 2 (09:30 - 11:30)</option>
+                                <option value="3">Ca 3 (13:00 - 15:00)</option>
+                                <option value="4">Ca 4 (15:30 - 17:30)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-bold text-success">Phòng Trống (Tự động)</label>
+                            <select name="phongThi" id="addPhongThiSelect" class="form-select border-success" required>
+                                <option value="">-- Chọn Ngày & Ca trước --</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary fw-bold"><i class="fas fa-save"></i> Lưu Lịch Thi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- 2. MODAL SỬA LỊCH THI -->
+<!-- ========================================== -->
+<div class="modal fade" id="editLichThiModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form action="@Url.Action("EditLichThi", "Staff")" method="post">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-edit"></i> Cập Nhật Lịch Thi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mã Lớp HP (Cố định)</label>
+                        <input type="text" name="maLopHP" id="editMaLopHP" class="form-control bg-light" readonly />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-bold">Ngày Thi</label>
+                            <input type="date" name="ngayThi" id="editNgayThi" class="form-control border-warning" required />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-bold">Ca Thi</label>
+                            <select name="caThi" id="editCaThi" class="form-select border-warning" required>
+                                <option value="1">Ca 1 (07:00 - 09:00)</option>
+                                <option value="2">Ca 2 (09:30 - 11:30)</option>
+                                <option value="3">Ca 3 (13:00 - 15:00)</option>
+                                <option value="4">Ca 4 (15:30 - 17:30)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-bold text-success">Phòng Thi</label>
+                            <select name="phongThi" id="editPhongThiSelect" class="form-select border-warning" required>
+                                <!-- JS sẽ nạp phòng hiện tại vào đây -->
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-warning fw-bold"><i class="fas fa-save"></i> Lưu Thay Đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- SCRIPT XỬ LÝ AJAX TÌM PHÒNG TRỐNG -->
+<!-- ========================================== -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+
+        // --- 1. AJAX TÌM PHÒNG CHO MODAL THÊM ---
+        $('#addNgayThi, #addCaThi').on('change', function () {
+            var ngay = $('#addNgayThi').val();
+            var ca = $('#addCaThi').val();
+            var phongSelect = $('#addPhongThiSelect');
+
+            if (ngay && ca) {
+                phongSelect.html('<option value="">Đang tìm phòng...</option>');
+                $.ajax({
+                    url: '@Url.Action("GetPhongTrong", "Staff")',
+                    type: 'GET',
+                    data: { ngayThi: ngay, caThi: ca },
+                    success: function (data) {
+                        phongSelect.empty();
+                        if (data.length > 0) {
+                            phongSelect.append('<option value="">-- Chọn phòng trống --</option>');
+                            $.each(data, function (index, item) {
+                                phongSelect.append('<option value="' + item.MaPhong + '">' + item.MaPhong + ' (' + item.SucChua + ' chỗ)</option>');
+                            });
+                        } else {
+                            phongSelect.append('<option value="">Hết phòng trống!</option>');
+                        }
+                    }
+                });
+            }
+        });
+
+        // --- 2. GẮN DỮ LIỆU VÀO MODAL SỬA ---
+        $('.edit-lichthi-btn').on('click', function () {
+            $('#editMaLopHP').val($(this).data('malophp'));
+            $('#editNgayThi').val($(this).data('ngaythiiso'));
+            $('#editCaThi').val($(this).data('cathi'));
+
+            // Nạp phòng cũ vào Select
+            var phongHienTai = $(this).data('phongthi');
+            $('#editPhongThiSelect').html('<option value="' + phongHienTai + '" selected>' + phongHienTai + ' (Giữ nguyên)</option>');
+        });
+
+        // --- 3. AJAX TÌM PHÒNG CHO MODAL SỬA (KHI ĐỔI NGÀY/CA) ---
+        $('#editNgayThi, #editCaThi').on('change', function () {
+            var ngay = $('#editNgayThi').val();
+            var ca = $('#editCaThi').val();
+            var phongSelect = $('#editPhongThiSelect');
+
+            if (ngay && ca) {
+                phongSelect.html('<option value="">Đang tìm phòng...</option>');
+                $.ajax({
+                    url: '@Url.Action("GetPhongTrong", "Staff")',
+                    type: 'GET',
+                    data: { ngayThi: ngay, caThi: ca },
+                    success: function (data) {
+                        phongSelect.empty();
+                        if (data.length > 0) {
+                            phongSelect.append('<option value="">-- Chọn phòng mới --</option>');
+                            $.each(data, function (index, item) {
+                                phongSelect.append('<option value="' + item.MaPhong + '">' + item.MaPhong + ' (' + item.SucChua + ' chỗ)</option>');
+                            });
+                        } else {
+                            phongSelect.append('<option value="">Hết phòng trống!</option>');
+                        }
+                    }
+                });
+            }
+        });
+    });
+</script>

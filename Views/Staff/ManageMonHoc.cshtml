@@ -1,0 +1,153 @@
+﻿@model List<StudentManagementSystem.Models.MonHoc>
+@{
+    ViewBag.Title = "Quản lý Môn Học";
+}
+
+<div class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0"><i class="fas fa-book-open text-primary"></i> Quản Lý Môn Học</h2>
+        <button type="button" class="btn btn-success fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addMonHocModal">
+            <i class="fas fa-plus"></i> Thêm Môn Mới
+        </button>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success fw-bold shadow-sm"><i class="fas fa-check-circle"></i> @TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger fw-bold shadow-sm"><i class="fas fa-exclamation-triangle"></i> @TempData["Error"]</div>
+    }
+
+    <!-- Bảng danh sách môn học -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <table class="table table-hover table-bordered mb-0 align-middle">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th width="5%">STT</th>
+                        <th width="15%">Mã Môn</th>
+                        <th>Tên Môn Học</th>
+                        <th width="15%">Số Tín Chỉ</th>
+                        <th width="15%">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Count > 0)
+                    {
+                        int stt = 1;
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="text-center fw-bold">@(stt++)</td>
+                                <td class="text-center fw-bold text-primary">@item.MaMon</td>
+                                <td class="fw-bold">@item.TenMon</td>
+                                <td class="text-center fw-bold text-danger">@item.SoTinChi</td>
+                                <td class="text-center">
+                                    <!-- NÚT SỬA -->
+                                    <button type="button" class="btn btn-sm btn-outline-warning fw-bold edit-monhoc-btn shadow-sm"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editMonHocModal"
+                                            data-mamon="@item.MaMon"
+                                            data-tenmon="@item.TenMon"
+                                            data-sotinchi="@item.SoTinChi">
+                                        <i class="fas fa-edit"></i> Sửa
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">Chưa có môn học nào trong hệ thống!</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL THÊM MÔN HỌC -->
+<!-- ========================================== -->
+<div class="modal fade" id="addMonHocModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="@Url.Action("CreateMonHoc", "Staff")" method="post">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-plus-circle"></i> Thêm Môn Học Mới</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mã Môn Học</label>
+                        <input type="text" name="maMon" class="form-control border-primary" placeholder="Ví dụ: CSE101" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tên Môn Học</label>
+                        <input type="text" name="tenMon" class="form-control border-primary" placeholder="Ví dụ: Nhập môn Lập trình" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Số Tín Chỉ</label>
+                        <input type="number" name="soTinChi" class="form-control border-primary" min="1" max="10" value="3" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary fw-bold"><i class="fas fa-save"></i> Lưu Môn Học</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL SỬA MÔN HỌC (MỚI THÊM) -->
+<!-- ========================================== -->
+<div class="modal fade" id="editMonHocModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="@Url.Action("EditMonHoc", "Staff")" method="post">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-edit"></i> Cập Nhật Môn Học</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mã Môn Học (Không được sửa):</label>
+                        <input type="text" name="maMon" id="editMaMon" class="form-control bg-light text-secondary" readonly />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tên Môn Học:</label>
+                        <input type="text" name="tenMon" id="editTenMon" class="form-control border-warning" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Số Tín Chỉ:</label>
+                        <input type="number" name="soTinChi" id="editSoTinChi" class="form-control border-warning" min="1" max="10" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy bỏ</button>
+                    <button type="submit" class="btn btn-warning fw-bold"><i class="fas fa-save"></i> Lưu Thay Đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- SCRIPT ĐIỀN DỮ LIỆU TỰ ĐỘNG VÀO FORM SỬA -->
+<!-- ========================================== -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.edit-monhoc-btn').on('click', function () {
+            $('#editMaMon').val($(this).data('mamon'));
+            $('#editTenMon').val($(this).data('tenmon'));
+            $('#editSoTinChi').val($(this).data('sotinchi'));
+        });
+    });
+</script>

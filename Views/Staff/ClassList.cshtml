@@ -1,0 +1,194 @@
+﻿@model List<StudentManagementSystem.Models.LopDanhNghia>
+@{
+    ViewBag.Title = "Quản lý Lớp";
+}
+
+<div class="container mt-4 mb-5">
+    <h2 class="mb-4"><i class="fas fa-users text-primary"></i> Quản lý Lớp Danh Nghĩa</h2>
+
+    <!-- Nút mở Form Thêm -->
+    <button type="button" class="btn btn-success fw-bold shadow-sm mb-3" data-bs-toggle="modal" data-bs-target="#addClassModal">
+        <i class="fas fa-plus"></i> Thêm Lớp Mới
+    </button>
+
+    <!-- Hiển thị thông báo (nếu có) -->
+    @if (TempData["SuccessMsg"] != null)
+    {
+        <div class="alert alert-success fw-bold shadow-sm"><i class="fas fa-check-circle"></i> @TempData["SuccessMsg"]</div>
+    }
+    @if (TempData["ErrorMsg"] != null)
+    {
+        <div class="alert alert-danger fw-bold shadow-sm"><i class="fas fa-exclamation-triangle"></i> @TempData["ErrorMsg"]</div>
+    }
+
+    <!-- Bảng danh sách lớp -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <table class="table table-bordered table-hover mb-0 align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="text-center">Mã Lớp</th>
+                        <th>Tên Lớp</th>
+                        <th>Chuyên Ngành</th>
+                        <th class="text-center">Khóa Học</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Count > 0)
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="text-center fw-bold text-primary">@item.MaLop</td>
+                                <td class="fw-bold">@item.TenLop</td>
+                                <td>@item.TenNganh</td>
+                                <td class="text-center"><span class="badge bg-info text-dark">@item.KhoaHoc</span></td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <!-- NÚT SỬA ĐÃ ĐƯỢC GẮN DỮ LIỆU -->
+                                        <button type="button" class="btn btn-sm btn-outline-warning fw-bold edit-lop-btn"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editLopModal"
+                                                data-id="@item.MaLop"
+                                                data-ten="@item.TenLop"
+                                                data-nganhid="@item.NganhID"
+                                                data-khoahoc="@item.KhoaHoc">
+                                            <i class="fas fa-edit"></i> Sửa
+                                        </button>
+
+                                        <!-- NÚT XÓA ĐÃ ĐƯỢC THÊM VÀO -->
+                                        <form action="@Url.Action("DeleteLop", "Staff")" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa lớp @item.MaLop này không? Hành động này không thể hoàn tác!');">
+                                            <input type="hidden" name="maLop" value="@item.MaLop" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger fw-bold shadow-sm">
+                                                <i class="fas fa-trash-alt"></i> Xóa
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">Chưa có dữ liệu lớp học.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- Modal Form Thêm Lớp -->
+<!-- ========================================== -->
+<div class="modal fade" id="addClassModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="@Url.Action("AddClass", "Staff")" method="post">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-plus-circle"></i> Thêm Lớp Danh Nghĩa Mới</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mã Lớp</label>
+                        <input type="text" name="MaLop" class="form-control border-dark" placeholder="Ví dụ: 23DTH1" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tên Lớp</label>
+                        <input type="text" name="TenLop" class="form-control border-dark" placeholder="Ví dụ: Lớp Kỹ thuật PM K23" required />
+                    </div>
+
+                    <!-- Ô NHẬP ID NGÀNH ĐÃ ĐƯỢC THAY BẰNG DROP-DOWN CHỌN TÊN NGÀNH -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Thuộc Ngành</label>
+                        <select name="NganhID" class="form-select border-dark" required>
+                            <option value="">-- Chọn ngành học --</option>
+                            @if (ViewBag.ListNganh != null)
+                            {
+                                foreach (var nganh in ViewBag.ListNganh)
+                                {
+                                    <option value="@nganh.NganhID">@nganh.TenNganh</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Khóa Học</label>
+                        <input type="text" name="KhoaHoc" class="form-control border-dark" placeholder="Ví dụ: K23" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-success fw-bold"><i class="fas fa-save"></i> Lưu Thông Tin</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- Modal Form Sửa Lớp -->
+<!-- ========================================== -->
+<div class="modal fade" id="editLopModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="@Url.Action("EditLop", "Staff")" method="post">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-edit"></i> Cập Nhật Lớp Danh Nghĩa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mã Lớp (Không được sửa):</label>
+                        <input type="text" name="maLop" id="editMaLop" class="form-control bg-light text-secondary" readonly />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tên Lớp:</label>
+                        <input type="text" name="tenLop" id="editTenLop" class="form-control border-warning" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Thuộc Ngành:</label>
+                        <select name="nganhId" id="editNganhId" class="form-select border-warning" required>
+                            <option value="">-- Chọn Ngành --</option>
+                            @if (ViewBag.ListNganh != null)
+                            {
+                                foreach (var nganh in ViewBag.ListNganh)
+                                {
+                                    <option value="@nganh.NganhID">@nganh.TenNganh</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Khóa Học:</label>
+                        <input type="text" name="khoaHoc" id="editKhoaHoc" class="form-control border-warning" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy bỏ</button>
+                    <button type="submit" class="btn btn-warning fw-bold"><i class="fas fa-save"></i> Lưu Thay Đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- SCRIPT ĐIỀN DỮ LIỆU TỰ ĐỘNG VÀO FORM SỬA -->
+<!-- ========================================== -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.edit-lop-btn').on('click', function () {
+            $('#editMaLop').val($(this).data('id'));
+            $('#editTenLop').val($(this).data('ten'));
+            $('#editNganhId').val($(this).data('nganhid'));
+            $('#editKhoaHoc').val($(this).data('khoahoc'));
+        });
+    });
+</script>

@@ -1,0 +1,149 @@
+﻿@model IEnumerable<StudentManagementSystem.Models.SinhVien>
+@{
+    ViewBag.Title = "Quản lý Hồ sơ Sinh viên";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-user-graduate text-primary"></i> Quản lý Hồ sơ Sinh viên</h2>
+    <div>
+        <!-- Nút gọi Modal Thêm Sinh Viên -->
+        <button class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#addStudentModal">
+            <i class="fas fa-plus-circle"></i> Thêm Sinh Viên
+        </button>
+        <button class="btn btn-primary"><i class="fas fa-file-excel"></i> Xuất Báo Cáo</button>
+    </div>
+</div>
+
+<!-- Vùng Hiển Thị Thông Báo -->
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success shadow-sm"><i class="fas fa-check-circle"></i> @TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger shadow-sm"><i class="fas fa-exclamation-triangle"></i> @TempData["Error"]</div>
+}
+
+<div class="card shadow border-0">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th>Mã SV</th>
+                        <th class="text-start">Họ Tên</th>
+                        <th>Thông tin</th>
+                        <th>Ngành Học</th>
+                        <th>Trạng Thái</th>
+                        <th>Cập nhật</th>
+                        <th>Xóa</th> <!-- Thêm cột Xóa -->
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var sv in Model)
+                    {
+                        <tr>
+                            <td class="text-center fw-bold">@sv.MaSV</td>
+                            <td>
+                                <b>@sv.HoTen</b><br />
+                                <small class="text-muted"><i class="fas fa-venus-mars"></i> @sv.GioiTinh | @(sv.NgaySinh?.ToString("dd/MM/yyyy"))</small>
+                            </td>
+                            <td>
+                                <small><i class="fas fa-envelope"></i> @sv.Email</small><br />
+                                <small><i class="fas fa-phone"></i> @sv.SoDienThoai</small>
+                            </td>
+                            <td class="text-center">@sv.TenNganh</td>
+                            <td class="text-center">
+                                @if (sv.TrangThaiHocTap == "Đang học")
+                                {<span class="badge bg-success">@sv.TrangThaiHocTap</span> }
+                            else if (sv.TrangThaiHocTap == "Bảo lưu")
+                            { <span class="badge bg-warning text-dark">@sv.TrangThaiHocTap</span> }
+                        else
+                        { <span class="badge bg-danger">@sv.TrangThaiHocTap</span>}
+                            </td>
+                            <td class="text-center">
+                                <!-- Form cập nhật trạng thái nhanh -->
+                                <form action="@Url.Action("UpdateStatus", "Staff")" method="post" class="d-flex justify-content-center">
+                                    <input type="hidden" name="maSV" value="@sv.MaSV" />
+                                    <select name="trangThai" class="form-select form-select-sm w-auto d-inline-block me-1">
+                                        <option value="Đang học" @(sv.TrangThaiHocTap == "Đang học" ? "selected" : "")>Đang học</option>
+                                        <option value="Bảo lưu" @(sv.TrangThaiHocTap == "Bảo lưu" ? "selected" : "")>Bảo lưu</option>
+                                        <option value="Đình chỉ" @(sv.TrangThaiHocTap == "Đình chỉ" ? "selected" : "")>Đình chỉ</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fas fa-save"></i></button>
+                                </form>
+                            </td>
+                            <td class="text-center">
+                                <!-- Nút Xóa Sinh Viên -->
+                                <a href="@Url.Action("XoaSinhVien", "Staff", new { maSV = sv.MaSV })"
+                                   class="btn btn-sm btn-outline-danger"
+                                   onclick="return confirm('Bạn có chắc chắn muốn xóa sinh viên @sv.HoTen không? Mọi dữ liệu liên quan có thể sẽ bị mất.');">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Thêm Sinh Viên -->
+<div class="modal fade" id="addStudentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-user-plus"></i> Thêm Sinh Viên Mới</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="@Url.Action("ThemSinhVien", "Staff")" method="post">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Mã Sinh Viên <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="MaSV" required placeholder="VD: 240001" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Họ Tên <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="HoTen" required placeholder="Nhập họ tên đầy đủ" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Ngày Sinh</label>
+                            <input type="date" class="form-control" name="NgaySinh" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Giới Tính</label>
+                            <select class="form-select" name="GioiTinh">
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Email</label>
+                            <input type="email" class="form-control" name="Email" placeholder="sv@student.edu.vn" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Ngành Học</label>
+                            <!-- Tạm thời gán ID Ngành tĩnh, bạn có thể chỉnh ID cho khớp với bảng Nganh trong SQL -->
+                            <select class="form-select" name="MaNganh">
+                                <option value="1">Kỹ thuật phần mềm</option>
+                                <option value="2">Công nghệ thông tin</option>
+                                <option value="3">Quản trị kinh doanh</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy bỏ</button>
+                    <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Lưu Dữ Liệu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

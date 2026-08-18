@@ -1,0 +1,46 @@
+﻿@model List<StudentManagementSystem.Models.ThongBao>
+@{
+    ViewBag.Title = "Bảng Thông Báo";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4"><i class="fas fa-bullhorn text-danger"></i> Thông Báo Từ Nhà Trường</h2>
+
+    <div class="accordion shadow-sm" id="accordionThongBao">
+        @if (Model != null && Model.Count > 0)
+        {
+            int index = 0;
+            foreach (var item in Model)
+            {
+                string collapseId = "collapse" + item.MaTB;
+                string headingId = "heading" + item.MaTB;
+                bool isFirst = (index == 0); // Mở sẵn thông báo mới nhất
+
+                <div class="accordion-item border-0 border-bottom">
+                    <h2 class="accordion-header" id="@headingId">
+                        <button class="accordion-button @(isFirst ? "" : "collapsed") fw-bold text-primary" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="@(isFirst ? "true" : "false")" aria-controls="@collapseId">
+                            <span class="badge bg-danger me-2">Mới</span> @item.TieuDe
+                        </button>
+                    </h2>
+                    <div id="@collapseId" class="accordion-collapse collapse @(isFirst ? "show" : "")" aria-labelledby="@headingId" data-bs-parent="#accordionThongBao">
+                        <div class="accordion-body bg-light">
+                            <div class="d-flex justify-content-between mb-3 border-bottom pb-2 text-muted small">
+                                <span><i class="fas fa-user-edit"></i> Đăng bởi: <b>@item.NguoiDang</b></span>
+                                <span><i class="far fa-clock"></i> Ngày đăng: <b>@item.NgayDang.ToString("dd/MM/yyyy HH:mm")</b></span>
+                            </div>
+                            <p class="text-dark" style="white-space: pre-wrap;">@item.NoiDung</p>
+                        </div>
+                    </div>
+                </div>
+                index++;
+            }
+        }
+        else
+        {
+            <div class="alert alert-info text-center py-4">
+                <i class="fas fa-info-circle fs-4 mb-2"></i><br />
+                Hiện tại không có thông báo nào mới từ nhà trường.
+            </div>
+        }
+    </div>
+</div>

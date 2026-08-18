@@ -1,0 +1,62 @@
+﻿@model IEnumerable<StudentManagementSystem.Models.SinhVienDiem>
+@{
+    ViewBag.Title = "Nhập Điểm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-graduation-cap text-primary"></i> Bảng Điểm - Lớp: @ViewBag.MaLopTC</h2>
+    <a href="@Url.Action("Index", "Teacher")" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Quay lại lịch dạy</a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success"><i class="fas fa-check-circle"></i> @TempData["Success"]</div>
+}
+
+<div class="card shadow">
+    <div class="card-body">
+        <form action="@Url.Action("LuuDiem", "Teacher")" method="post">
+            <input type="hidden" name="MaLopTC" value="@ViewBag.MaLopTC" />
+
+            <table class="table table-bordered table-striped align-middle text-center">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Mã SV</th>
+                        <th class="text-start">Họ Tên</th>
+                        <th style="width: 15%">Điểm CC (10%)</th>
+                        <th style="width: 15%">Điểm GK (30%)</th>
+                        <th style="width: 15%">Điểm CK (60%)</th>
+                        <th style="width: 15%">Tổng Kết</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="6" class="text-muted">Chưa có sinh viên nào trong lớp này.</td></tr>
+                    }
+                    @foreach (var sv in Model)
+                    {
+                        <tr>
+                            <td>@sv.MaSV</td>
+                            <td class="text-start"><b>@sv.HoTen</b></td>
+                            <!-- Sử dụng input array để gửi mảng dữ liệu về Controller -->
+                            <input type="hidden" name="MaDiem" value="@sv.MaDiem" />
+                            <td><input type="number" step="0.1" min="0" max="10" name="DiemCC" value="@sv.DiemCC" class="form-control text-center" /></td>
+                            <td><input type="number" step="0.1" min="0" max="10" name="DiemGK" value="@sv.DiemGK" class="form-control text-center" /></td>
+                            <td><input type="number" step="0.1" min="0" max="10" name="DiemCK" value="@sv.DiemCK" class="form-control text-center" /></td>
+                            <td><span class="badge bg-primary fs-6">@sv.DiemTong</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @if (Model.Any())
+            {
+                <div class="text-end mt-3">
+                    <button type="submit" class="btn btn-success px-5"><i class="fas fa-save"></i> LƯU ĐIỂM TOÀN LỚP</button>
+                </div>
+            }
+        </form>
+    </div>
+</div>

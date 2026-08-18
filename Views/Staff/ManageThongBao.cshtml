@@ -1,0 +1,90 @@
+﻿@model List<StudentManagementSystem.Models.ThongBao>
+@{ ViewBag.Title = "Quản Lý Thông Báo"; }
+
+<div class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0"><i class="fas fa-bullhorn text-warning"></i> Bảng Tin Thông Báo</h2>
+        <button type="button" class="btn btn-success fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addThongBaoModal">
+            <i class="fas fa-plus"></i> Đăng Thông Báo Mới
+        </button>
+    </div>
+
+    @if (TempData["SuccessMsg"] != null)
+    {
+        <div class="alert alert-success fw-bold shadow-sm"><i class="fas fa-check-circle"></i> @TempData["SuccessMsg"]</div>
+    }
+    @if (TempData["ErrorMsg"] != null)
+    {
+        <div class="alert alert-danger fw-bold shadow-sm"><i class="fas fa-exclamation-triangle"></i> @TempData["ErrorMsg"]</div>
+    }
+
+    <!-- Hiển thị danh sách thông báo đã đăng -->
+    <div class="row">
+        @if (Model != null && Model.Count > 0)
+        {
+            foreach (var item in Model)
+            {
+                <div class="col-md-12 mb-3">
+                    <div class="card shadow-sm border-0 border-start border-4 border-warning">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <h5 class="card-title text-primary fw-bold mb-1">@item.TieuDe</h5>
+                                <span class="badge bg-secondary h-100">Đến: @item.DoiTuong</span>
+                            </div>
+                            <p class="text-muted small mb-2">
+                                <i class="fas fa-clock"></i> @item.NgayDang.ToString("dd/MM/yyyy HH:mm") |
+                                <i class="fas fa-user-edit"></i> Đăng bởi: @item.NguoiDang
+                            </p>
+                            <p class="card-text text-dark" style="white-space: pre-wrap;">@item.NoiDung</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12">
+                <div class="alert alert-secondary text-center py-4">Chưa có thông báo nào được đăng trên hệ thống.</div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Modal Đăng Thông Báo Mới -->
+<div class="modal fade" id="addThongBaoModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form action="@Url.Action("AddThongBao", "Staff")" method="post">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-pen-alt"></i> Soạn Thông Báo Mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tiêu đề thông báo</label>
+                        <input type="text" name="tieuDe" class="form-control fw-bold text-primary" required placeholder="Nhập tiêu đề thật ngắn gọn và nổi bật..." />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Đối tượng nhận thông báo</label>
+                        <select name="doiTuong" class="form-select" required>
+                            <option value="All">Tất cả mọi người (Sinh viên & Giảng viên)</option>
+                            <option value="SinhVien">Chỉ dành cho Sinh Viên</option>
+                            <option value="GiangVien">Chỉ dành cho Giảng Viên</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nội dung chi tiết</label>
+                        <!-- Dùng textarea hỗ trợ xuống dòng -->
+                        <textarea name="noiDung" class="form-control" rows="6" required placeholder="Soạn nội dung chi tiết tại đây..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-success fw-bold"><i class="fas fa-paper-plane"></i> Xuất Bản Thông Báo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

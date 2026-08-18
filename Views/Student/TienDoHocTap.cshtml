@@ -1,0 +1,72 @@
+﻿@model StudentManagementSystem.Models.TienDoHocTap
+@{
+    ViewBag.Title = "Tiến Độ Học Tập";
+    // Tính phần trăm hoàn thành chương trình
+    double phanTramHoanThanh = 0;
+    if (Model.TongTinChiYeuCau > 0)
+    {
+        phanTramHoanThanh = Math.Round((double)Model.TinChiTichLuy / Model.TongTinChiYeuCau * 100, 1);
+    }
+}
+
+<div class="container mt-4 mb-5">
+    <h2 class="mb-4"><i class="fas fa-chart-line text-primary"></i> Tổng Quan Tiến Độ & Xét Tốt Nghiệp</h2>
+
+    <div class="row">
+        <!-- Biểu đồ Thanh tiến độ tín chỉ -->
+        <div class="col-md-12 mb-4">
+            <div class="card shadow-sm border-0 border-start border-4 border-primary">
+                <div class="card-body">
+                    <h5 class="fw-bold text-secondary mb-3">Tín chỉ tích lũy: @Model.TinChiTichLuy / @Model.TongTinChiYeuCau TC</h5>
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary fw-bold fs-6"
+                             role="progressbar"
+                             style="width: @phanTramHoanThanh%;"
+                             aria-valuenow="@phanTramHoanThanh" aria-valuemin="0" aria-valuemax="100">
+                            @phanTramHoanThanh%
+                        </div>
+                    </div>
+                    <p class="text-muted mt-2 mb-0 small"><i class="fas fa-info-circle"></i> Tiến độ hoàn thành chương trình đào tạo hiện tại của bạn.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4 Khối Chỉ Số Thuận (Cards) -->
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 bg-success text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-star fa-3x mb-2 opacity-50"></i>
+                    <h2 class="fw-bold mb-0">@Model.GPA_He4.ToString("0.00")</h2>
+                    <p class="mb-0 fw-bold">GPA Hệ 4</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 bg-info text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-award fa-3x mb-2 opacity-50"></i>
+                    <h2 class="fw-bold mb-0">@Model.GPA_He10.ToString("0.00")</h2>
+                    <p class="mb-0 fw-bold">Điểm TB Hệ 10</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 bg-warning text-dark h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-book-open fa-3x mb-2 opacity-50"></i>
+                    <h2 class="fw-bold mb-0">@Model.TongTinChiDaHoc</h2>
+                    <p class="mb-0 fw-bold">TC Đã Đăng Ký</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 bg-danger text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-exclamation-triangle fa-3x mb-2 opacity-50"></i>
+                    <h2 class="fw-bold mb-0">@Model.SoMonNo</h2>
+                    <p class="mb-0 fw-bold">Môn Đang Nợ</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

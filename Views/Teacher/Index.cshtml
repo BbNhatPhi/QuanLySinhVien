@@ -1,0 +1,48 @@
+﻿@model IEnumerable<StudentManagementSystem.Models.LichDay>
+@{
+    ViewBag.Title = "Lịch Giảng Dạy";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="mb-4"><i class="fas fa-calendar-alt text-primary"></i> Lịch Giảng Dạy Của Tôi</h2>
+
+<div class="card shadow border-0">
+    <div class="card-body">
+        <table class="table table-hover table-bordered align-middle text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>STT</th>
+                    <th>Mã Lớp Học Phần</th>
+                    <th class="text-start">Môn Học</th>
+                    <th>Thời Gian</th>
+                    <th>Phòng Học</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="5" class="text-muted py-4">Bạn chưa có lịch giảng dạy nào.</td>
+                    </tr>
+                }
+                else
+                {
+                    int stt = 1;
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@(stt++)</td>
+                            <td class="fw-bold text-primary">@item.MaLopHP</td>
+                            <td class="text-start"><b>@item.TenMon</b></td>
+                            <td>
+                                <span class="badge bg-warning text-dark">@item.TenNgayHoc</span>
+                                <span class="badge bg-secondary">Ca @item.TenCaHoc</span>
+                            </td>
+                            <td><span class="badge bg-info text-dark fs-6">@item.PhongHoc</span></td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,84 @@
+﻿@{ ViewBag.Title = "Thanh Toán Học Phí"; }
+
+<div class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3><i class="fas fa-credit-card text-primary"></i> Cổng Thanh Toán Trực Tuyến</h3>
+        <a href="@Url.Action("XemHocPhi", "Student")" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Quay lại</a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <!-- Tóm tắt hóa đơn -->
+            <div class="alert alert-info shadow-sm mb-4">
+                <h5 class="alert-heading fw-bold">Thông tin thanh toán:</h5>
+                <hr />
+                <p class="mb-1">Học phần: <strong>@ViewBag.TenMon</strong> (Mã: @ViewBag.MaLopHP)</p>
+                <p class="mb-0 fs-5">Số tiền cần thanh toán: <strong class="text-danger">@string.Format("{0:N0}", ViewBag.SoTien) VNĐ</strong></p>
+            </div>
+
+            <!-- Form xử lý -->
+            <form action="@Url.Action("XacNhanThanhToan", "Student")" method="post">
+                <input type="hidden" name="maLopHP" value="@ViewBag.MaLopHP" />
+                <input type="hidden" name="soTien" value="@ViewBag.SoTien" />
+
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white">
+                        <!-- Nav tabs của Bootstrap: Tự động xử lý chuyển đổi panel -->
+                        <ul class="nav nav-tabs card-header-tabs" id="paymentTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active fw-bold text-danger" id="momo-tab" data-bs-toggle="tab" data-bs-target="#momo" type="button" role="tab">Ví MoMo</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-bold text-primary" id="bank-tab" data-bs-toggle="tab" data-bs-target="#bank" type="button" role="tab">Thẻ Ngân Hàng</button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="card-body p-4 text-center">
+                        <div class="tab-content" id="paymentTabsContent">
+
+                            <!-- Panel MoMo -->
+                            <div class="tab-pane fade show active" id="momo" role="tabpanel">
+                                <h5 class="text-danger mb-3">Quét mã QR bằng ứng dụng MoMo</h5>
+                                <div class="p-3 border rounded d-inline-block bg-light mb-3">
+                                    <!-- Mã QR giả lập (bạn có thể thay bằng thẻ img chứa hình QR thật) -->
+                                    <i class="fas fa-qrcode" style="font-size: 8rem; color: #a50064;"></i>
+                                </div>
+                                <p class="text-muted">Nội dung CK: <strong>NTTU @ViewBag.MaLopHP</strong></p>
+                            </div>
+
+                            <!-- Panel Thẻ Ngân Hàng -->
+                            <div class="tab-pane fade" id="bank" role="tabpanel">
+                                <h5 class="text-primary mb-3 text-start">Thông Tin Thẻ ATM / Visa / Mastercard</h5>
+                                <div class="text-start">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Số thẻ</label>
+                                        <input type="text" class="form-control" placeholder="XXXX XXXX XXXX XXXX">
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-6 mb-3">
+                                            <label class="form-label fw-bold">Ngày hết hạn</label>
+                                            <input type="text" class="form-control" placeholder="MM/YY">
+                                        </div>
+                                        <div class="col-6 mb-3">
+                                            <label class="form-label fw-bold">Mã CVV</label>
+                                            <input type="password" class="form-control" placeholder="***">
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Tên in trên thẻ (Không dấu)</label>
+                                        <input type="text" class="form-control" placeholder="NGUYEN VAN A">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+                        <button type="submit" class="btn btn-success btn-lg px-5 fw-bold w-100 shadow-sm">
+                            <i class="fas fa-check-circle"></i> Xác Nhận Đã Thanh Toán
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
