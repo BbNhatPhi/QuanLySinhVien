@@ -1,0 +1,57 @@
+﻿@model List<StudentManagementSystem.Models.DiemRenLuyen>
+@{
+    ViewBag.Title = "Điểm Rèn Luyện";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4 mb-5">
+    <h2 class="mb-4"><i class="fas fa-medal text-primary"></i> Điểm Rèn Luyện Của Tôi</h2>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <table class="table table-hover table-bordered mb-0 align-middle">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th width="10%">STT</th>
+                        <th width="25%">Học Kỳ</th>
+                        <th width="20%">Điểm Số</th>
+                        <th>Xếp Loại</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Count > 0)
+                    {
+                        int stt = 1;
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="text-center fw-bold">@(stt++)</td>
+                                <td class="text-center fw-bold">@item.HocKy</td>
+                                <td class="text-center fw-bold text-danger fs-5">@item.Diem</td>
+                                <td class="text-center">
+                                    @{
+                                        string bgClass = "bg-secondary";
+                                        if (item.XepLoai == "Xuất sắc") { bgClass = "bg-success"; }
+                                        else if (item.XepLoai == "Tốt") { bgClass = "bg-primary"; }
+                                        else if (item.XepLoai == "Khá") { bgClass = "bg-info text-dark"; }
+                                        else if (item.XepLoai == "Trung bình") { bgClass = "bg-warning text-dark"; }
+                                        else if (item.XepLoai == "Yếu") { bgClass = "bg-danger"; }
+                                    }
+                                    <span class="badge @bgClass p-2 fs-6">@item.XepLoai</span>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">
+                                <i class="fas fa-info-circle"></i> Bạn chưa có dữ liệu điểm rèn luyện trong hệ thống.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

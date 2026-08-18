@@ -10,5 +10,7 @@ namespace StudentManagementSystem.Models
         public string MaPhong { get; set; }
         public int SucChua { get; set; }
         public string ToaNha { get; set; }
+        public string LoaiPhong { get; set; }
+        public string TinhTrang { get; set; }
     }
 }

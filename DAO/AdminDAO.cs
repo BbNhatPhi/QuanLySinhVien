@@ -278,5 +278,87 @@ namespace StudentManagementSystem.DAO
                 }
             }
         }
+        // ==========================================
+        // QUẢN LÝ PHÒNG HỌC
+        // ==========================================
+
+        public List<PhongHoc> GetAllPhongHoc()
+        {
+            List<PhongHoc> list = new List<PhongHoc>();
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                SqlCommand cmd = new SqlCommand("sp_GetAllPhongHoc", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                conn.Open();
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        list.Add(new PhongHoc
+                        {
+                            MaPhong = reader["MaPhong"].ToString(),
+                            SucChua = Convert.ToInt32(reader["SucChua"]),
+                            LoaiPhong = reader["LoaiPhong"].ToString(),
+                            TinhTrang = reader["TinhTrang"].ToString()
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
+        public bool AddPhongHoc(string maPhong, int sucChua, string loaiPhong, string tinhTrang)
+        {
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("sp_AddPhongHoc", conn);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@MaPhong", maPhong);
+                    cmd.Parameters.AddWithValue("@SucChua", sucChua);
+                    cmd.Parameters.AddWithValue("@LoaiPhong", loaiPhong);
+                    cmd.Parameters.AddWithValue("@TinhTrang", tinhTrang);
+                    conn.Open();
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+                catch { return false; } // Trùng mã phòng
+            }
+        }
+
+        public bool UpdatePhongHoc(string maPhong, int sucChua, string loaiPhong, string tinhTrang)
+        {
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("sp_UpdatePhongHoc", conn);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@MaPhong", maPhong);
+                    cmd.Parameters.AddWithValue("@SucChua", sucChua);
+                    cmd.Parameters.AddWithValue("@LoaiPhong", loaiPhong);
+                    cmd.Parameters.AddWithValue("@TinhTrang", tinhTrang);
+                    conn.Open();
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+                catch { return false; }
+            }
+        }
+
+        public bool DeletePhongHoc(string maPhong)
+        {
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("sp_DeletePhongHoc", conn);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@MaPhong", maPhong);
+                    conn.Open();
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+                catch { return false; } // Lỗi khi phòng đang được dùng để xếp lịch
+            }
+        }
     }
 }

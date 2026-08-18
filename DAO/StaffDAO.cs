@@ -694,5 +694,86 @@ namespace StudentManagementSystem.DAO
                 }
             }
         }
+        // ==========================================
+        // QUẢN LÝ ĐIỂM RÈN LUYỆN
+        // ==========================================
+        public List<DiemRenLuyen> GetAllDiemRenLuyen()
+        {
+            List<DiemRenLuyen> list = new List<DiemRenLuyen>();
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                SqlCommand cmd = new SqlCommand("sp_GetAllDiemRenLuyen", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                conn.Open();
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        list.Add(new DiemRenLuyen
+                        {
+                            ID = Convert.ToInt32(reader["ID"]),
+                            MaSV = reader["MaSV"].ToString(),
+                            HocKy = reader["HocKy"].ToString(),
+                            Diem = Convert.ToInt32(reader["Diem"]),
+                            XepLoai = reader["XepLoai"].ToString()
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
+        public bool AddDiemRenLuyen(string maSV, string hocKy, int diem, string xepLoai)
+        {
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("sp_AddDiemRenLuyen", conn);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@MaSV", maSV);
+                    cmd.Parameters.AddWithValue("@HocKy", hocKy);
+                    cmd.Parameters.AddWithValue("@Diem", diem);
+                    cmd.Parameters.AddWithValue("@XepLoai", xepLoai);
+                    conn.Open();
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+                catch { return false; } // Lỗi trùng sinh viên trong cùng 1 học kỳ
+            }
+        }
+
+        public bool UpdateDiemRenLuyen(int id, int diem, string xepLoai)
+        {
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("sp_UpdateDiemRenLuyen", conn);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@ID", id);
+                    cmd.Parameters.AddWithValue("@Diem", diem);
+                    cmd.Parameters.AddWithValue("@XepLoai", xepLoai);
+                    conn.Open();
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+                catch { return false; }
+            }
+        }
+
+        public bool DeleteDiemRenLuyen(int id)
+        {
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("sp_DeleteDiemRenLuyen", conn);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@ID", id);
+                    conn.Open();
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+                catch { return false; }
+            }
+        }
     }
 }

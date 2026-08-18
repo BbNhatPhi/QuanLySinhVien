@@ -501,5 +501,32 @@ namespace StudentManagementSystem.DAO
                 return countParam.Value != DBNull.Value ? Convert.ToInt32(countParam.Value) : 0;
             }
         }
+        public List<DiemRenLuyen> GetDiemRenLuyenByMaSV(string maSV)
+        {
+            List<DiemRenLuyen> list = new List<DiemRenLuyen>();
+            // Thay connStr bằng chuỗi kết nối của bạn nếu cần
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                SqlCommand cmd = new SqlCommand("sp_GetDiemRenLuyenByMaSV", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@MaSV", maSV);
+                conn.Open();
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        list.Add(new DiemRenLuyen
+                        {
+                            ID = Convert.ToInt32(reader["ID"]),
+                            MaSV = reader["MaSV"].ToString(),
+                            HocKy = reader["HocKy"].ToString(),
+                            Diem = Convert.ToInt32(reader["Diem"]),
+                            XepLoai = reader["XepLoai"].ToString()
+                        });
+                    }
+                }
+            }
+            return list;
+        }
     }
 }

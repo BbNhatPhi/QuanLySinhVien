@@ -181,5 +181,47 @@ namespace StudentManagementSystem.Controllers
             // Lưu ý: Đổi "NganhList" thành tên Action hiển thị danh sách Ngành hiện tại của bạn (vd: ManageNganh, DanhSachNganh...)
             return RedirectToAction("NganhList");
         }
+        // ==========================================
+        // QUẢN LÝ PHÒNG HỌC
+        // ==========================================
+
+        public ActionResult ManagePhongHoc()
+        {
+            var dsPhong = _adminDAO.GetAllPhongHoc();
+            return View(dsPhong);
+        }
+
+        [HttpPost]
+        public ActionResult AddPhongHoc(string maPhong, int sucChua, string loaiPhong, string tinhTrang)
+        {
+            if (_adminDAO.AddPhongHoc(maPhong, sucChua, loaiPhong, tinhTrang))
+                TempData["SuccessMsg"] = $"Thêm phòng {maPhong} thành công!";
+            else
+                TempData["ErrorMsg"] = $"Lỗi: Mã phòng {maPhong} đã tồn tại hoặc hệ thống gặp sự cố!";
+
+            return RedirectToAction("ManagePhongHoc");
+        }
+
+        [HttpPost]
+        public ActionResult EditPhongHoc(string maPhong, int sucChua, string loaiPhong, string tinhTrang)
+        {
+            if (_adminDAO.UpdatePhongHoc(maPhong, sucChua, loaiPhong, tinhTrang))
+                TempData["SuccessMsg"] = "Cập nhật thông tin phòng học thành công!";
+            else
+                TempData["ErrorMsg"] = "Có lỗi xảy ra khi cập nhật phòng học!";
+
+            return RedirectToAction("ManagePhongHoc");
+        }
+
+        [HttpPost]
+        public ActionResult DeletePhongHoc(string maPhong)
+        {
+            if (_adminDAO.DeletePhongHoc(maPhong))
+                TempData["SuccessMsg"] = $"Đã xóa phòng {maPhong} khỏi hệ thống!";
+            else
+                TempData["ErrorMsg"] = "Không thể xóa phòng học này vì đang có dữ liệu xếp lịch ràng buộc!";
+
+            return RedirectToAction("ManagePhongHoc");
+        }
     }
 }

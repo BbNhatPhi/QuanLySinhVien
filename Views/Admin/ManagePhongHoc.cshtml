@@ -1,0 +1,192 @@
+﻿@model List<StudentManagementSystem.Models.PhongHoc>
+@{
+    ViewBag.Title = "Quản lý Phòng học";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0"><i class="fas fa-chalkboard text-primary"></i> Quản Lý Phòng Học</h2>
+        <button type="button" class="btn btn-success fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addPhongModal">
+            <i class="fas fa-plus"></i> Thêm Phòng Mới
+        </button>
+    </div>
+
+    @if (TempData["SuccessMsg"] != null)
+    {
+        <div class="alert alert-success fw-bold shadow-sm"><i class="fas fa-check-circle"></i> @TempData["SuccessMsg"]</div>
+    }
+    @if (TempData["ErrorMsg"] != null)
+    {
+        <div class="alert alert-danger fw-bold shadow-sm"><i class="fas fa-exclamation-triangle"></i> @TempData["ErrorMsg"]</div>
+    }
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <table class="table table-hover table-bordered mb-0 align-middle">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th width="15%">Mã Phòng</th>
+                        <th width="15%">Sức Chứa</th>
+                        <th>Loại Phòng</th>
+                        <th width="20%">Tình Trạng</th>
+                        <th width="15%">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Count > 0)
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="text-center fw-bold text-primary">@item.MaPhong</td>
+                                <td class="text-center fw-bold text-danger">@item.SucChua <span class="text-muted fw-normal">chỗ</span></td>
+                                <td class="text-center">@item.LoaiPhong</td>
+                                <td class="text-center">
+                                    <span class="badge @(item.TinhTrang == "Đang sử dụng" ? "bg-success" : "bg-warning text-dark")">
+                                        @item.TinhTrang
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <!-- Nút Sửa -->
+                                        <button type="button" class="btn btn-sm btn-outline-warning fw-bold edit-phong-btn shadow-sm"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editPhongModal"
+                                                data-maphong="@item.MaPhong"
+                                                data-succhua="@item.SucChua"
+                                                data-loaiphong="@item.LoaiPhong"
+                                                data-tinhtrang="@item.TinhTrang">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+
+                                        <!-- Nút Xóa -->
+                                        <form action="@Url.Action("DeletePhongHoc", "Admin")" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa phòng @item.MaPhong không?');">
+                                            <input type="hidden" name="maPhong" value="@item.MaPhong" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger fw-bold shadow-sm">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">Chưa có dữ liệu phòng học trong hệ thống!</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- 1. MODAL THÊM PHÒNG -->
+<!-- ========================================== -->
+<div class="modal fade" id="addPhongModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="@Url.Action("AddPhongHoc", "Admin")" method="post">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-plus-circle"></i> Thêm Phòng Học Mới</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mã Phòng</label>
+                        <input type="text" name="maPhong" class="form-control border-success" placeholder="VD: A1-102" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Sức Chứa (Chỗ ngồi)</label>
+                        <input type="number" name="sucChua" class="form-control border-success" min="10" max="500" value="50" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Loại Phòng</label>
+                        <select name="loaiPhong" class="form-select border-success" required>
+                            <option value="Phòng Lý thuyết">Phòng Lý thuyết</option>
+                            <option value="Phòng Thực hành máy tính">Phòng Thực hành máy tính</option>
+                            <option value="Phòng Thực hành chuyên đề">Phòng Thực hành chuyên đề</option>
+                            <option value="Hội trường">Hội trường</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tình Trạng</label>
+                        <select name="tinhTrang" class="form-select border-success" required>
+                            <option value="Đang sử dụng">Đang sử dụng</option>
+                            <option value="Bảo trì">Đang bảo trì / Sửa chữa</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-success fw-bold"><i class="fas fa-save"></i> Lưu Thông Tin</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- 2. MODAL SỬA PHÒNG -->
+<!-- ========================================== -->
+<div class="modal fade" id="editPhongModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="@Url.Action("EditPhongHoc", "Admin")" method="post">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-edit"></i> Cập Nhật Phòng Học</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mã Phòng (Cố định)</label>
+                        <input type="text" name="maPhong" id="editMaPhong" class="form-control bg-light text-secondary" readonly />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Sức Chứa</label>
+                        <input type="number" name="sucChua" id="editSucChua" class="form-control border-warning" min="10" max="500" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Loại Phòng</label>
+                        <select name="loaiPhong" id="editLoaiPhong" class="form-select border-warning" required>
+                            <option value="Phòng Lý thuyết">Phòng Lý thuyết</option>
+                            <option value="Phòng Thực hành máy tính">Phòng Thực hành máy tính</option>
+                            <option value="Phòng Thực hành chuyên đề">Phòng Thực hành chuyên đề</option>
+                            <option value="Hội trường">Hội trường</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tình Trạng</label>
+                        <select name="tinhTrang" id="editTinhTrang" class="form-select border-warning" required>
+                            <option value="Đang sử dụng">Đang sử dụng</option>
+                            <option value="Bảo trì">Đang bảo trì / Sửa chữa</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy bỏ</button>
+                    <button type="submit" class="btn btn-warning fw-bold"><i class="fas fa-save"></i> Lưu Thay Đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- SCRIPT ĐIỀN DỮ LIỆU TỰ ĐỘNG VÀO MODAL SỬA -->
+<!-- ========================================== -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.edit-phong-btn').on('click', function () {
+            $('#editMaPhong').val($(this).data('maphong'));
+            $('#editSucChua').val($(this).data('succhua'));
+            $('#editLoaiPhong').val($(this).data('loaiphong'));
+            $('#editTinhTrang').val($(this).data('tinhtrang'));
+        });
+    });
+</script>

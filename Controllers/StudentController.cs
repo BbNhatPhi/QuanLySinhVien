@@ -214,5 +214,17 @@ namespace StudentManagementSystem.Controllers
 
             return RedirectToAction("DanhGiaGiangVien");
         }
+        // GET: /Student/XemDiemRenLuyen
+        public ActionResult XemDiemRenLuyen()
+        {
+            // Lấy mã sinh viên từ tài khoản đang đăng nhập (VD: User.Identity.Name)
+            string maSV = User.Identity.Name;
+
+            // Khởi tạo DAO để lấy dữ liệu (điều chỉnh tên biến dao cho khớp với file của bạn)
+            StudentManagementSystem.DAO.StudentDAO dao = new StudentManagementSystem.DAO.StudentDAO();
+            var dsDiem = dao.GetDiemRenLuyenByMaSV(maSV);
+
+            return View(dsDiem);
+        }
     }
 }

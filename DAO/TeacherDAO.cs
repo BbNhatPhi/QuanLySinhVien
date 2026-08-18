@@ -1,8 +1,9 @@
-﻿using System;
+﻿using StudentManagementSystem.Models;
+using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
-using StudentManagementSystem.Models;
+using System.Data;
+using System.Data.SqlClient;
 namespace StudentManagementSystem.DAO
 {
     public class TeacherDAO
@@ -155,6 +156,21 @@ namespace StudentManagementSystem.DAO
                 SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@MaSV", maSV);
                 cmd.Parameters.AddWithValue("@MaLopHP", maLopHP);
+                conn.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
+        public void TruDiemVangHoc(string maSV, string hocKy, string trangThaiVang)
+        {
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                SqlCommand cmd = new SqlCommand("sp_TruDiemRenLuyen", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("@MaSV", maSV);
+                cmd.Parameters.AddWithValue("@HocKy", hocKy);
+                cmd.Parameters.AddWithValue("@TrangThaiVang", trangThaiVang); // Truyền 'Có phép' hoặc 'Không phép'
+
                 conn.Open();
                 cmd.ExecuteNonQuery();
             }

@@ -1,5 +1,8 @@
 ﻿@model IEnumerable<StudentManagementSystem.Models.SinhVienLop>
-@{ ViewBag.Title = "Danh Sách Sinh Viên"; Layout = "~/Views/Shared/_Layout.cshtml"; }
+@{
+    ViewBag.Title = "Danh Sách Sinh Viên";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2><i class="fas fa-user-check text-primary"></i> Danh sách lớp: @ViewBag.MaLopTC</h2>
@@ -7,12 +10,19 @@
 </div>
 
 @if (TempData["Success"] != null)
-{<div class="alert alert-success">@TempData["Success"]</div>}
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
 
 <div class="card shadow border-0">
     <div class="card-body">
         <form action="@Url.Action("LuuDiemDanh", "Teacher")" method="post">
             <input type="hidden" name="maLopTC" value="@ViewBag.MaLopTC" />
+
             <table class="table table-hover table-bordered align-middle">
                 <thead class="table-dark text-center">
                     <tr>
@@ -21,7 +31,7 @@
                         <th>Giới Tính</th>
                         <th>Email</th>
                         <th>Điểm CC hiện tại</th>
-                        <th class="text-danger">Đánh dấu vắng mặt</th>
+                        <th class="text-center" width="25%">Trạng Thái Điểm Danh</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -34,14 +44,23 @@
                             <td>@sv.Email</td>
                             <td class="text-center"><span class="badge bg-info text-dark fs-6">@sv.DiemCC</span></td>
                             <td class="text-center">
-                                <input class="form-check-input" style="width: 20px; height: 20px;" type="checkbox" name="MaSV_Vang" value="@sv.MaSV">
+                                <!-- Đính kèm Mã SV ngầm để Controller biết sinh viên nào được chọn -->
+                                <input type="hidden" name="maSV" value="@sv.MaSV" />
+
+                                <!-- Thẻ select chọn trạng thái đi học / vắng -->
+                                <select name="trangThaiVang" class="form-select border-info text-center fw-bold">
+                                    <option value="Có mặt" class="text-success">Có mặt</option>
+                                    <option value="Có phép" class="text-warning">Vắng có phép (-2đ)</option>
+                                    <option value="Không phép" class="text-danger">Vắng không phép (-3đ)</option>
+                                </select>
                             </td>
                         </tr>
                     }
                 </tbody>
             </table>
+
             <div class="text-end mt-3">
-                <button type="submit" class="btn btn-danger px-4"><i class="fas fa-clipboard-list"></i> LƯU ĐIỂM DANH</button>
+                <button type="submit" class="btn btn-danger px-4 fw-bold shadow-sm"><i class="fas fa-clipboard-list"></i> LƯU ĐIỂM DANH & TRỪ ĐIỂM</button>
             </div>
         </form>
     </div>

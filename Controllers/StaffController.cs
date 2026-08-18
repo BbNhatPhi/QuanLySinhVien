@@ -360,5 +360,58 @@ namespace StudentManagementSystem.Controllers
 
             return RedirectToAction("ManageLichThi");
         }
+        // ==========================================
+        // QUẢN LÝ ĐIỂM RÈN LUYỆN
+        // ==========================================
+        public ActionResult ManageDiemRenLuyen()
+        {
+            var dsDiem = _staffDAO.GetAllDiemRenLuyen();
+            return View(dsDiem);
+        }
+
+        // Hàm hỗ trợ tự động xếp loại
+        private string TinhXepLoai(int diem)
+        {
+            if (diem >= 90) return "Xuất sắc";
+            if (diem >= 80) return "Tốt";
+            if (diem >= 65) return "Khá";
+            if (diem >= 50) return "Trung bình";
+            return "Yếu";
+        }
+
+        [HttpPost]
+        public ActionResult AddDiemRenLuyen(string maSV, string hocKy, int diem)
+        {
+            string xepLoai = TinhXepLoai(diem);
+            if (_staffDAO.AddDiemRenLuyen(maSV, hocKy, diem, xepLoai))
+                TempData["SuccessMsg"] = $"Đã nhập điểm rèn luyện cho SV {maSV} thành công!";
+            else
+                TempData["ErrorMsg"] = $"Lỗi: Sinh viên {maSV} đã có điểm rèn luyện trong {hocKy}!";
+
+            return RedirectToAction("ManageDiemRenLuyen");
+        }
+
+        [HttpPost]
+        public ActionResult EditDiemRenLuyen(int id, int diem)
+        {
+            string xepLoai = TinhXepLoai(diem);
+            if (_staffDAO.UpdateDiemRenLuyen(id, diem, xepLoai))
+                TempData["SuccessMsg"] = "Cập nhật điểm rèn luyện thành công!";
+            else
+                TempData["ErrorMsg"] = "Có lỗi xảy ra khi cập nhật điểm!";
+
+            return RedirectToAction("ManageDiemRenLuyen");
+        }
+
+        [HttpPost]
+        public ActionResult DeleteDiemRenLuyen(int id)
+        {
+            if (_staffDAO.DeleteDiemRenLuyen(id))
+                TempData["SuccessMsg"] = "Đã xóa điểm rèn luyện thành công!";
+            else
+                TempData["ErrorMsg"] = "Lỗi khi xóa dữ liệu!";
+
+            return RedirectToAction("ManageDiemRenLuyen");
+        }
     }
 }

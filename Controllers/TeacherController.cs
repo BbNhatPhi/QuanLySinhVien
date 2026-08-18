@@ -129,5 +129,44 @@ namespace StudentManagementSystem.Controllers
             ViewBag.Title = "Chọn Lớp Để In Bảng Điểm";
             return View("XemLop", _teacherDAO.GetLichDay(User.Identity.Name));
         }
+        [HttpPost]
+        public ActionResult LuuDiemDanh(FormCollection form, string maLopHocPhan, string hocKy)
+        {
+            // Lấy danh sách sinh viên và trạng thái điểm danh từ giao diện gửi lên
+            string[] maSVs = form.GetValues("maSV");
+            string[] trangThais = form.GetValues("trangThaiVang");
+
+            if (maSVs != null && trangThais != null)
+            {
+                for (int i = 0; i < maSVs.Length; i++)
+                {
+                    string maSV = maSVs[i];
+                    string trangThai = trangThais[i]; // Có mặt, Có phép, Không phép
+
+                    // ==========================================
+                    // 1. Code cũ của bạn: Lưu lịch sử điểm danh vào CSDL
+                    // ==========================================
+                    // _teacherDAO.InsertDiemDanh(maLopHocPhan, maSV, trangThai, DateTime.Now);
+
+                    // ==========================================
+                    // 2. TÍNH NĂNG MỚI: TỰ ĐỘNG TRỪ ĐIỂM RÈN LUYỆN
+                    // ==========================================
+                    if (trangThai == "Có phép" || trangThai == "Không phép")
+                    {
+                        // Gọi hàm trừ điểm mà chúng ta vừa tạo ở DAO
+                        _teacherDAO.TruDiemVangHoc(maSV, hocKy, trangThai);
+                    }
+                }
+
+                TempData["SuccessMsg"] = "Đã lưu điểm danh và tự động cập nhật điểm rèn luyện thành công!";
+            }
+            else
+            {
+                TempData["ErrorMsg"] = "Không có dữ liệu điểm danh!";
+            }
+
+            // Trả về trang danh sách lớp sau khi lưu xong
+            return RedirectToAction("ChonLopDiemDanh");
+        }
     }
 }
