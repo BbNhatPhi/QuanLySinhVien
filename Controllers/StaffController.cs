@@ -8,6 +8,7 @@ using StudentManagementSystem.Models;
 
 namespace StudentManagementSystem.Controllers
 {
+
     // BẢO MẬT: Chỉ Nhân viên Phòng đào tạo mới được vào
     [Authorize(Roles = "NhanVien")]
     public class StaffController : Controller
@@ -20,7 +21,17 @@ namespace StudentManagementSystem.Controllers
 
         public ActionResult Index()
         {
+            // Khi vừa đăng nhập vào /Staff, tự động chuyển hướng ngay sang trang Quản lý sinh viên
+            return RedirectToAction("QuanLySinhVien");
+        }
+
+        public ActionResult QuanLySinhVien()
+        {
             var sinhViens = _staffDAO.GetAllSinhVien();
+
+            // ĐÃ SỬA: Chuyển hoàn toàn sang gọi GetAllKhoa() thay vì Nganh
+            ViewBag.ListKhoa = _staffDAO.GetAllKhoa();
+
             return View(sinhViens);
         }
 
@@ -32,7 +43,7 @@ namespace StudentManagementSystem.Controllers
                 _staffDAO.UpdateTrangThaiHocTap(maSV, trangThai);
                 TempData["Success"] = $"Đã cập nhật trạng thái cho sinh viên {maSV} thành: {trangThai}";
             }
-            return RedirectToAction("Index");
+            return RedirectToAction("QuanLySinhVien");
         }
 
         [HttpPost]
@@ -47,7 +58,7 @@ namespace StudentManagementSystem.Controllers
             {
                 TempData["Error"] = "Lỗi SQL: " + result;
             }
-            return RedirectToAction("Index");
+            return RedirectToAction("QuanLySinhVien");
         }
 
         public ActionResult XoaSinhVien(string maSV)
@@ -56,7 +67,7 @@ namespace StudentManagementSystem.Controllers
             {
                 TempData["Success"] = $"Đã xóa thành công sinh viên {maSV}!";
             }
-            return RedirectToAction("Index");
+            return RedirectToAction("QuanLySinhVien");
         }
 
 
@@ -115,7 +126,6 @@ namespace StudentManagementSystem.Controllers
             StaffDAO dao = new StaffDAO();
             List<LopDanhNghia> list = dao.GetAllLop();
 
-            // ĐÃ SỬA: Đổi tên thành ViewBag.ListKhoa để đồng bộ với View
             ViewBag.ListKhoa = _staffDAO.GetAllKhoa();
 
             return View(list);
@@ -140,11 +150,10 @@ namespace StudentManagementSystem.Controllers
             return RedirectToAction("ClassList");
         }
 
-        // 3. ĐÃ SỬA: Thay thế nganhId thành khoaId
+        // 3. Xử lý sửa lớp
         [HttpPost]
         public ActionResult EditLop(string maLop, string tenLop, int khoaId, string khoaHoc)
         {
-            // Cập nhật hàm gọi DAO sang khoaId
             bool result = _staffDAO.UpdateLop(maLop, tenLop, khoaId, khoaHoc);
 
             if (result)
@@ -410,14 +419,17 @@ namespace StudentManagementSystem.Controllers
 
             return RedirectToAction("ManageDiemRenLuyen");
         }
-        // GET: Hiển thị giao diện quản lý
+
+        // ==========================================
+        // DỊCH VỤ HÀNH CHÍNH (XỬ LÝ YÊU CẦU)
+        // ==========================================
+
         public ActionResult QuanLyYeuCau()
         {
             var list = _staffDAO.GetAllYeuCau();
             return View(list);
         }
 
-        // POST: Xử lý khi nhân viên bấm nút Duyệt / Từ chối
         [HttpPost]
         public ActionResult CapNhatTrangThaiYeuCau(int MaYC, string TrangThaiMoi)
         {
@@ -432,5 +444,6 @@ namespace StudentManagementSystem.Controllers
             }
             return RedirectToAction("QuanLyYeuCau");
         }
+
     }
 }

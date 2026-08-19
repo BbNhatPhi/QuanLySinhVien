@@ -12,8 +12,14 @@
     </button>
 </div>
 
-@if (TempData["Success"] != null) { <div class="alert alert-success">@TempData["Success"]</div> }
-@if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
 
 <div class="card shadow border-0">
     <div class="card-body">
@@ -25,7 +31,8 @@
                     <th>Ngày Sinh</th>
                     <th>Giới Tính</th>
                     <th>Email</th>
-                    <th>Ngành</th>
+                    <!-- Đã sửa tiêu đề từ Ngành sang Khoa -->
+                    <th>Khoa</th>
                     <th>Thao Tác</th>
                 </tr>
             </thead>
@@ -38,12 +45,13 @@
                         <td>@(sv.NgaySinh.HasValue ? sv.NgaySinh.Value.ToString("dd/MM/yyyy") : "")</td>
                         <td>@sv.GioiTinh</td>
                         <td>@sv.Email</td>
-                        <td>@sv.MaNganh</td>
+                        <!-- Đã sửa sv.MaNganh thành sv.TenKhoa để in ra chữ -->
+                        <td class="fw-bold text-primary">@sv.TenKhoa</td>
                         <td>
-                            <a href="@Url.Action("XoaSinhVien", "Staff", new { maSV = sv.MaSV })" 
+                            <a href="@Url.Action("XoaSinhVien", "Staff", new { maSV = sv.MaSV })"
                                class="btn btn-danger btn-sm"
                                onclick="return confirm('Bạn có chắc chắn muốn xóa sinh viên này không?');">
-                               <i class="fas fa-trash-alt"></i> Xóa
+                                <i class="fas fa-trash-alt"></i> Xóa
                             </a>
                         </td>
                     </tr>
@@ -64,20 +72,20 @@
             <form action="@Url.Action("ThemSinhVien", "Staff")" method="post">
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Mã Sinh Viên</label>
+                        <label class="form-label fw-bold">Mã Sinh Viên</label>
                         <input type="text" class="form-control" name="MaSV" required />
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Họ Tên</label>
+                        <label class="form-label fw-bold">Họ Tên</label>
                         <input type="text" class="form-control" name="HoTen" required />
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Ngày Sinh</label>
+                            <label class="form-label fw-bold">Ngày Sinh</label>
                             <input type="date" class="form-control" name="NgaySinh" />
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Giới Tính</label>
+                            <label class="form-label fw-bold">Giới Tính</label>
                             <select class="form-select" name="GioiTinh">
                                 <option value="Nam">Nam</option>
                                 <option value="Nữ">Nữ</option>
@@ -85,9 +93,25 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Email</label>
+                        <label class="form-label fw-bold">Email</label>
                         <input type="email" class="form-control" name="Email" />
                     </div>
+
+                    <!-- ĐÃ SỬA HOÀN TOÀN TỪ NGÀNH SANG KHOA -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-primary">Trực thuộc Khoa</label>
+                        <select class="form-select border-primary" name="KhoaID" required>
+                            <option value="">-- Chọn Khoa --</option>
+                            @if (ViewBag.ListKhoa != null)
+                            {
+                                foreach (var khoa in ViewBag.ListKhoa)
+                                {
+                                    <option value="@khoa.KhoaID">@khoa.TenKhoa</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>

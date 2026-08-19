@@ -22,8 +22,15 @@ namespace StudentManagementSystem.DAO
             List<SinhVien> list = new List<SinhVien>();
             using (SqlConnection conn = new SqlConnection(connStr))
             {
-                SqlCommand cmd = new SqlCommand("sp_GetAllSinhVien", conn);
-                cmd.CommandType = CommandType.StoredProcedure;
+                // Dùng SQL thuần kết nối bảng SinhVien với bảng Khoa để lấy Tên Khoa (chữ)
+                // ĐÃ SỬA: Dùng s.NganhID AS KhoaID để C# đọc được, và JOIN qua s.NganhID
+                string sql = @"
+                    SELECT s.MaSV, s.HoTen, s.NgaySinh, s.GioiTinh, s.DiaChi, s.Email, 
+                           s.SoDienThoai, s.TrangThaiHocTap, s.NganhID AS KhoaID, k.TenKhoa 
+                    FROM SinhVien s
+                    LEFT JOIN Khoa k ON s.NganhID = k.KhoaID";
+
+                SqlCommand cmd = new SqlCommand(sql, conn);
 
                 conn.Open();
                 using (SqlDataReader reader = cmd.ExecuteReader())
@@ -40,7 +47,10 @@ namespace StudentManagementSystem.DAO
                             Email = reader["Email"].ToString(),
                             SoDienThoai = reader["SoDienThoai"].ToString(),
                             TrangThaiHocTap = reader["TrangThaiHocTap"].ToString(),
-                            TenNganh = reader["TenNganh"].ToString()
+
+                            // Ánh xạ chính xác cột Khoa từ SQL
+                            KhoaID = reader["KhoaID"] != DBNull.Value ? Convert.ToInt32(reader["KhoaID"]) : 0,
+                            TenKhoa = reader["TenKhoa"] != DBNull.Value ? reader["TenKhoa"].ToString() : ""
                         });
                     }
                 }
@@ -76,7 +86,8 @@ namespace StudentManagementSystem.DAO
                 cmd.Parameters.AddWithValue("@GioiTinh", (object)sv.GioiTinh ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@Email", (object)sv.Email ?? DBNull.Value);
 
-                cmd.Parameters.AddWithValue("@NganhID", (object)sv.MaNganh ?? 1);
+                // ĐÃ SỬA: Gửi tham số xuống SQL dưới tên @NganhID nhưng lấy dữ liệu từ sv.KhoaID
+                cmd.Parameters.AddWithValue("@NganhID", sv.KhoaID);
 
                 SqlParameter msgParam = new SqlParameter("@Message", SqlDbType.NVarChar, 255);
                 msgParam.Direction = ParameterDirection.Output;
@@ -166,6 +177,7 @@ namespace StudentManagementSystem.DAO
                 }
             }
         }
+
         public bool UpdateMonHoc(string maMon, string tenMon, int soTinChi)
         {
             using (SqlConnection conn = new SqlConnection(connStr))
@@ -231,10 +243,7 @@ namespace StudentManagementSystem.DAO
 
                     cmd.Parameters.AddWithValue("@MaLop", lop.MaLop);
                     cmd.Parameters.AddWithValue("@TenLop", lop.TenLop);
-
-                    // ✅ Đã sửa @NganhID thành @KhoaID
                     cmd.Parameters.AddWithValue("@KhoaID", lop.KhoaID);
-
                     cmd.Parameters.AddWithValue("@KhoaHoc", lop.KhoaHoc);
 
                     conn.Open();
@@ -247,7 +256,6 @@ namespace StudentManagementSystem.DAO
             }
         }
 
-        // ✅ Đã sửa tham số int nganhId thành int khoaId
         public bool UpdateLop(string maLop, string tenLop, int khoaId, string khoaHoc)
         {
             using (SqlConnection conn = new SqlConnection(connStr))
@@ -259,10 +267,7 @@ namespace StudentManagementSystem.DAO
 
                     cmd.Parameters.AddWithValue("@MaLop", maLop);
                     cmd.Parameters.AddWithValue("@TenLop", tenLop);
-
-                    // ✅ Đã sửa @NganhID thành @KhoaID
                     cmd.Parameters.AddWithValue("@KhoaID", khoaId);
-
                     cmd.Parameters.AddWithValue("@KhoaHoc", khoaHoc);
 
                     conn.Open();
@@ -275,8 +280,27 @@ namespace StudentManagementSystem.DAO
             }
         }
 
+        public bool DeleteLop(string maLop)
+        {
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("DELETE FROM LopDanhNghia WHERE MaLop = @MaLop", conn);
+                    cmd.Parameters.AddWithValue("@MaLop", maLop);
+
+                    conn.Open();
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
+
         // ==========================================
-        // CÁC CHỨC NĂNG CÒN LẠI GIỮ NGUYÊN BÊN DƯỚI
+        // QUẢN LÝ LỚP HỌC PHẦN (MỞ LỚP)
         // ==========================================
 
         public List<LopHocPhan> GetAllLopHocPhan()
@@ -339,6 +363,7 @@ namespace StudentManagementSystem.DAO
                 }
             }
         }
+
         public List<GiangVien> GetAllGiangVien()
         {
             List<GiangVien> list = new List<GiangVien>();
@@ -361,6 +386,7 @@ namespace StudentManagementSystem.DAO
             }
             return list;
         }
+
         // ==========================================
         // QUẢN LÝ THỜI KHÓA BIỂU
         // ==========================================
@@ -421,8 +447,9 @@ namespace StudentManagementSystem.DAO
                 }
             }
         }
+
         // ==========================================
-        // QUẢN LÝ GIẢNG VIÊN
+        // QUẢN LÝ GIẢNG VIÊN VÀ KHOA
         // ==========================================
 
         public List<Khoa> GetAllKhoa()
@@ -507,6 +534,7 @@ namespace StudentManagementSystem.DAO
                 }
             }
         }
+
         public bool DeleteGiangVien(string maGV)
         {
             using (SqlConnection conn = new SqlConnection(connStr))
@@ -526,7 +554,11 @@ namespace StudentManagementSystem.DAO
                 }
             }
         }
-        // Lấy danh sách lịch thi
+
+        // ==========================================
+        // QUẢN LÝ LỊCH THI
+        // ==========================================
+
         public List<LichThi> GetAllLichThi()
         {
             List<LichThi> list = new List<LichThi>();
@@ -554,7 +586,6 @@ namespace StudentManagementSystem.DAO
             return list;
         }
 
-        // Nhân viên Thêm lịch thi
         public string AddLichThi(string maLopHP, DateTime ngayThi, int caThi, string phongThi)
         {
             using (SqlConnection conn = new SqlConnection(connStr))
@@ -575,6 +606,7 @@ namespace StudentManagementSystem.DAO
                 return msgParam.Value.ToString();
             }
         }
+
         public string UpdateLichThi(string maLopHP, DateTime ngayThi, int caThi, string phongThi)
         {
             using (SqlConnection conn = new SqlConnection(connStr))
@@ -614,6 +646,34 @@ namespace StudentManagementSystem.DAO
                 }
             }
         }
+
+        public List<PhongHoc> GetPhongTrongLichThi(DateTime ngayThi, int caThi)
+        {
+            List<PhongHoc> list = new List<PhongHoc>();
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                SqlCommand cmd = new SqlCommand("sp_GetPhongTrongLichThi", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@NgayThi", ngayThi);
+                cmd.Parameters.AddWithValue("@CaThi", caThi);
+
+                conn.Open();
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        list.Add(new PhongHoc
+                        {
+                            MaPhong = reader["MaPhong"].ToString(),
+                            SucChua = Convert.ToInt32(reader["SucChua"]),
+                            ToaNha = reader["ToaNha"].ToString()
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
         // ==========================================
         // QUẢN LÝ THÔNG BÁO
         // ==========================================
@@ -623,7 +683,6 @@ namespace StudentManagementSystem.DAO
             List<ThongBao> list = new List<ThongBao>();
             using (SqlConnection conn = new SqlConnection(connStr))
             {
-                // Lấy toàn bộ thông báo sắp xếp từ mới nhất đến cũ nhất
                 string query = "SELECT MaTB, TieuDe, NoiDung, NgayDang, NguoiDang, DoiTuong FROM ThongBao ORDER BY NgayDang DESC";
                 SqlCommand cmd = new SqlCommand(query, conn);
 
@@ -663,55 +722,11 @@ namespace StudentManagementSystem.DAO
                 return cmd.ExecuteNonQuery() > 0;
             }
         }
-        public List<PhongHoc> GetPhongTrongLichThi(DateTime ngayThi, int caThi)
-        {
-            List<PhongHoc> list = new List<PhongHoc>();
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                SqlCommand cmd = new SqlCommand("sp_GetPhongTrongLichThi", conn);
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@NgayThi", ngayThi);
-                cmd.Parameters.AddWithValue("@CaThi", caThi);
 
-                conn.Open();
-                using (SqlDataReader reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        list.Add(new PhongHoc
-                        {
-                            MaPhong = reader["MaPhong"].ToString(),
-                            SucChua = Convert.ToInt32(reader["SucChua"]),
-                            ToaNha = reader["ToaNha"].ToString()
-                        });
-                    }
-                }
-            }
-            return list;
-        }
-        public bool DeleteLop(string maLop)
-        {
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                try
-                {
-                    SqlCommand cmd = new SqlCommand("DELETE FROM LopDanhNghia WHERE MaLop = @MaLop", conn);
-                    cmd.Parameters.AddWithValue("@MaLop", maLop);
-
-                    conn.Open();
-                    return cmd.ExecuteNonQuery() > 0;
-                }
-                catch
-                {
-                    // Nếu lớp đã có sinh viên bên trong, SQL sẽ chặn xóa để bảo vệ dữ liệu (lỗi khóa ngoại)
-                    // Ta sẽ bắt lỗi và trả về false
-                    return false;
-                }
-            }
-        }
         // ==========================================
         // QUẢN LÝ ĐIỂM RÈN LUYỆN
         // ==========================================
+
         public List<DiemRenLuyen> GetAllDiemRenLuyen()
         {
             List<DiemRenLuyen> list = new List<DiemRenLuyen>();
@@ -753,7 +768,7 @@ namespace StudentManagementSystem.DAO
                     conn.Open();
                     return cmd.ExecuteNonQuery() > 0;
                 }
-                catch { return false; } // Lỗi trùng sinh viên trong cùng 1 học kỳ
+                catch { return false; }
             }
         }
 
@@ -790,7 +805,11 @@ namespace StudentManagementSystem.DAO
                 catch { return false; }
             }
         }
-        // Lấy danh sách yêu cầu hành chính
+
+        // ==========================================
+        // DỊCH VỤ HÀNH CHÍNH
+        // ==========================================
+
         public List<YeuCauHanhChinh> GetAllYeuCau()
         {
             List<YeuCauHanhChinh> list = new List<YeuCauHanhChinh>();
@@ -809,6 +828,7 @@ namespace StudentManagementSystem.DAO
                             MaSV = reader["MaSV"].ToString(),
                             HoTen = reader["HoTen"].ToString(),
                             LoaiDichVu = reader["LoaiDichVu"].ToString(),
+                            SoLuong = reader["SoLuong"] != DBNull.Value ? Convert.ToInt32(reader["SoLuong"]) : 1,
                             MoTa = reader["MoTa"].ToString(),
                             NgayGui = Convert.ToDateTime(reader["NgayGui"]),
                             TrangThai = reader["TrangThai"].ToString()
@@ -819,7 +839,6 @@ namespace StudentManagementSystem.DAO
             return list;
         }
 
-        // Cập nhật trạng thái
         public bool UpdateTrangThaiYeuCau(int maYC, string trangThai)
         {
             using (SqlConnection conn = new SqlConnection(connStr))

@@ -392,26 +392,21 @@ namespace StudentManagementSystem.DAO
             List<YeuCauHanhChinh> list = new List<YeuCauHanhChinh>();
             using (SqlConnection conn = new SqlConnection(connStr))
             {
-                // Trực tiếp truy xuất vào bảng YeuCauHanhChinh mới
-                string query = @"SELECT MaYC, LoaiDichVu, MoTa, NgayGui, TrangThai 
-                                 FROM YeuCauHanhChinh 
-                                 WHERE MaSV = @Username 
-                                 ORDER BY NgayGui DESC";
-
+                string query = @"SELECT MaYC, LoaiDichVu, MoTa, SoLuong, NgayGui, TrangThai 
+                         FROM YeuCauHanhChinh WHERE MaSV = @Username ORDER BY NgayGui DESC";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@Username", username);
-
                 conn.Open();
                 using (SqlDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        // Ánh xạ linh hoạt để tương thích với View của sinh viên
                         list.Add(new YeuCauHanhChinh
                         {
                             MaYC = Convert.ToInt32(reader["MaYC"]),
                             LoaiDichVu = reader["LoaiDichVu"].ToString(),
                             MoTa = reader["MoTa"].ToString(),
+                            SoLuong = reader["SoLuong"] != DBNull.Value ? Convert.ToInt32(reader["SoLuong"]) : 1,
                             NgayGui = Convert.ToDateTime(reader["NgayGui"]),
                             TrangThai = reader["TrangThai"].ToString()
                         });
@@ -419,6 +414,27 @@ namespace StudentManagementSystem.DAO
                 }
             }
             return list;
+        }
+
+        public string GuiYeuCauHanhChinh(string username, string loaiDichVu, string moTa, int soLuong)
+        {
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                try
+                {
+                    string query = @"INSERT INTO YeuCauHanhChinh (MaSV, LoaiDichVu, MoTa, SoLuong, NgayGui, TrangThai) 
+                             VALUES (@Username, @LoaiDichVu, @MoTa, @SoLuong, GETDATE(), N'Đang chờ xử lý')";
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@Username", username);
+                    cmd.Parameters.AddWithValue("@LoaiDichVu", loaiDichVu);
+                    cmd.Parameters.AddWithValue("@MoTa", moTa);
+                    cmd.Parameters.AddWithValue("@SoLuong", soLuong);
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                    return "Success";
+                }
+                catch (Exception ex) { return ex.Message; }
+            }
         }
 
         // Gửi yêu cầu mới

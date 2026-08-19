@@ -172,21 +172,13 @@ namespace StudentManagementSystem.Controllers
 
         // POST: /Student/GuiYeuCau
         [HttpPost]
-        public ActionResult GuiYeuCau(string loaiDichVu, string moTa) // Đã sửa lyDo thành moTa
+        public ActionResult GuiYeuCau(string loaiDichVu, string moTa, int soLuong = 1)
         {
-            string username = User.Identity.Name;
-
-            // Đã sửa lyDo thành moTa ở tham số truyền vào hàm DAO
-            string result = _studentDAO.GuiYeuCauHanhChinh(username, loaiDichVu, moTa);
-
+            string result = _studentDAO.GuiYeuCauHanhChinh(User.Identity.Name, loaiDichVu, moTa, soLuong);
             if (result == "Success")
-            {
-                TempData["SuccessMsg"] = "Gửi yêu cầu thành công! Vui lòng theo dõi trạng thái xử lý.";
-            }
+                TempData["SuccessMsg"] = "Đã gửi yêu cầu thành công!";
             else
-            {
                 TempData["ErrorMsg"] = "Lỗi: " + result;
-            }
 
             return RedirectToAction("DichVuHanhChinh");
         }

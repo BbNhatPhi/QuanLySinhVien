@@ -12,6 +12,7 @@ namespace StudentManagementSystem.Models
         public DateTime NgayGui { get; set; }
         public string TrangThai { get; set; }
         public int MaYC { get; set; }
+        public int SoLuong { get; set; }
         public string MaSV { get; set; }
         public string HoTen { get; set; } // Lấy từ bảng SinhVien
         public string MoTa { get; set; }

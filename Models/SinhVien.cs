@@ -16,5 +16,7 @@ namespace StudentManagementSystem.Models
         public string TenNganh { get; set; } // JOIN từ bảng Nganh
         public string TrangThaiHocTap { get; set; }
         public string MaNganh { get; set; }
+        public int KhoaID { get; set; }
+        public string TenKhoa { get; set; }
     }
 }

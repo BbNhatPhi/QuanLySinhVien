@@ -1,5 +1,7 @@
 ﻿@model List<StudentManagementSystem.Models.YeuCauHanhChinh>
-@{ ViewBag.Title = "Dịch Vụ Hành Chính Một Cửa"; }
+@{
+    ViewBag.Title = "Dịch Vụ Hành Chính Một Cửa";
+}
 
 <div class="container mt-4 mb-5">
     <h2 class="mb-4"><i class="fas fa-university text-primary"></i> Dịch Vụ Hành Chính "Một Cửa"</h2>
@@ -7,6 +9,10 @@
     @if (TempData["SuccessMsg"] != null)
     {
         <div class="alert alert-success fw-bold shadow-sm"><i class="fas fa-check-circle"></i> @TempData["SuccessMsg"]</div>
+    }
+    @if (TempData["ErrorMsg"] != null)
+    {
+        <div class="alert alert-danger fw-bold shadow-sm"><i class="fas fa-exclamation-triangle"></i> @TempData["ErrorMsg"]</div>
     }
 
     <div class="row">
@@ -29,12 +35,21 @@
                                 <option value="Khác">Yêu cầu khác...</option>
                             </select>
                         </div>
+
+                        <!-- Đã bổ sung ô Số Lượng -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Số lượng bản sao</label>
+                            <input type="number" name="soLuong" class="form-control" value="1" min="1" max="10" required />
+                        </div>
+
                         <div class="mb-3">
                             <label class="form-label fw-bold">Mô tả chi tiết / Lý do</label>
-                            <textarea name="lyDo" class="form-control" rows="4" required placeholder="Ghi rõ số lượng bản sao cần cấp, mục đích sử dụng, hoặc lý do bảo lưu..."></textarea>
+                            <!-- Đã sửa name="lyDo" thành name="moTa" -->
+                            <textarea name="moTa" class="form-control" rows="3" required placeholder="Ghi rõ mục đích sử dụng, hoặc lý do bảo lưu..."></textarea>
                         </div>
+
                         <button type="submit" class="btn btn-primary w-100 fw-bold shadow-sm">
-                            Gửi Yêu Cầu
+                            <i class="fas fa-paper-plane"></i> Gửi Yêu Cầu
                         </button>
                     </form>
                 </div>
@@ -52,8 +67,9 @@
                         <thead class="table-light text-center">
                             <tr>
                                 <th width="10%">Mã YC</th>
-                                <th width="35%">Loại Dịch Vụ</th>
-                                <th width="25%">Ngày Gửi</th>
+                                <th width="28%">Loại Dịch Vụ</th>
+                                <th width="10%">Số Lượng</th>
+                                <th width="22%">Ngày Gửi</th>
                                 <th width="30%">Trạng Thái</th>
                             </tr>
                         </thead>
@@ -63,21 +79,28 @@
                                 foreach (var item in Model)
                                 {
                                     <tr>
-                                        <td class="text-center fw-bold text-secondary">#@item.MaYeuCau</td>
+                                        <!-- Đã sửa item.MaYeuCau thành item.MaYC -->
+                                        <td class="text-center fw-bold text-secondary">#@item.MaYC</td>
                                         <td class="fw-bold text-primary">@item.LoaiDichVu</td>
+                                        <td class="text-center fw-bold">@item.SoLuong</td>
                                         <td class="text-center">@item.NgayGui.ToString("dd/MM/yyyy HH:mm")</td>
                                         <td class="text-center">
-                                            @if (item.TrangThai == "Chờ xử lý")
+                                            <!-- Đã đồng bộ màu sắc và Text trạng thái với Nhân Viên -->
+                                            @if (item.TrangThai == "Đang chờ xử lý")
                                             {
-                                                <span class="badge bg-warning text-dark px-3 py-2"><i class="fas fa-hourglass-half"></i> Đang chờ xử lý</span>
+                                                <span class="badge bg-warning text-dark px-3 py-2"><i class="fas fa-hourglass-half"></i> Chờ xử lý</span>
                                             }
-                                            else if (item.TrangThai == "Đã hoàn thành")
+                                            else if (item.TrangThai == "Đang xử lý")
                                             {
-                                                <span class="badge bg-success px-3 py-2"><i class="fas fa-check"></i> Đã hoàn thành</span>
+                                                <span class="badge bg-info text-dark px-3 py-2"><i class="fas fa-cog fa-spin"></i> Đang xử lý</span>
+                                            }
+                                            else if (item.TrangThai == "Hoàn thành")
+                                            {
+                                                <span class="badge bg-success px-3 py-2"><i class="fas fa-check"></i> Hoàn thành</span>
                                             }
                                             else
                                             {
-                                                <span class="badge bg-danger px-3 py-2">@item.TrangThai</span>
+                                                <span class="badge bg-danger px-3 py-2"><i class="fas fa-times"></i> @item.TrangThai</span>
                                             }
                                         </td>
                                     </tr>
@@ -86,7 +109,7 @@
                             else
                             {
                                 <tr>
-                                    <td colspan="4" class="text-center py-4 text-muted">Bạn chưa gửi yêu cầu hành chính nào!</td>
+                                    <td colspan="5" class="text-center py-4 text-muted">Bạn chưa gửi yêu cầu hành chính nào!</td>
                                 </tr>
                             }
                         </tbody>
