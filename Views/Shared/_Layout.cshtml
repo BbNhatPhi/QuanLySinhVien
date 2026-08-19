@@ -82,6 +82,8 @@
                 <a href="@Url.Action("GiangVienList", "Staff")" class="menu-link"><i class="fas fa-user-tie"></i> Quản lý GV</a>
                 <a href="@Url.Action("ManageLichThi", "Staff")" class="menu-link"><i class="fas fa-calendar-check"></i> Lên lịch thi</a>
                 <a href="@Url.Action("ManageThongBao", "Staff")" class="menu-link"><i class="fas fa-bullhorn"></i> Đăng thông báo</a>
+                <!-- ĐÃ CHỈNH LẠI CLASS CHO KHỚP VÀ XÓA DẤU "<" -->
+                <a href="@Url.Action("QuanLyYeuCau", "Staff")" class="menu-link"><i class="fas fa-file-signature"></i> Duyệt giấy tờ / Hành chính</a>
             }
             else if (User.IsInRole("SinhVien"))
             {

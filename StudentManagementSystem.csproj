@@ -197,6 +197,7 @@
     <Content Include="Views\Student\DichVuHanhChinh.cshtml" />
     <Content Include="Views\Student\DanhGiaGiangVien.cshtml" />
     <Content Include="Views\Student\XemDiemRenLuyen.cshtml" />
+    <Content Include="Views\Staff\QuanLyYeuCau.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap-grid.css" />

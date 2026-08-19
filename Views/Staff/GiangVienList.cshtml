@@ -2,7 +2,6 @@
 @{
     ViewBag.Title = "Quản lý Giảng Viên";
 }
-
 <div class="container mt-4">
     <h2 class="mb-4"><i class="fas fa-chalkboard-teacher"></i> Quản Lý Phân Công Giảng Viên</h2>
 
@@ -49,7 +48,18 @@
                                     <small><i class="fas fa-phone"></i> @item.SoDienThoai</small>
                                 </td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-outline-primary" title="Sửa"><i class="fas fa-edit"></i></button>
+                                    <!-- Đã thêm d-flex để nhóm 2 nút nằm ngang nhau -->
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <button class="btn btn-sm btn-outline-primary" title="Sửa"><i class="fas fa-edit"></i></button>
+
+                                        <!-- FORM XÓA MỚI ĐƯỢC THÊM VÀO -->
+                                        <form action="@Url.Action("DeleteGiangVien", "Staff")" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa giảng viên @item.HoTen (@item.MaGV) không? Hệ thống sẽ tự động dọn dẹp cả tài khoản đăng nhập của giảng viên này!');">
+                                            <input type="hidden" name="maGV" value="@item.MaGV" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger shadow-sm" title="Xóa">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         }

@@ -172,10 +172,12 @@ namespace StudentManagementSystem.Controllers
 
         // POST: /Student/GuiYeuCau
         [HttpPost]
-        public ActionResult GuiYeuCau(string loaiDichVu, string lyDo)
+        public ActionResult GuiYeuCau(string loaiDichVu, string moTa) // Đã sửa lyDo thành moTa
         {
             string username = User.Identity.Name;
-            string result = _studentDAO.GuiYeuCauHanhChinh(username, loaiDichVu, lyDo);
+
+            // Đã sửa lyDo thành moTa ở tham số truyền vào hàm DAO
+            string result = _studentDAO.GuiYeuCauHanhChinh(username, loaiDichVu, moTa);
 
             if (result == "Success")
             {

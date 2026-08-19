@@ -6,6 +6,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Configuration;
 using StudentManagementSystem.Models;
+
 namespace StudentManagementSystem.DAO
 {
     public class StudentDAO
@@ -62,7 +63,6 @@ namespace StudentManagementSystem.DAO
                 cmd.Parameters.AddWithValue("@Username", username);
                 cmd.Parameters.AddWithValue("@MaLopHP", maLopHP);
 
-                // Khai báo biến Output để hứng kết quả từ SQL (Success hoặc thông báo lỗi)
                 SqlParameter msgParam = new SqlParameter("@Message", SqlDbType.NVarChar, 255);
                 msgParam.Direction = ParameterDirection.Output;
                 cmd.Parameters.Add(msgParam);
@@ -111,7 +111,7 @@ namespace StudentManagementSystem.DAO
                         list.Add(new ThoiKhoaBieuSV
                         {
                             TenMon = reader["TenMon"].ToString(),
-                            MaLopHP = reader["MaLopHP"].ToString(), // Đã sửa tên biến hứng dữ liệu
+                            MaLopHP = reader["MaLopHP"].ToString(),
                             NgayHoc = Convert.ToInt32(reader["NgayHoc"]),
                             CaHoc = Convert.ToInt32(reader["CaHoc"]),
                             PhongHoc = reader["PhongHoc"].ToString(),
@@ -166,6 +166,7 @@ namespace StudentManagementSystem.DAO
             }
             return list;
         }
+
         // ==========================================
         // 4. XEM HỌC PHÍ CỦA SINH VIÊN
         // ==========================================
@@ -195,6 +196,7 @@ namespace StudentManagementSystem.DAO
             }
             return list;
         }
+
         // ==========================================
         // 5. XEM THÔNG BÁO TỪ NHÀ TRƯỜNG
         // ==========================================
@@ -224,10 +226,10 @@ namespace StudentManagementSystem.DAO
             }
             return list;
         }
+
         // ==========================================
         // 6. CẬP NHẬT THÔNG TIN CÁ NHÂN
         // ==========================================
-
         public SinhVien GetThongTinCaNhan(string username)
         {
             SinhVien sv = null;
@@ -249,7 +251,6 @@ namespace StudentManagementSystem.DAO
                             GioiTinh = reader["GioiTinh"].ToString(),
                             NgaySinh = reader["NgaySinh"] != DBNull.Value ? (DateTime?)Convert.ToDateTime(reader["NgaySinh"]) : null,
                             Email = reader["Email"].ToString(),
-                            // Dùng Check DBNull để tránh lỗi nếu dữ liệu rỗng
                             SoDienThoai = reader["SoDienThoai"] != DBNull.Value ? reader["SoDienThoai"].ToString() : "",
                             DiaChi = reader["DiaChi"] != DBNull.Value ? reader["DiaChi"].ToString() : ""
                         };
@@ -287,6 +288,7 @@ namespace StudentManagementSystem.DAO
                 }
             }
         }
+
         public List<LichThi> GetLichThiSinhVien(string username)
         {
             List<LichThi> list = new List<LichThi>();
@@ -313,6 +315,7 @@ namespace StudentManagementSystem.DAO
             }
             return list;
         }
+
         public void ThanhToanHocPhi(string username, string maLopHP)
         {
             using (SqlConnection conn = new SqlConnection(connStr))
@@ -326,6 +329,7 @@ namespace StudentManagementSystem.DAO
                 cmd.ExecuteNonQuery();
             }
         }
+
         public List<HocPhi> GetLichSuThanhToan(string username)
         {
             List<HocPhi> list = new List<HocPhi>();
@@ -345,13 +349,14 @@ namespace StudentManagementSystem.DAO
                             MaLopHP = reader["MaLopHP"].ToString(),
                             TenMon = reader["TenMon"].ToString(),
                             SoTinChi = Convert.ToInt32(reader["SoTinChi"]),
-                            DonGia = Convert.ToDouble(reader["DonGia"]),                         
+                            DonGia = Convert.ToDouble(reader["DonGia"]),
                         });
                     }
                 }
             }
             return list;
         }
+
         public TienDoHocTap GetTienDoHocTap(string username)
         {
             TienDoHocTap tienDo = new TienDoHocTap();
@@ -376,14 +381,24 @@ namespace StudentManagementSystem.DAO
             }
             return tienDo;
         }
+
+        // ==========================================
+        // DỊCH VỤ HÀNH CHÍNH (ĐÃ ĐỒNG BỘ VỚI NHÂN VIÊN)
+        // ==========================================
+
         // Lấy lịch sử yêu cầu
         public List<YeuCauHanhChinh> GetLichSuYeuCau(string username)
         {
             List<YeuCauHanhChinh> list = new List<YeuCauHanhChinh>();
             using (SqlConnection conn = new SqlConnection(connStr))
             {
-                SqlCommand cmd = new SqlCommand("sp_GetLichSuYeuCau", conn);
-                cmd.CommandType = CommandType.StoredProcedure;
+                // Trực tiếp truy xuất vào bảng YeuCauHanhChinh mới
+                string query = @"SELECT MaYC, LoaiDichVu, MoTa, NgayGui, TrangThai 
+                                 FROM YeuCauHanhChinh 
+                                 WHERE MaSV = @Username 
+                                 ORDER BY NgayGui DESC";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@Username", username);
 
                 conn.Open();
@@ -391,11 +406,12 @@ namespace StudentManagementSystem.DAO
                 {
                     while (reader.Read())
                     {
+                        // Ánh xạ linh hoạt để tương thích với View của sinh viên
                         list.Add(new YeuCauHanhChinh
                         {
-                            MaYeuCau = Convert.ToInt32(reader["MaYeuCau"]),
+                            MaYC = Convert.ToInt32(reader["MaYC"]),
                             LoaiDichVu = reader["LoaiDichVu"].ToString(),
-                            LyDo = reader["LyDo"].ToString(),
+                            MoTa = reader["MoTa"].ToString(),
                             NgayGui = Convert.ToDateTime(reader["NgayGui"]),
                             TrangThai = reader["TrangThai"].ToString()
                         });
@@ -410,21 +426,21 @@ namespace StudentManagementSystem.DAO
         {
             using (SqlConnection conn = new SqlConnection(connStr))
             {
-                SqlCommand cmd = new SqlCommand("sp_GuiYeuCauHanhChinh", conn);
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@Username", username);
-                cmd.Parameters.AddWithValue("@LoaiDichVu", loaiDichVu);
-                cmd.Parameters.AddWithValue("@LyDo", lyDo);
-
-                SqlParameter msgParam = new SqlParameter("@Message", SqlDbType.NVarChar, 255);
-                msgParam.Direction = ParameterDirection.Output;
-                cmd.Parameters.Add(msgParam);
-
                 try
                 {
+                    // Chèn trực tiếp vào bảng YeuCauHanhChinh để Nhân viên nhìn thấy
+                    string query = @"INSERT INTO YeuCauHanhChinh (MaSV, LoaiDichVu, MoTa, NgayGui, TrangThai) 
+                                     VALUES (@Username, @LoaiDichVu, @LyDo, GETDATE(), N'Đang chờ xử lý')";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@Username", username);
+                    cmd.Parameters.AddWithValue("@LoaiDichVu", loaiDichVu);
+                    cmd.Parameters.AddWithValue("@LyDo", lyDo);
+
                     conn.Open();
                     cmd.ExecuteNonQuery();
-                    return msgParam.Value.ToString();
+
+                    return "Success";
                 }
                 catch (Exception ex)
                 {
@@ -432,7 +448,11 @@ namespace StudentManagementSystem.DAO
                 }
             }
         }
-        // 1. Lấy danh sách các môn cần đánh giá
+
+        // ==========================================
+        // ĐÁNH GIÁ GIẢNG VIÊN VÀ ĐIỂM RÈN LUYỆN
+        // ==========================================
+
         public List<DanhGiaItem> GetDanhSachCanDanhGia(string username)
         {
             List<DanhGiaItem> list = new List<DanhGiaItem>();
@@ -461,7 +481,6 @@ namespace StudentManagementSystem.DAO
             return list;
         }
 
-        // 2. Lưu kết quả đánh giá
         public string LuuDanhGia(string username, string maLopHP, int diemDanhGia, string nhanXet)
         {
             using (SqlConnection conn = new SqlConnection(connStr))
@@ -483,7 +502,6 @@ namespace StudentManagementSystem.DAO
             }
         }
 
-        // 3. Kiểm tra số lượng môn chưa đánh giá để khóa/mở bảng điểm
         public int DemSoMonChuaDanhGia(string username)
         {
             using (SqlConnection conn = new SqlConnection(connStr))
@@ -501,10 +519,10 @@ namespace StudentManagementSystem.DAO
                 return countParam.Value != DBNull.Value ? Convert.ToInt32(countParam.Value) : 0;
             }
         }
+
         public List<DiemRenLuyen> GetDiemRenLuyenByMaSV(string maSV)
         {
             List<DiemRenLuyen> list = new List<DiemRenLuyen>();
-            // Thay connStr bằng chuỗi kết nối của bạn nếu cần
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 SqlCommand cmd = new SqlCommand("sp_GetDiemRenLuyenByMaSV", conn);

@@ -1,0 +1,103 @@
+﻿@model List<StudentManagementSystem.Models.YeuCauHanhChinh>
+@{
+    ViewBag.Title = "Quản lý Yêu cầu Hành chính";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // Đổi layout cho khớp với dự án của bạn
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4"><i class="fas fa-folder-open text-primary"></i> Quản Lý Dịch Vụ Hành Chính "Một Cửa"</h2>
+
+    @if (TempData["SuccessMsg"] != null)
+    {
+        <div class="alert alert-success fw-bold"><i class="fas fa-check-circle"></i> @TempData["SuccessMsg"]</div>
+    }
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <table class="table table-hover table-bordered align-middle mb-0">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th width="5%">Mã</th>
+                        <th width="15%">Sinh Viên</th>
+                        <th width="20%">Loại Dịch Vụ</th>
+                        <th width="25%">Mô Tả / Lý Do</th>
+                        <th width="10%">Ngày Gửi</th>
+                        <th width="10%">Trạng Thái</th>
+                        <th width="15%">Thao Tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="text-center fw-bold">#@item.MaYC</td>
+                                <td>
+                                    <b>@item.HoTen</b><br />
+                                    <small class="text-muted">@item.MaSV</small>
+                                </td>
+                                <td class="text-primary fw-bold">@item.LoaiDichVu</td>
+                                <td><small>@item.MoTa</small></td>
+                                <td class="text-center">@item.NgayGui.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td class="text-center">
+                                    @if (item.TrangThai == "Đang chờ xử lý")
+                                    {
+                                        <span class="badge bg-warning text-dark"><i class="fas fa-hourglass-half"></i> Chờ xử lý</span>
+                                    }
+                                    else if (item.TrangThai == "Đang xử lý")
+                                    {
+                                        <span class="badge bg-info text-dark"><i class="fas fa-cog fa-spin"></i> Đang xử lý</span>
+                                    }
+                                    else if (item.TrangThai == "Hoàn thành")
+                                    {
+                                        <span class="badge bg-success"><i class="fas fa-check"></i> Hoàn thành</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger"><i class="fas fa-times"></i> Từ chối</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <!-- Chỉ hiện nút nếu chưa Hoàn thành hoặc Từ chối -->
+                                    @if (item.TrangThai == "Đang chờ xử lý" || item.TrangThai == "Đang xử lý")
+                                    {
+                                        <form action="@Url.Action("CapNhatTrangThaiYeuCau", "Staff")" method="post" class="d-inline">
+                                            <input type="hidden" name="MaYC" value="@item.MaYC" />
+                                            <div class="btn-group btn-group-sm shadow-sm" role="group">
+
+                                                @if (item.TrangThai == "Đang chờ xử lý")
+                                                {
+                                                    <button type="submit" name="TrangThaiMoi" value="Đang xử lý" class="btn btn-outline-info" title="Tiếp nhận">
+                                                        <i class="fas fa-play"></i>
+                                                    </button>
+                                                }
+
+                                                <button type="submit" name="TrangThaiMoi" value="Hoàn thành" class="btn btn-outline-success" title="Hoàn thành" onclick="return confirm('Xác nhận hoàn thành giấy tờ này?');">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                                <button type="submit" name="TrangThaiMoi" value="Từ chối" class="btn btn-outline-danger" title="Từ chối" onclick="return confirm('Bạn có chắc chắn muốn từ chối giấy tờ này?');">
+                                                    <i class="fas fa-ban"></i>
+                                                </button>
+                                            </div>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted"><i class="fas fa-lock"></i> Đã đóng</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">Chưa có yêu cầu hành chính nào.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

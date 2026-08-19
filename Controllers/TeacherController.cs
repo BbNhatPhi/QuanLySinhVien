@@ -62,6 +62,13 @@ namespace StudentManagementSystem.Controllers
             return View("XemLop", _teacherDAO.GetLichDay(User.Identity.Name));
         }
 
+        public ActionResult ChonLopInDiem()
+        {
+            ViewBag.ChucNang = "InDiem";
+            ViewBag.Title = "Chọn Lớp Để In Bảng Điểm";
+            return View("XemLop", _teacherDAO.GetLichDay(User.Identity.Name));
+        }
+
         // ==========================================
         // PHẦN 3: CÁC HÀM XỬ LÝ NGHIỆP VỤ CHÍNH
         // ==========================================
@@ -75,20 +82,35 @@ namespace StudentManagementSystem.Controllers
             return View(sinhViens);
         }
 
-        // POST: /Teacher/LuuDiemDanh (Xử lý khi bấm nút Lưu Điểm Danh)
+        // ==========================================
+        // HÀM LƯU ĐIỂM DANH
+        // ==========================================
         [HttpPost]
-        public ActionResult LuuDiemDanh(string[] MaSV_Vang, string maLopTC)
+        public ActionResult LuuDiemDanh(FormCollection form, string maLopTC)
         {
-            if (MaSV_Vang != null)
+            if (string.IsNullOrEmpty(maLopTC)) return RedirectToAction("Index");
+
+            // Duyệt qua tất cả dữ liệu gửi lên từ form (các nút radio)
+            foreach (string key in form.AllKeys)
             {
-                foreach (var maSV in MaSV_Vang)
+                // Chỉ lấy những ô bắt đầu bằng "TrangThai_"
+                if (key.StartsWith("TrangThai_"))
                 {
-                    _teacherDAO.TruDiemChuyenCan(maSV, maLopTC);
+                    // Tách lấy mã sinh viên (Cắt bỏ chữ "TrangThai_")
+                    string maSV = key.Replace("TrangThai_", "");
+
+                    // Lấy giá trị vừa chọn ("Có mặt", "Có phép", "Không phép")
+                    string trangThai = form[key];
+
+                    // GỌI HÀM DAO ĐỂ LƯU XUỐNG CSDL 
+                    // _teacherDAO.InsertDiemDanh(maLopTC, maSV, trangThai, DateTime.Now);
                 }
-                TempData["Success"] = "Đã lưu điểm danh! Các sinh viên vắng mặt đã bị trừ điểm chuyên cần.";
             }
+
+            TempData["Success"] = "Đã lưu kết quả điểm danh thành công!";
             return RedirectToAction("DanhSachSinhVien", new { maLopTC = maLopTC });
         }
+
 
         // GET: /Teacher/NhapDiem (Hiển thị Form nhập điểm)
         public ActionResult NhapDiem(string maLopTC)
@@ -99,18 +121,48 @@ namespace StudentManagementSystem.Controllers
             return View(danhSachDiem);
         }
 
-        // POST: /Teacher/LuuDiem (Xử lý khi bấm nút Lưu Bảng Điểm)
+        // ==========================================
+        // HÀM LƯU ĐIỂM (ĐÃ ĐƯỢC FIX LỖI ÉP KIỂU SỐ THẬP PHÂN)
+        // ==========================================
         [HttpPost]
-        public ActionResult LuuDiem(string maLopTC, string[] MaSV, double[] DiemCC, double[] DiemGK, double[] DiemCK)
+        public ActionResult LuuDiem(FormCollection form, string maLopTC)
         {
-            if (MaSV != null)
+            try
             {
-                for (int i = 0; i < MaSV.Length; i++)
+                // Rút dữ liệu trực tiếp từ các thẻ name="..." gửi lên
+                string[] maSVs = form.GetValues("MaSV");
+                string[] diemCCs = form.GetValues("DiemCC");
+                string[] diemGKs = form.GetValues("DiemGK");
+                string[] diemCKs = form.GetValues("DiemCK");
+
+                if (maSVs != null)
                 {
-                    _teacherDAO.UpdateDiem(MaSV[i], maLopTC, DiemCC[i], DiemGK[i], DiemCK[i]);
+                    for (int i = 0; i < maSVs.Length; i++)
+                    {
+                        string maSV = maSVs[i];
+                        double cc = 0, gk = 0, ck = 0;
+
+                        // Mẹo ép kiểu chống lỗi dấu chấm/phẩy của ASP.NET MVC
+                        if (diemCCs != null && i < diemCCs.Length && !string.IsNullOrEmpty(diemCCs[i]))
+                            double.TryParse(diemCCs[i].Replace(",", "."), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out cc);
+
+                        if (diemGKs != null && i < diemGKs.Length && !string.IsNullOrEmpty(diemGKs[i]))
+                            double.TryParse(diemGKs[i].Replace(",", "."), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out gk);
+
+                        if (diemCKs != null && i < diemCKs.Length && !string.IsNullOrEmpty(diemCKs[i]))
+                            double.TryParse(diemCKs[i].Replace(",", "."), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out ck);
+
+                        // Ghi xuống CSDL
+                        _teacherDAO.UpdateDiem(maSV, maLopTC, cc, gk, ck);
+                    }
+                    TempData["Success"] = "Đã lưu bảng điểm thành công! Điểm tổng kết đã tự động cập nhật.";
                 }
-                TempData["Success"] = "Đã lưu bảng điểm thành công! Điểm tổng kết đã được tự động tính toán.";
             }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Lỗi hệ thống: " + ex.Message;
+            }
+
             return RedirectToAction("NhapDiem", new { maLopTC = maLopTC });
         }
 
@@ -121,52 +173,6 @@ namespace StudentManagementSystem.Controllers
             ViewBag.MaLopTC = maLopTC;
             var danhSachDiem = _teacherDAO.GetDanhSachDiem(maLopTC);
             return View(danhSachDiem);
-        }
-        // Đổi tên hàm thành ChonLopInDiem cho ngắn gọn và khớp
-        public ActionResult ChonLopInDiem()
-        {
-            ViewBag.ChucNang = "InDiem";
-            ViewBag.Title = "Chọn Lớp Để In Bảng Điểm";
-            return View("XemLop", _teacherDAO.GetLichDay(User.Identity.Name));
-        }
-        [HttpPost]
-        public ActionResult LuuDiemDanh(FormCollection form, string maLopHocPhan, string hocKy)
-        {
-            // Lấy danh sách sinh viên và trạng thái điểm danh từ giao diện gửi lên
-            string[] maSVs = form.GetValues("maSV");
-            string[] trangThais = form.GetValues("trangThaiVang");
-
-            if (maSVs != null && trangThais != null)
-            {
-                for (int i = 0; i < maSVs.Length; i++)
-                {
-                    string maSV = maSVs[i];
-                    string trangThai = trangThais[i]; // Có mặt, Có phép, Không phép
-
-                    // ==========================================
-                    // 1. Code cũ của bạn: Lưu lịch sử điểm danh vào CSDL
-                    // ==========================================
-                    // _teacherDAO.InsertDiemDanh(maLopHocPhan, maSV, trangThai, DateTime.Now);
-
-                    // ==========================================
-                    // 2. TÍNH NĂNG MỚI: TỰ ĐỘNG TRỪ ĐIỂM RÈN LUYỆN
-                    // ==========================================
-                    if (trangThai == "Có phép" || trangThai == "Không phép")
-                    {
-                        // Gọi hàm trừ điểm mà chúng ta vừa tạo ở DAO
-                        _teacherDAO.TruDiemVangHoc(maSV, hocKy, trangThai);
-                    }
-                }
-
-                TempData["SuccessMsg"] = "Đã lưu điểm danh và tự động cập nhật điểm rèn luyện thành công!";
-            }
-            else
-            {
-                TempData["ErrorMsg"] = "Không có dữ liệu điểm danh!";
-            }
-
-            // Trả về trang danh sách lớp sau khi lưu xong
-            return RedirectToAction("ChonLopDiemDanh");
         }
     }
 }

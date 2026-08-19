@@ -790,5 +790,51 @@ namespace StudentManagementSystem.DAO
                 catch { return false; }
             }
         }
+        // Lấy danh sách yêu cầu hành chính
+        public List<YeuCauHanhChinh> GetAllYeuCau()
+        {
+            List<YeuCauHanhChinh> list = new List<YeuCauHanhChinh>();
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                SqlCommand cmd = new SqlCommand("sp_GetAllYeuCauHanhChinh", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                conn.Open();
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        list.Add(new YeuCauHanhChinh
+                        {
+                            MaYC = Convert.ToInt32(reader["MaYC"]),
+                            MaSV = reader["MaSV"].ToString(),
+                            HoTen = reader["HoTen"].ToString(),
+                            LoaiDichVu = reader["LoaiDichVu"].ToString(),
+                            MoTa = reader["MoTa"].ToString(),
+                            NgayGui = Convert.ToDateTime(reader["NgayGui"]),
+                            TrangThai = reader["TrangThai"].ToString()
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
+        // Cập nhật trạng thái
+        public bool UpdateTrangThaiYeuCau(int maYC, string trangThai)
+        {
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("sp_UpdateTrangThaiYeuCau", conn);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@MaYC", maYC);
+                    cmd.Parameters.AddWithValue("@TrangThai", trangThai);
+                    conn.Open();
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+                catch { return false; }
+            }
+        }
     }
 }

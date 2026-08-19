@@ -410,5 +410,27 @@ namespace StudentManagementSystem.Controllers
 
             return RedirectToAction("ManageDiemRenLuyen");
         }
+        // GET: Hiển thị giao diện quản lý
+        public ActionResult QuanLyYeuCau()
+        {
+            var list = _staffDAO.GetAllYeuCau();
+            return View(list);
+        }
+
+        // POST: Xử lý khi nhân viên bấm nút Duyệt / Từ chối
+        [HttpPost]
+        public ActionResult CapNhatTrangThaiYeuCau(int MaYC, string TrangThaiMoi)
+        {
+            bool check = _staffDAO.UpdateTrangThaiYeuCau(MaYC, TrangThaiMoi);
+            if (check)
+            {
+                TempData["SuccessMsg"] = $"Đã cập nhật yêu cầu #{MaYC} thành: {TrangThaiMoi}";
+            }
+            else
+            {
+                TempData["ErrorMsg"] = "Có lỗi xảy ra, vui lòng thử lại!";
+            }
+            return RedirectToAction("QuanLyYeuCau");
+        }
     }
 }

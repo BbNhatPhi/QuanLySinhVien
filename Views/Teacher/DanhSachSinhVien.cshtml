@@ -31,7 +31,7 @@
                         <th>Giới Tính</th>
                         <th>Email</th>
                         <th>Điểm CC hiện tại</th>
-                        <th class="text-center" width="25%">Trạng Thái Điểm Danh</th>
+                        <th class="text-center" width="35%">Trạng Thái Điểm Danh</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -44,15 +44,21 @@
                             <td>@sv.Email</td>
                             <td class="text-center"><span class="badge bg-info text-dark fs-6">@sv.DiemCC</span></td>
                             <td class="text-center">
-                                <!-- Đính kèm Mã SV ngầm để Controller biết sinh viên nào được chọn -->
-                                <input type="hidden" name="maSV" value="@sv.MaSV" />
-
-                                <!-- Thẻ select chọn trạng thái đi học / vắng -->
-                                <select name="trangThaiVang" class="form-select border-info text-center fw-bold">
-                                    <option value="Có mặt" class="text-success">Có mặt</option>
-                                    <option value="Có phép" class="text-warning">Vắng có phép (-2đ)</option>
-                                    <option value="Không phép" class="text-danger">Vắng không phép (-3đ)</option>
-                                </select>
+                                <!-- Layout 3 ô tích (Radio Buttons) -->
+                                <div class="d-flex justify-content-center gap-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="TrangThai_@sv.MaSV" id="comat_@sv.MaSV" value="Có mặt" checked>
+                                        <label class="form-check-label text-success fw-bold" for="comat_@sv.MaSV">Có mặt</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="TrangThai_@sv.MaSV" id="cophep_@sv.MaSV" value="Có phép">
+                                        <label class="form-check-label text-warning fw-bold" for="cophep_@sv.MaSV">Có phép</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="TrangThai_@sv.MaSV" id="khongphep_@sv.MaSV" value="Không phép">
+                                        <label class="form-check-label text-danger fw-bold" for="khongphep_@sv.MaSV">Không phép</label>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     }
@@ -60,7 +66,7 @@
             </table>
 
             <div class="text-end mt-3">
-                <button type="submit" class="btn btn-danger px-4 fw-bold shadow-sm"><i class="fas fa-clipboard-list"></i> LƯU ĐIỂM DANH & TRỪ ĐIỂM</button>
+                <button type="submit" class="btn btn-primary px-4 fw-bold shadow-sm"><i class="fas fa-clipboard-check"></i> LƯU ĐIỂM DANH</button>
             </div>
         </form>
     </div>
