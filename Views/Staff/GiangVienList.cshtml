@@ -2,6 +2,7 @@
 @{
     ViewBag.Title = "Quản lý Giảng Viên";
 }
+
 <div class="container mt-4">
     <h2 class="mb-4"><i class="fas fa-chalkboard-teacher"></i> Quản Lý Phân Công Giảng Viên</h2>
 
@@ -26,7 +27,7 @@
                         <th class="text-center">Mã GV</th>
                         <th>Họ Tên</th>
                         <th>Đơn Vị / Khoa</th>
-                        <th>Môn Phụ Trách</th>
+                        <!-- Đã xóa cột Môn phụ trách -->
                         <th>Liên Hệ</th>
                         <th class="text-center">Thao tác</th>
                     </tr>
@@ -40,19 +41,15 @@
                                 <td class="text-center fw-bold text-primary">@item.MaGV</td>
                                 <td class="fw-bold">@item.HoTen</td>
                                 <td>@item.TenKhoa</td>
-                                <td>
-                                    <span class="badge bg-warning text-dark px-2 py-1">@item.TenMon</span>
-                                </td>
+                                <!-- Đã xóa nội dung hiển thị Môn -->
                                 <td>
                                     <small><i class="fas fa-envelope"></i> @item.Email</small><br />
                                     <small><i class="fas fa-phone"></i> @item.SoDienThoai</small>
                                 </td>
                                 <td class="text-center">
-                                    <!-- Đã thêm d-flex để nhóm 2 nút nằm ngang nhau -->
                                     <div class="d-flex justify-content-center gap-2">
                                         <button class="btn btn-sm btn-outline-primary" title="Sửa"><i class="fas fa-edit"></i></button>
 
-                                        <!-- FORM XÓA MỚI ĐƯỢC THÊM VÀO -->
                                         <form action="@Url.Action("DeleteGiangVien", "Staff")" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa giảng viên @item.HoTen (@item.MaGV) không? Hệ thống sẽ tự động dọn dẹp cả tài khoản đăng nhập của giảng viên này!');">
                                             <input type="hidden" name="maGV" value="@item.MaGV" />
                                             <button type="submit" class="btn btn-sm btn-outline-danger shadow-sm" title="Xóa">
@@ -67,7 +64,8 @@
                     else
                     {
                         <tr>
-                            <td colspan="6" class="text-center text-muted">Chưa có dữ liệu Giảng viên.</td>
+                            <!-- Giảm colspan từ 6 xuống 5 vì đã bớt 1 cột -->
+                            <td colspan="5" class="text-center text-muted">Chưa có dữ liệu Giảng viên.</td>
                         </tr>
                     }
                 </tbody>
@@ -97,19 +95,7 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold text-primary">Phân công Môn dạy (Chuyên môn)</label>
-                        <select name="MaMon" class="form-select border-primary" required>
-                            <option value="">-- Chọn Môn Học --</option>
-                            @if (ViewBag.ListMonHoc != null)
-                            {
-                                foreach (var mon in ViewBag.ListMonHoc)
-                                {
-                                    <option value="@mon.MaMon">@mon.TenMon (@mon.MaMon)</option>
-                                }
-                            }
-                        </select>
-                    </div>
+                    <!-- ĐÃ XÓA PHẦN COMBOBOX CHỌN MÔN CHUYÊN MÔN -->
 
                     <div class="mb-3">
                         <label class="form-label fw-bold">Trực thuộc Khoa</label>

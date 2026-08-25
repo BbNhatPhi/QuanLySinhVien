@@ -202,104 +202,6 @@ namespace StudentManagementSystem.DAO
         }
 
         // ==========================================
-        // QUẢN LÝ LỚP DANH NGHĨA
-        // ==========================================
-
-        public List<LopDanhNghia> GetAllLop()
-        {
-            List<LopDanhNghia> list = new List<LopDanhNghia>();
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                SqlCommand cmd = new SqlCommand("sp_GetAllLop", conn);
-                cmd.CommandType = CommandType.StoredProcedure;
-
-                conn.Open();
-                using (SqlDataReader reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        list.Add(new LopDanhNghia
-                        {
-                            MaLop = reader["MaLop"].ToString(),
-                            TenLop = reader["TenLop"].ToString(),
-                            KhoaID = Convert.ToInt32(reader["KhoaID"]),
-                            TenKhoa = reader["TenKhoa"].ToString(),
-                            KhoaHoc = reader["KhoaHoc"].ToString()
-                        });
-                    }
-                }
-            }
-            return list;
-        }
-
-        public bool AddLop(LopDanhNghia lop)
-        {
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                try
-                {
-                    SqlCommand cmd = new SqlCommand("sp_AddLop", conn);
-                    cmd.CommandType = CommandType.StoredProcedure;
-
-                    cmd.Parameters.AddWithValue("@MaLop", lop.MaLop);
-                    cmd.Parameters.AddWithValue("@TenLop", lop.TenLop);
-                    cmd.Parameters.AddWithValue("@KhoaID", lop.KhoaID);
-                    cmd.Parameters.AddWithValue("@KhoaHoc", lop.KhoaHoc);
-
-                    conn.Open();
-                    return cmd.ExecuteNonQuery() > 0;
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-        }
-
-        public bool UpdateLop(string maLop, string tenLop, int khoaId, string khoaHoc)
-        {
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                try
-                {
-                    SqlCommand cmd = new SqlCommand("sp_UpdateLop", conn);
-                    cmd.CommandType = CommandType.StoredProcedure;
-
-                    cmd.Parameters.AddWithValue("@MaLop", maLop);
-                    cmd.Parameters.AddWithValue("@TenLop", tenLop);
-                    cmd.Parameters.AddWithValue("@KhoaID", khoaId);
-                    cmd.Parameters.AddWithValue("@KhoaHoc", khoaHoc);
-
-                    conn.Open();
-                    return cmd.ExecuteNonQuery() > 0;
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-        }
-
-        public bool DeleteLop(string maLop)
-        {
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                try
-                {
-                    SqlCommand cmd = new SqlCommand("DELETE FROM LopDanhNghia WHERE MaLop = @MaLop", conn);
-                    cmd.Parameters.AddWithValue("@MaLop", maLop);
-
-                    conn.Open();
-                    return cmd.ExecuteNonQuery() > 0;
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-        }
-
-        // ==========================================
         // QUẢN LÝ LỚP HỌC PHẦN (MỞ LỚP)
         // ==========================================
 
@@ -516,7 +418,7 @@ namespace StudentManagementSystem.DAO
                 cmd.Parameters.AddWithValue("@KhoaID", gv.KhoaID);
                 cmd.Parameters.AddWithValue("@Email", (object)gv.Email ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@SoDienThoai", (object)gv.SoDienThoai ?? DBNull.Value);
-                cmd.Parameters.AddWithValue("@MaMon", gv.MaMon);
+                cmd.Parameters.AddWithValue("@MaMon", DBNull.Value);
 
                 SqlParameter msgParam = new SqlParameter("@Message", SqlDbType.NVarChar, 255);
                 msgParam.Direction = ParameterDirection.Output;
