@@ -15,5 +15,6 @@ namespace StudentManagementSystem.Models
         public string NamHoc { get; set; }
         public int SoLuongMax { get; set; }
         public string TrangThai { get; set; }
+
     }
 }

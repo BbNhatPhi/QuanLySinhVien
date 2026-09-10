@@ -8,7 +8,6 @@ using StudentManagementSystem.Models;
 
 namespace StudentManagementSystem.Controllers
 {
-
     // BẢO MẬT: Chỉ Nhân viên Phòng đào tạo mới được vào
     [Authorize(Roles = "NhanVien")]
     public class StaffController : Controller
@@ -21,7 +20,6 @@ namespace StudentManagementSystem.Controllers
 
         public ActionResult Index()
         {
-            // Khi vừa đăng nhập vào /Staff, tự động chuyển hướng ngay sang trang Quản lý sinh viên
             return RedirectToAction("QuanLySinhVien");
         }
 
@@ -29,7 +27,7 @@ namespace StudentManagementSystem.Controllers
         {
             var sinhViens = _staffDAO.GetAllSinhVien();
 
-            // ĐÃ SỬA: Chuyển hoàn toàn sang gọi GetAllKhoa() thay vì Nganh
+            // Chỉ nạp danh sách Khoa (Đã loại bỏ hoàn toàn Ngành)
             ViewBag.ListKhoa = _staffDAO.GetAllKhoa();
 
             return View(sinhViens);
@@ -69,7 +67,6 @@ namespace StudentManagementSystem.Controllers
             }
             return RedirectToAction("QuanLySinhVien");
         }
-
 
         // ==========================================
         // QUẢN LÝ MÔN HỌC
@@ -115,26 +112,22 @@ namespace StudentManagementSystem.Controllers
             return RedirectToAction("ManageMonHoc");
         }
 
-
         // ==========================================
         // QUẢN LÝ LỚP HỌC PHẦN (MỞ LỚP)
         // ==========================================
 
         public ActionResult LopHocPhanList()
         {
-            StaffDAO dao = new StaffDAO();
+            ViewBag.ListMonHoc = _staffDAO.GetAllMonHoc();
+            ViewBag.ListGiangVien = _staffDAO.GetAllGiangVien();
 
-            ViewBag.ListMonHoc = dao.GetAllMonHoc();
-            ViewBag.ListGiangVien = dao.GetAllGiangVien();
-
-            return View(dao.GetAllLopHocPhan());
+            return View(_staffDAO.GetAllLopHocPhan());
         }
 
         [HttpPost]
         public ActionResult AddLopHocPhan(LopHocPhan lhp)
         {
-            StaffDAO dao = new StaffDAO();
-            string result = dao.AddLopHocPhan(lhp);
+            string result = _staffDAO.AddLopHocPhan(lhp);
 
             if (result == "Success")
             {
@@ -153,16 +146,14 @@ namespace StudentManagementSystem.Controllers
 
         public ActionResult TKBList()
         {
-            StaffDAO dao = new StaffDAO();
-            ViewBag.ListLopHocPhan = dao.GetAllLopHocPhan();
-            return View(dao.GetAllTKB());
+            ViewBag.ListLopHocPhan = _staffDAO.GetAllLopHocPhan();
+            return View(_staffDAO.GetAllTKB());
         }
 
         [HttpPost]
         public ActionResult AddTKB(ThoiKhoaBieu tkb)
         {
-            StaffDAO dao = new StaffDAO();
-            string result = dao.AddTKB(tkb);
+            string result = _staffDAO.AddTKB(tkb);
 
             if (result == "Success")
             {
@@ -178,21 +169,19 @@ namespace StudentManagementSystem.Controllers
         // ==========================================
         // QUẢN LÝ GIẢNG VIÊN
         // ==========================================
+
         public ActionResult GiangVienList()
         {
-            StaffDAO dao = new StaffDAO();
+            ViewBag.ListKhoa = _staffDAO.GetAllKhoa();
+            ViewBag.ListMonHoc = _staffDAO.GetAllMonHoc();
 
-            ViewBag.ListKhoa = dao.GetAllKhoa();
-            ViewBag.ListMonHoc = dao.GetAllMonHoc();
-
-            return View(dao.GetDanhSachGiangVien());
+            return View(_staffDAO.GetDanhSachGiangVien());
         }
 
         [HttpPost]
         public ActionResult AddGiangVien(GiangVien gv)
         {
-            StaffDAO dao = new StaffDAO();
-            string result = dao.AddGiangVien(gv);
+            string result = _staffDAO.AddGiangVien(gv);
 
             if (result == "Success")
             {
@@ -207,8 +196,7 @@ namespace StudentManagementSystem.Controllers
 
         public ActionResult DeleteGiangVien(string maGV)
         {
-            StaffDAO dao = new StaffDAO();
-            if (dao.DeleteGiangVien(maGV))
+            if (_staffDAO.DeleteGiangVien(maGV))
             {
                 TempData["SuccessMsg"] = $"Đã xóa thành công giảng viên {maGV}!";
             }
@@ -266,7 +254,6 @@ namespace StudentManagementSystem.Controllers
             return RedirectToAction("ManageLichThi");
         }
 
-
         // ==========================================
         // QUẢN LÝ THÔNG BÁO
         // ==========================================
@@ -296,10 +283,10 @@ namespace StudentManagementSystem.Controllers
             return RedirectToAction("ManageThongBao");
         }
 
-
         // ==========================================
         // QUẢN LÝ ĐIỂM RÈN LUYỆN
         // ==========================================
+
         public ActionResult ManageDiemRenLuyen()
         {
             var dsDiem = _staffDAO.GetAllDiemRenLuyen();
@@ -374,6 +361,5 @@ namespace StudentManagementSystem.Controllers
             }
             return RedirectToAction("QuanLyYeuCau");
         }
-
     }
 }

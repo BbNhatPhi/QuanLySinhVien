@@ -22,13 +22,12 @@ namespace StudentManagementSystem.DAO
             List<SinhVien> list = new List<SinhVien>();
             using (SqlConnection conn = new SqlConnection(connStr))
             {
-                // Dùng SQL thuần kết nối bảng SinhVien với bảng Khoa để lấy Tên Khoa (chữ)
-                // ĐÃ SỬA: Dùng s.NganhID AS KhoaID để C# đọc được, và JOIN qua s.NganhID
+                // Dùng cột KhoaID thay thế hoàn toàn cho NganhID
                 string sql = @"
                     SELECT s.MaSV, s.HoTen, s.NgaySinh, s.GioiTinh, s.DiaChi, s.Email, 
-                           s.SoDienThoai, s.TrangThaiHocTap, s.NganhID AS KhoaID, k.TenKhoa 
+                           s.SoDienThoai, s.TrangThaiHocTap, s.KhoaID, k.TenKhoa 
                     FROM SinhVien s
-                    LEFT JOIN Khoa k ON s.NganhID = k.KhoaID";
+                    LEFT JOIN Khoa k ON s.KhoaID = k.KhoaID";
 
                 SqlCommand cmd = new SqlCommand(sql, conn);
 
@@ -47,8 +46,6 @@ namespace StudentManagementSystem.DAO
                             Email = reader["Email"].ToString(),
                             SoDienThoai = reader["SoDienThoai"].ToString(),
                             TrangThaiHocTap = reader["TrangThaiHocTap"].ToString(),
-
-                            // Ánh xạ chính xác cột Khoa từ SQL
                             KhoaID = reader["KhoaID"] != DBNull.Value ? Convert.ToInt32(reader["KhoaID"]) : 0,
                             TenKhoa = reader["TenKhoa"] != DBNull.Value ? reader["TenKhoa"].ToString() : ""
                         });
@@ -86,8 +83,8 @@ namespace StudentManagementSystem.DAO
                 cmd.Parameters.AddWithValue("@GioiTinh", (object)sv.GioiTinh ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@Email", (object)sv.Email ?? DBNull.Value);
 
-                // ĐÃ SỬA: Gửi tham số xuống SQL dưới tên @NganhID nhưng lấy dữ liệu từ sv.KhoaID
-                cmd.Parameters.AddWithValue("@NganhID", sv.KhoaID);
+                // Truyền trực tiếp KhoaID xuống SQL
+                cmd.Parameters.AddWithValue("@KhoaID", sv.KhoaID);
 
                 SqlParameter msgParam = new SqlParameter("@Message", SqlDbType.NVarChar, 255);
                 msgParam.Direction = ParameterDirection.Output;

@@ -18,5 +18,6 @@ namespace StudentManagementSystem.Models
         public string MaNganh { get; set; }
         public int KhoaID { get; set; }
         public string TenKhoa { get; set; }
+        public int NganhID { get; set; }
     }
 }
