@@ -1,6 +1,9 @@
 ﻿@model List<StudentManagementSystem.Models.LopHocPhan>
 @{
     ViewBag.Title = "Đăng Ký Học Phần";
+
+    // Lấy danh sách các mã lớp đã đăng ký từ ViewBag (do Controller truyền sang)
+    List<string> listDaDK = ViewBag.ListMaLopDaDK as List<string> ?? new List<string>();
 }
 
 <div class="container mt-4">
@@ -36,6 +39,10 @@
                     {
                         foreach (var item in Model)
                         {
+                            // Kiểm tra xem môn này đã đăng ký chưa và đã đầy chưa
+                            bool isRegistered = listDaDK.Contains(item.MaLopHP);
+                            bool isFull = Convert.ToInt32(item.TrangThai) >= item.SoLuongMax;
+
                             <tr>
                                 <td class="text-center fw-bold text-primary">@item.MaLopHP</td>
                                 <td class="fw-bold">@item.TenMon</td>
@@ -43,24 +50,35 @@
                                 <td class="text-center">HK @item.HocKy<br /><small class="text-muted">@item.NamHoc</small></td>
                                 <td class="text-center">
                                     <!-- Hiển thị Sỉ số hiện tại / Sỉ số Max -->
-                                    <span class="badge @(Convert.ToInt32(item.TrangThai) >= item.SoLuongMax ? "bg-danger" : "bg-success") fs-6">
+                                    <span class="badge @(isFull ? "bg-danger" : "bg-success") fs-6">
                                         @item.TrangThai / @item.SoLuongMax
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <form action="@Url.Action("XuLyDangKy", "Student")" method="post">
-                                        <input type="hidden" name="maLopHP" value="@item.MaLopHP" />
-                                        @if (Convert.ToInt32(item.TrangThai) >= item.SoLuongMax)
-                                        {
-                                            <button type="button" class="btn btn-secondary btn-sm" disabled>Đã đầy</button>
-                                        }
-                                        else
-                                        {
+                                    @if (isRegistered)
+                                    {
+                                        <!-- TRƯỜNG HỢP 1: ĐÃ ĐĂNG KÝ -->
+                                        <button type="button" class="btn btn-secondary btn-sm fw-bold" disabled>
+                                            <i class="fas fa-check"></i> Đã đăng ký
+                                        </button>
+                                    }
+                                    else if (isFull)
+                                    {
+                                        <!-- TRƯỜNG HỢP 2: LỚP ĐÃ ĐẦY -->
+                                        <button type="button" class="btn btn-danger btn-sm fw-bold" disabled>
+                                            <i class="fas fa-ban"></i> Đã đầy
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <!-- TRƯỜNG HỢP 3: CHƯA ĐĂNG KÝ VÀ CÒN CHỖ -->
+                                        <form action="@Url.Action("XuLyDangKy", "Student")" method="post" class="m-0">
+                                            <input type="hidden" name="maLopHP" value="@item.MaLopHP" />
                                             <button type="submit" class="btn btn-primary btn-sm fw-bold">
                                                 <i class="fas fa-plus"></i> Đăng Ký
                                             </button>
-                                        }
-                                    </form>
+                                        </form>
+                                    }
                                 </td>
                             </tr>
                         }

@@ -54,6 +54,34 @@ namespace StudentManagementSystem.DAO
             return list;
         }
 
+        // ĐÃ BỔ SUNG: Hàm lấy danh sách mã lớp học phần sinh viên đã đăng ký
+        public List<string> GetMaLopDaDangKy(string username)
+        {
+            List<string> list = new List<string>();
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                string sql = @"
+                    SELECT dk.MaLopHP 
+                    FROM DangKyHocPhan dk
+                    INNER JOIN SinhVien sv ON dk.MaSV = sv.MaSV
+                    INNER JOIN Users u ON sv.UserID = u.UserID
+                    WHERE u.Username = @Username";
+
+                SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@Username", username);
+
+                conn.Open();
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        list.Add(reader["MaLopHP"].ToString());
+                    }
+                }
+            }
+            return list;
+        }
+
         public string DangKyLop(string username, string maLopHP)
         {
             using (SqlConnection conn = new SqlConnection(connStr))

@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using StudentManagementSystem.DAO;
 using StudentManagementSystem.Models;
+
 namespace StudentManagementSystem.Controllers
 {
     // BẢO MẬT: Chỉ Sinh viên mới được phép truy cập
@@ -41,7 +42,14 @@ namespace StudentManagementSystem.Controllers
         // GET: /Student/DangKyHocPhan
         public ActionResult DangKyHocPhan()
         {
+            string username = User.Identity.Name;
+
+            // 1. Lấy danh sách các lớp đang mở
             var danhSachLop = _studentDAO.GetLopHocPhanMoDangKy();
+
+            // 2. BẮT BUỘC: Lấy các lớp đã đăng ký và truyền sang View để làm mờ nút
+            ViewBag.ListMaLopDaDK = _studentDAO.GetMaLopDaDangKy(username);
+
             return View(danhSachLop);
         }
 
@@ -66,7 +74,7 @@ namespace StudentManagementSystem.Controllers
             return RedirectToAction("DangKyHocPhan");
         }
 
-       
+
 
         // ==========================================
         // THANH TOÁN HỌC PHÍ ONLINE
@@ -81,7 +89,7 @@ namespace StudentManagementSystem.Controllers
             return View();
         }
 
-       
+
 
         // ==========================================
         // THÔNG BÁO VÀ THÔNG TIN CÁ NHÂN
@@ -123,6 +131,7 @@ namespace StudentManagementSystem.Controllers
 
             return RedirectToAction("CapNhatThongTin");
         }
+
         // GET: /Student/XemLichThi
         public ActionResult XemLichThi()
         {
@@ -130,6 +139,7 @@ namespace StudentManagementSystem.Controllers
             var lichThi = _studentDAO.GetLichThiSinhVien(username);
             return View(lichThi);
         }
+
         // POST: /Student/XacNhanThanhToan (Xử lý khi bấm nút Xác nhận)
         [HttpPost]
         public ActionResult XacNhanThanhToan(string maLopHP, double soTien)
@@ -143,6 +153,7 @@ namespace StudentManagementSystem.Controllers
             TempData["SuccessMsg"] = $"Giao dịch thành công! Bạn đã nộp {soTien:N0} VNĐ cho học phần {maLopHP}.";
             return RedirectToAction("XemHocPhi");
         }
+
         // GET: /Student/XemHocPhi
         public ActionResult XemHocPhi()
         {
@@ -156,12 +167,14 @@ namespace StudentManagementSystem.Controllers
 
             return View(danhSachHocPhi);
         }
+
         public ActionResult TienDoHocTap()
         {
             string username = User.Identity.Name;
             var tienDo = _studentDAO.GetTienDoHocTap(username);
             return View(tienDo);
         }
+
         // GET: /Student/DichVuHanhChinh
         public ActionResult DichVuHanhChinh()
         {
@@ -182,6 +195,7 @@ namespace StudentManagementSystem.Controllers
 
             return RedirectToAction("DichVuHanhChinh");
         }
+
         // GET: /Student/DanhGiaGiangVien
         public ActionResult DanhGiaGiangVien()
         {
@@ -208,6 +222,7 @@ namespace StudentManagementSystem.Controllers
 
             return RedirectToAction("DanhGiaGiangVien");
         }
+
         // GET: /Student/XemDiemRenLuyen
         public ActionResult XemDiemRenLuyen()
         {
