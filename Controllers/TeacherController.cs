@@ -84,33 +84,48 @@ namespace StudentManagementSystem.Controllers
 
         // ==========================================
         // HÀM LƯU ĐIỂM DANH
-        // ==========================================
         [HttpPost]
-        public ActionResult LuuDiemDanh(FormCollection form, string maLopTC)
+        public ActionResult LuuDiemDanh(FormCollection form)
         {
-            if (string.IsNullOrEmpty(maLopTC)) return RedirectToAction("Index");
+            // 1. LẤY ĐÚNG TÊN BIẾN TỪ VIEW (maLopTC)
+            string maLop = form["maLopTC"];
 
-            // Duyệt qua tất cả dữ liệu gửi lên từ form (các nút radio)
+            // Mặc định học kỳ hiện tại (bạn có thể đổi theo kỳ thực tế)
+            string hocKy = "HK1 (2025-2026)";
+
+            TeacherDAO dao = new TeacherDAO();
+
+            // 2. QUÉT TOÀN BỘ DANH SÁCH SINH VIÊN ĐƯỢC GỬI LÊN TỪ FORM
             foreach (string key in form.AllKeys)
             {
-                // Chỉ lấy những ô bắt đầu bằng "TrangThai_"
+                // Chỉ xử lý các nút Checkbox Điểm danh
                 if (key.StartsWith("TrangThai_"))
                 {
-                    // Tách lấy mã sinh viên (Cắt bỏ chữ "TrangThai_")
+                    // Bóc tách lấy đúng mã Sinh Viên (VD: "TrangThai_230001" -> "230001")
                     string maSV = key.Replace("TrangThai_", "");
 
-                    // Lấy giá trị vừa chọn ("Có mặt", "Có phép", "Không phép")
+                    // Lấy trạng thái ("Có mặt", "Có phép", "Không phép")
                     string trangThai = form[key];
 
-                    // GỌI HÀM DAO ĐỂ LƯU XUỐNG CSDL 
-                    // _teacherDAO.InsertDiemDanh(maLopTC, maSV, trangThai, DateTime.Now);
+                    // 3. XỬ LÝ LOGIC TRỪ ĐIỂM
+                    if (trangThai == "Không phép")
+                    {
+                        // Vắng không phép: Trừ cả điểm Chuyên cần (Môn học) & Điểm rèn luyện
+                        dao.TruDiemChuyenCan(maSV, maLop);
+                        dao.TruDiemVangHoc(maSV, hocKy, trangThai);
+                    }
+                    else if (trangThai == "Có phép")
+                    {
+                        // Vắng có phép: Chỉ trừ điểm rèn luyện (theo luật chung của trường)
+                        dao.TruDiemVangHoc(maSV, hocKy, trangThai);
+                    }
                 }
             }
 
+            // 4. HIỂN THỊ THÔNG BÁO VÀ TẢI LẠI TRANG (trả về đúng biến maLopTC cho URL)
             TempData["Success"] = "Đã lưu kết quả điểm danh thành công!";
-            return RedirectToAction("DanhSachSinhVien", new { maLopTC = maLopTC });
+            return RedirectToAction("DanhSachSinhVien", new { maLopTC = maLop });
         }
-
 
         // GET: /Teacher/NhapDiem (Hiển thị Form nhập điểm)
         public ActionResult NhapDiem(string maLopTC)
