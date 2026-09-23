@@ -1,19 +1,53 @@
-﻿@{
-    ViewBag.Title = "Contact";
+@{
+    ViewBag.Title = "Liên hệ";
 }
-<main aria-labelledby="title">
-    <h2 id="title">@ViewBag.Title.</h2>
-    <h3>@ViewBag.Message</h3>
 
-    <address>
-        One Microsoft Way<br />
-        Redmond, WA 98052-6399<br />
-        <abbr title="Phone">P:</abbr>
-        425.555.0100
-    </address>
+<div class="page-head">
+    <div>
+        <h1><i class="fas fa-envelope text-primary me-2"></i>Liên hệ</h1>
+        <p class="lead">Phòng Đào tạo - Đại học Nguyễn Tất Thành.</p>
+    </div>
+</div>
 
-    <address>
-        <strong>Support:</strong>   <a href="mailto:Support@example.com">Support@example.com</a><br />
-        <strong>Marketing:</strong> <a href="mailto:Marketing@example.com">Marketing@example.com</a>
-    </address>
-</main>
+<div class="card">
+    <div class="card-body p-4">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="d-flex align-items-start gap-3">
+                    <i class="fas fa-location-dot text-danger fs-4"></i>
+                    <div>
+                        <h6 class="fw-bold mb-1">Địa chỉ</h6>
+                        <p class="text-muted mb-0">300A Nguyễn Tất Thành, Phường 13, Quận 4, TP. Hồ Chí Minh</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex align-items-start gap-3">
+                    <i class="fas fa-phone text-success fs-4"></i>
+                    <div>
+                        <h6 class="fw-bold mb-1">Điện thoại</h6>
+                        <p class="text-muted mb-0">(028) 3940 4759</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex align-items-start gap-3">
+                    <i class="fas fa-envelope text-primary fs-4"></i>
+                    <div>
+                        <h6 class="fw-bold mb-1">Email</h6>
+                        <p class="text-muted mb-0">daotao@ntt.edu.vn</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex align-items-start gap-3">
+                    <i class="fas fa-clock text-warning fs-4"></i>
+                    <div>
+                        <h6 class="fw-bold mb-1">Giờ làm việc</h6>
+                        <p class="text-muted mb-0">Thứ 2 - Thứ 6, 07:30 - 16:30</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

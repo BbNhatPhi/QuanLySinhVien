@@ -156,6 +156,25 @@ namespace StudentManagementSystem.DAO
             }
         }
 
+        public bool DeleteKhoa(int khoaId)
+        {
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("DELETE FROM Khoa WHERE KhoaID = @KhoaID", conn);
+                    cmd.Parameters.AddWithValue("@KhoaID", khoaId);
+                    conn.Open();
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+                catch
+                {
+                    // Thất bại khi khoa vẫn còn dữ liệu ràng buộc (ngành học, giảng viên...)
+                    return false;
+                }
+            }
+        }
+
         // ==========================================
         // 4. QUẢN LÝ NGÀNH
         // ==========================================

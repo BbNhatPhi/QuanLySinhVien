@@ -79,13 +79,11 @@ namespace StudentManagementSystem.Controllers
         // GET: /Admin/DeleteKhoa
         public ActionResult DeleteKhoa(int id)
         {
-            // Lưu ý: Nếu AdminDAO của bạn chưa có hàm DeleteKhoa, hãy bổ sung nó vào DAO nhé
-            try
+            if (_adminDAO.DeleteKhoa(id))
             {
-                // _adminDAO.DeleteKhoa(id); // Bỏ comment dòng này nếu bạn đã viết hàm DeleteKhoa trong AdminDAO
-                TempData["SuccessMsg"] = "Xóa khoa thành công!";
+                TempData["SuccessMsg"] = "Đã xóa khoa thành công!";
             }
-            catch
+            else
             {
                 TempData["ErrorMsg"] = "Không thể xóa khoa này vì đang có dữ liệu giảng viên hoặc ngành học trực thuộc!";
             }
@@ -178,8 +176,7 @@ namespace StudentManagementSystem.Controllers
                 TempData["ErrorMsg"] = "Có lỗi xảy ra khi cập nhật Ngành!";
             }
 
-            // Lưu ý: Đổi "NganhList" thành tên Action hiển thị danh sách Ngành hiện tại của bạn (vd: ManageNganh, DanhSachNganh...)
-            return RedirectToAction("NganhList");
+            return RedirectToAction("ManageNganh");
         }
         // ==========================================
         // QUẢN LÝ PHÒNG HỌC

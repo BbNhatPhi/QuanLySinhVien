@@ -1,42 +1,50 @@
 ﻿@model Dictionary<string, int>
 @{
     ViewBag.Title = "Dashboard Quản Trị";
-    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2 class="mb-4"><i class="fas fa-chart-line text-primary"></i> Tổng quan Hệ thống</h2>
+<div class="page-head">
+    <div>
+        <h1><i class="fas fa-chart-line text-primary me-2"></i>Tổng quan hệ thống</h1>
+        <p class="lead">Thống kê nhanh dữ liệu toàn hệ thống đào tạo.</p>
+    </div>
+</div>
 
-<div class="row">
-    <div class="col-md-3 mb-4">
-        <div class="card text-white bg-primary shadow">
-            <div class="card-body">
-                <h5 class="card-title">Tổng Sinh viên</h5>
-                <h2 class="display-5">@Model["Students"]</h2>
+<div class="row g-4">
+    <div class="col-md-3 col-sm-6">
+        <div class="stat-card bg-grad-indigo">
+            <div>
+                <div class="stat-label">Tổng sinh viên</div>
+                <div class="stat-value">@Model["Students"]</div>
             </div>
+            <i class="fas fa-user-graduate stat-icon"></i>
         </div>
     </div>
-    <div class="col-md-3 mb-4">
-        <div class="card text-white bg-success shadow">
-            <div class="card-body">
-                <h5 class="card-title">Giảng viên</h5>
-                <h2 class="display-5">@Model["Teachers"]</h2>
+    <div class="col-md-3 col-sm-6">
+        <div class="stat-card bg-grad-green">
+            <div>
+                <div class="stat-label">Giảng viên</div>
+                <div class="stat-value">@Model["Teachers"]</div>
             </div>
+            <i class="fas fa-user-tie stat-icon"></i>
         </div>
     </div>
-    <div class="col-md-3 mb-4">
-        <div class="card text-white bg-warning shadow">
-            <div class="card-body">
-                <h5 class="card-title">Khoa Đào tạo</h5>
-                <h2 class="display-5">@Model["Khoa"]</h2>
+    <div class="col-md-3 col-sm-6">
+        <div class="stat-card bg-grad-amber">
+            <div>
+                <div class="stat-label">Khoa đào tạo</div>
+                <div class="stat-value">@Model["Khoa"]</div>
             </div>
+            <i class="fas fa-building-columns stat-icon"></i>
         </div>
     </div>
-    <div class="col-md-3 mb-4">
-        <div class="card text-white bg-info shadow">
-            <div class="card-body">
-                <h5 class="card-title">Tài khoản Active</h5>
-                <h2 class="display-5">@Model["ActiveUsers"]</h2>
+    <div class="col-md-3 col-sm-6">
+        <div class="stat-card bg-grad-cyan">
+            <div>
+                <div class="stat-label">Tài khoản hoạt động</div>
+                <div class="stat-value">@Model["ActiveUsers"]</div>
             </div>
+            <i class="fas fa-user-check stat-icon"></i>
         </div>
     </div>
 </div>

@@ -1,142 +1,166 @@
-﻿<!DOCTYPE html>
-<html>
+@{
+    var pageTitle = ViewBag.Title != null ? ViewBag.Title.ToString() : "Trang chủ";
+    var userName = User.Identity.Name ?? "";
+    var avatarChar = !string.IsNullOrEmpty(userName) ? userName.Substring(0, 1).ToUpper() : "U";
+    var roleLabel = User.IsInRole("Admin") ? "Quản trị viên"
+        : User.IsInRole("GiangVien") ? "Giảng viên"
+        : User.IsInRole("NhanVien") ? "Nhân viên đào tạo"
+        : "Sinh viên";
+}
+@functions {
+    string Nav(string controller, string action)
+    {
+        var c = ViewContext.RouteData.Values["controller"] as string;
+        var a = ViewContext.RouteData.Values["action"] as string;
+        return string.Equals(c, controller, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(a, action, StringComparison.OrdinalIgnoreCase) ? "active" : "";
+    }
+}
+<!DOCTYPE html>
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - Hệ thống Quản lý Đào tạo</title>
-    <!-- Nhúng Bootstrap 5 -->
+    <title>@pageTitle - Cổng thông tin Đào tạo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-
-        .sidebar {
-            min-height: 100vh;
-            background-color: #2c3e50;
-            color: white;
-        }
-
-            .sidebar .brand {
-                background-color: #1a252f;
-                padding: 20px;
-                text-align: center;
-                font-weight: bold;
-                font-size: 1.2rem;
-            }
-
-            .sidebar a.menu-link {
-                color: #ecf0f1;
-                text-decoration: none;
-                padding: 15px 20px;
-                display: block;
-                transition: 0.3s;
-            }
-
-                .sidebar a.menu-link:hover {
-                    background-color: #34495e;
-                    border-left: 4px solid #3498db;
-                }
-
-                .sidebar a.menu-link i {
-                    width: 25px;
-                }
-    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" />
 </head>
 <body>
-    <div class="d-flex">
-        <!-- Sidebar Menu Phân Quyền Theo Sơ Đồ -->
-        <div class="sidebar p-0 col-md-2 d-none d-md-block shadow">
-            <div class="brand text-uppercase text-warning">
-                ĐH. Nguyễn Tất Thành
-            </div>
+    <div class="app">
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-            @if (User.IsInRole("Admin"))
-            {
-                <a href="@Url.Action("Index", "Admin")" class="menu-link"><i class="fas fa-chart-pie"></i> Thống kê</a>
-                <a href="@Url.Action("ManageUsers", "Admin")" class="menu-link"><i class="fas fa-users-cog"></i> Quản lý tài khoản</a>
-                <a href="@Url.Action("ManageKhoa", "Admin")" class="menu-link"><i class="fas fa-building"></i> Quản lý khoa</a>
-                <a href="@Url.Action("ManageNganh", "Admin")" class="menu-link"><i class="fas fa-graduation-cap"></i> Quản lý ngành</a>
-                <!-- MENU MỚI THÊM: QUẢN LÝ PHÒNG HỌC -->
-                <a href="@Url.Action("ManagePhongHoc", "Admin")" class="menu-link"><i class="fas fa-chalkboard"></i> Quản lý phòng học</a>
-                <a href="@Url.Action("BackupData", "Admin")" class="menu-link"><i class="fas fa-database"></i> Backup</a>
-            }
-            else if (User.IsInRole("GiangVien"))
-            {
-                <a href="@Url.Action("Index", "Teacher")" class="menu-link"><i class="fas fa-calendar-alt"></i> Xem lịch dạy</a>
-                <a href="@Url.Action("XemLop", "Teacher")" class="menu-link"><i class="fas fa-users"></i> Xem danh sách lớp</a>
-                <a href="@Url.Action("ChonLopNhapDiem", "Teacher")" class="menu-link"><i class="fas fa-edit"></i> Chấm điểm</a>
-                <a href="@Url.Action("ChonLopDiemDanh", "Teacher")" class="menu-link"><i class="fas fa-user-check"></i> Điểm danh</a>
-                <a href="@Url.Action("ChonLopInDiem", "Teacher")" class="menu-link"><i class="fas fa-print"></i> In bảng điểm</a>
-            }
-            else if (User.IsInRole("NhanVien"))
-            {
-                <a href="@Url.Action("Index", "Staff")" class="menu-link"><i class="fas fa-user-graduate"></i> Quản lý sinh viên</a>
-                <!-- MENU MỚI THÊM: QUẢN LÝ ĐIỂM RÈN LUYỆN -->
-                <a href="@Url.Action("ManageDiemRenLuyen", "Staff")" class="menu-link"><i class="fas fa-medal"></i> Quản lý điểm rèn luyện</a>
-                <a href="@Url.Action("LopHocPhanList", "Staff")" class="menu-link"><i class="fas fa-layer-group"></i> Quản lý Lớp học phần</a>
-                <a href="@Url.Action("TKBList", "Staff")" class="menu-link"><i class="fas fa-calendar-plus"></i> Lập TKB</a>
-                <a href="@Url.Action("ManageMonHoc", "Staff")" class="menu-link"><i class="fas fa-book"></i> Quản lý môn học</a>
-                <a href="@Url.Action("GiangVienList", "Staff")" class="menu-link"><i class="fas fa-user-tie"></i> Quản lý GV</a>
-                <a href="@Url.Action("ManageLichThi", "Staff")" class="menu-link"><i class="fas fa-calendar-check"></i> Lên lịch thi</a>
-                <a href="@Url.Action("ManageThongBao", "Staff")" class="menu-link"><i class="fas fa-bullhorn"></i> Đăng thông báo</a>
-                <!-- ĐÃ CHỈNH LẠI CLASS CHO KHỚP VÀ XÓA DẤU "<" -->
-                <a href="@Url.Action("QuanLyYeuCau", "Staff")" class="menu-link"><i class="fas fa-file-signature"></i> Duyệt giấy tờ / Hành chính</a>
-            }
-            else if (User.IsInRole("SinhVien"))
-            {
-                <a href="@Url.Action("Index", "Student")" class="menu-link"><i class="fas fa-calendar-check"></i> Xem TKB</a>
-                <a href="@Url.Action("DangKyHocPhan", "Student")" class="menu-link"><i class="fas fa-mouse-pointer"></i> Đăng ký học phần</a>
-                <a href="@Url.Action("XemDiem", "Student")" class="menu-link"><i class="fas fa-chart-bar"></i> Kết quả học tập</a>
-                <a href="@Url.Action("XemLichThi", "Student")" class="menu-link"><i class="fas fa-calendar-times"></i> Xem Lịch thi</a>
-                <a href="@Url.Action("XemHocPhi", "Student")" class="menu-link"><i class="fas fa-credit-card"></i> Thanh toán học phí</a>
-                <a href="@Url.Action("XemThongBao", "Student")" class="menu-link"><i class="fas fa-bell"></i> Bảng thông báo</a>
-                <a href="@Url.Action("CapNhatThongTin", "Student")" class="menu-link"><i class="fas fa-user-edit"></i> Cập nhật hồ sơ</a>
-                <a href="@Url.Action("TienDoHocTap", "Student")" class="menu-link"><i class="fas fa-chart-pie"></i> Tiến độ học tập</a>
-                <a href="@Url.Action("DichVuHanhChinh", "Student")" class="menu-link"><i class="fas fa-university"></i> Dịch vụ Hành chính</a>
-                <a href="@Url.Action("DanhGiaGiangVien", "Student")" class="menu-link"><i class="fas fa-poll"></i> Đánh giá Giảng viên</a>
-                <a href="@Url.Action("XemDiemRenLuyen", "Student")" class="menu-link"><i class="fas fa-medal"></i> Xem Điểm rèn luyện</a>
-            }
-
-        </div>
-
-        <!-- Main Content Area -->
-        <div class="col-md-10 p-4" style="background-color: #f4f7f6; min-height: 100vh;">
-            <!-- Header Bar -->
-            <div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 shadow-sm rounded border-start border-4 border-primary">
-                <h5 class="m-0 text-secondary fw-bold">Cổng thông tin Đào tạo</h5>
-
-                <!-- Dropdown Menu Người Dùng -->
-                <div class="dropdown">
-                    <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span class="me-2 text-primary fw-bold">Xin chào, @User.Identity.Name!</span>
-                        <i class="fas fa-user-circle fa-2x text-secondary"></i>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="dropdownUser">
-                        <!-- Nút Đổi mật khẩu -->
-                        <li>
-                            <a class="dropdown-item fw-bold text-dark" href="@Url.Action("ChangePassword", "Account")">
-                                <i class="fas fa-key text-warning me-2"></i> Đổi mật khẩu
-                            </a>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <!-- Nút Đăng xuất -->
-                        <li>
-                            <a class="dropdown-item fw-bold text-danger" href="@Url.Action("Logout", "Account")">
-                                <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
-                            </a>
-                        </li>
-                    </ul>
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <div class="logo"><i class="fas fa-university"></i></div>
+                <div class="brand-text">
+                    <div class="brand-title">ĐH Nguyễn Tất Thành</div>
+                    <div class="brand-sub">Cổng Đào tạo</div>
                 </div>
             </div>
 
-            <!-- Nội dung thay đổi theo từng trang -->
-            @RenderBody()
-        </div>
+            <div class="sidebar-profile">
+                <div class="avatar">@avatarChar</div>
+                <div>
+                    <div class="p-name">@userName</div>
+                    <span class="p-role">@roleLabel</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-menu">
+                @if (User.IsInRole("Admin"))
+                {
+                    <div class="menu-group">Tổng quan</div>
+                    <a href="@Url.Action("Index","Admin")" class="menu-link @Nav("Admin","Index")"><i class="fas fa-chart-pie"></i> Thống kê</a>
+
+                    <div class="menu-group">Quản lý hệ thống</div>
+                    <a href="@Url.Action("ManageUsers","Admin")" class="menu-link @Nav("Admin","ManageUsers")"><i class="fas fa-users-gear"></i> Tài khoản</a>
+                    <a href="@Url.Action("ManageKhoa","Admin")" class="menu-link @Nav("Admin","ManageKhoa")"><i class="fas fa-building-columns"></i> Khoa</a>
+                    <a href="@Url.Action("ManageNganh","Admin")" class="menu-link @Nav("Admin","ManageNganh")"><i class="fas fa-graduation-cap"></i> Ngành học</a>
+                    <a href="@Url.Action("ManagePhongHoc","Admin")" class="menu-link @Nav("Admin","ManagePhongHoc")"><i class="fas fa-chalkboard-user"></i> Phòng học</a>
+
+                    <div class="menu-group">Dữ liệu</div>
+                    <a href="@Url.Action("BackupData","Admin")" class="menu-link @Nav("Admin","BackupData")"><i class="fas fa-database"></i> Sao lưu</a>
+                }
+                else if (User.IsInRole("GiangVien"))
+                {
+                    <div class="menu-group">Giảng dạy</div>
+                    <a href="@Url.Action("Index","Teacher")" class="menu-link @Nav("Teacher","Index")"><i class="fas fa-calendar-days"></i> Lịch giảng dạy</a>
+                    <a href="@Url.Action("XemLop","Teacher")" class="menu-link @Nav("Teacher","XemLop")"><i class="fas fa-users"></i> Danh sách lớp</a>
+                    <a href="@Url.Action("ChonLopNhapDiem","Teacher")" class="menu-link @Nav("Teacher","ChonLopNhapDiem")"><i class="fas fa-pen-to-square"></i> Nhập điểm</a>
+                    <a href="@Url.Action("ChonLopDiemDanh","Teacher")" class="menu-link @Nav("Teacher","ChonLopDiemDanh")"><i class="fas fa-clipboard-user"></i> Điểm danh</a>
+                    <a href="@Url.Action("ChonLopInDiem","Teacher")" class="menu-link @Nav("Teacher","ChonLopInDiem")"><i class="fas fa-print"></i> In bảng điểm</a>
+                }
+                else if (User.IsInRole("NhanVien"))
+                {
+                    <div class="menu-group">Đào tạo</div>
+                    <a href="@Url.Action("Index","Staff")" class="menu-link @Nav("Staff","Index")"><i class="fas fa-user-graduate"></i> Sinh viên</a>
+                    <a href="@Url.Action("GiangVienList","Staff")" class="menu-link @Nav("Staff","GiangVienList")"><i class="fas fa-user-tie"></i> Giảng viên</a>
+                    <a href="@Url.Action("ManageMonHoc","Staff")" class="menu-link @Nav("Staff","ManageMonHoc")"><i class="fas fa-book"></i> Môn học</a>
+                    <a href="@Url.Action("LopHocPhanList","Staff")" class="menu-link @Nav("Staff","LopHocPhanList")"><i class="fas fa-layer-group"></i> Lớp học phần</a>
+                    <a href="@Url.Action("TKBList","Staff")" class="menu-link @Nav("Staff","TKBList")"><i class="fas fa-calendar-plus"></i> Thời khóa biểu</a>
+                    <a href="@Url.Action("ManageLichThi","Staff")" class="menu-link @Nav("Staff","ManageLichThi")"><i class="fas fa-calendar-check"></i> Lịch thi</a>
+                    <a href="@Url.Action("ManageDiemRenLuyen","Staff")" class="menu-link @Nav("Staff","ManageDiemRenLuyen")"><i class="fas fa-medal"></i> Điểm rèn luyện</a>
+
+                    <div class="menu-group">Hành chính</div>
+                    <a href="@Url.Action("ManageThongBao","Staff")" class="menu-link @Nav("Staff","ManageThongBao")"><i class="fas fa-bullhorn"></i> Thông báo</a>
+                    <a href="@Url.Action("QuanLyYeuCau","Staff")" class="menu-link @Nav("Staff","QuanLyYeuCau")"><i class="fas fa-file-signature"></i> Duyệt giấy tờ</a>
+                }
+                else if (User.IsInRole("SinhVien"))
+                {
+                    <div class="menu-group">Học tập</div>
+                    <a href="@Url.Action("Index","Student")" class="menu-link @Nav("Student","Index")"><i class="fas fa-calendar-days"></i> Thời khóa biểu</a>
+                    <a href="@Url.Action("DangKyHocPhan","Student")" class="menu-link @Nav("Student","DangKyHocPhan")"><i class="fas fa-hand-pointer"></i> Đăng ký học phần</a>
+                    <a href="@Url.Action("XemDiem","Student")" class="menu-link @Nav("Student","XemDiem")"><i class="fas fa-chart-column"></i> Kết quả học tập</a>
+                    <a href="@Url.Action("TienDoHocTap","Student")" class="menu-link @Nav("Student","TienDoHocTap")"><i class="fas fa-chart-pie"></i> Tiến độ học tập</a>
+                    <a href="@Url.Action("XemLichThi","Student")" class="menu-link @Nav("Student","XemLichThi")"><i class="fas fa-calendar-xmark"></i> Lịch thi</a>
+                    <a href="@Url.Action("XemDiemRenLuyen","Student")" class="menu-link @Nav("Student","XemDiemRenLuyen")"><i class="fas fa-medal"></i> Điểm rèn luyện</a>
+
+                    <div class="menu-group">Dịch vụ</div>
+                    <a href="@Url.Action("XemHocPhi","Student")" class="menu-link @Nav("Student","XemHocPhi")"><i class="fas fa-credit-card"></i> Học phí</a>
+                    <a href="@Url.Action("DichVuHanhChinh","Student")" class="menu-link @Nav("Student","DichVuHanhChinh")"><i class="fas fa-university"></i> Dịch vụ hành chính</a>
+                    <a href="@Url.Action("DanhGiaGiangVien","Student")" class="menu-link @Nav("Student","DanhGiaGiangVien")"><i class="fas fa-star"></i> Đánh giá giảng viên</a>
+
+                    <div class="menu-group">Thông tin</div>
+                    <a href="@Url.Action("XemThongBao","Student")" class="menu-link @Nav("Student","XemThongBao")"><i class="fas fa-bell"></i> Thông báo</a>
+                    <a href="@Url.Action("CapNhatThongTin","Student")" class="menu-link @Nav("Student","CapNhatThongTin")"><i class="fas fa-user-pen"></i> Hồ sơ cá nhân</a>
+                }
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="@Url.Action("Logout","Account")" class="btn-logout"><i class="fas fa-right-from-bracket"></i> Đăng xuất</a>
+            </div>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <button class="btn-toggle" id="sidebarToggle" type="button" aria-label="Mở menu"><i class="fas fa-bars"></i></button>
+                <div>
+                    <div class="topbar-title">@pageTitle</div>
+                    <div class="topbar-breadcrumb">Cổng thông tin đào tạo / @roleLabel</div>
+                </div>
+                <div class="topbar-right">
+                    <div class="dropdown">
+                        <a href="#" class="user-chip dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="avatar">@avatarChar</span>
+                            <span class="u-name">@userName</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                            <li>
+                                <a class="dropdown-item" href="@Url.Action("ChangePassword", "Account")">
+                                    <i class="fas fa-key me-2 text-warning"></i> Đổi mật khẩu
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="@Url.Action("Logout", "Account")">
+                                    <i class="fas fa-right-from-bracket me-2"></i> Đăng xuất
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <div class="page-content">
+                @RenderBody()
+            </div>
+        </main>
     </div>
 
-    <!-- Cần load Bundle Bootstrap JS để Dropdown menu hoạt động -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (function () {
+            var btn = document.getElementById('sidebarToggle');
+            var sidebar = document.getElementById('sidebar');
+            var overlay = document.getElementById('sidebarOverlay');
+            function toggle() {
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('show');
+            }
+            if (btn) btn.addEventListener('click', toggle);
+            if (overlay) overlay.addEventListener('click', toggle);
+        })();
+    </script>
 </body>
 </html>
