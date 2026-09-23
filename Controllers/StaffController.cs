@@ -34,27 +34,29 @@ namespace StudentManagementSystem.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult UpdateStatus(string maSV, string trangThai)
         {
             if (!string.IsNullOrEmpty(maSV) && !string.IsNullOrEmpty(trangThai))
             {
                 _staffDAO.UpdateTrangThaiHocTap(maSV, trangThai);
-                TempData["Success"] = $"Đã cập nhật trạng thái cho sinh viên {maSV} thành: {trangThai}";
+                TempData["SuccessMsg"] = $"Đã cập nhật trạng thái cho sinh viên {maSV} thành: {trangThai}";
             }
             return RedirectToAction("QuanLySinhVien");
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult ThemSinhVien(SinhVien sv)
         {
             string result = _staffDAO.AddSinhVien(sv);
             if (result == "Success")
             {
-                TempData["Success"] = "Thêm sinh viên mới thành công!";
+                TempData["SuccessMsg"] = "Thêm sinh viên mới thành công!";
             }
             else
             {
-                TempData["Error"] = "Lỗi SQL: " + result;
+                TempData["ErrorMsg"] = "Lỗi SQL: " + result;
             }
             return RedirectToAction("QuanLySinhVien");
         }
@@ -63,7 +65,7 @@ namespace StudentManagementSystem.Controllers
         {
             if (_staffDAO.DeleteSinhVien(maSV))
             {
-                TempData["Success"] = $"Đã xóa thành công sinh viên {maSV}!";
+                TempData["SuccessMsg"] = $"Đã xóa thành công sinh viên {maSV}!";
             }
             return RedirectToAction("QuanLySinhVien");
         }
@@ -79,34 +81,36 @@ namespace StudentManagementSystem.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult CreateMonHoc(string maMon, string tenMon, int soTinChi)
         {
             bool isSuccess = _staffDAO.AddMonHoc(maMon, tenMon, soTinChi);
 
             if (isSuccess)
             {
-                TempData["Success"] = "Đã thêm môn học mới thành công!";
+                TempData["SuccessMsg"] = "Đã thêm môn học mới thành công!";
             }
             else
             {
-                TempData["Error"] = "Thêm thất bại! Mã môn học này có thể đã tồn tại.";
+                TempData["ErrorMsg"] = "Thêm thất bại! Mã môn học này có thể đã tồn tại.";
             }
 
             return RedirectToAction("ManageMonHoc");
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult EditMonHoc(string maMon, string tenMon, int soTinChi)
         {
             bool isSuccess = _staffDAO.UpdateMonHoc(maMon, tenMon, soTinChi);
 
             if (isSuccess)
             {
-                TempData["Success"] = "Đã cập nhật thông tin môn học thành công!";
+                TempData["SuccessMsg"] = "Đã cập nhật thông tin môn học thành công!";
             }
             else
             {
-                TempData["Error"] = "Có lỗi xảy ra khi cập nhật môn học!";
+                TempData["ErrorMsg"] = "Có lỗi xảy ra khi cập nhật môn học!";
             }
 
             return RedirectToAction("ManageMonHoc");
@@ -125,6 +129,7 @@ namespace StudentManagementSystem.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult AddLopHocPhan(LopHocPhan lhp)
         {
             string result = _staffDAO.AddLopHocPhan(lhp);
@@ -151,6 +156,7 @@ namespace StudentManagementSystem.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult AddTKB(ThoiKhoaBieu tkb)
         {
             string result = _staffDAO.AddTKB(tkb);
@@ -179,6 +185,7 @@ namespace StudentManagementSystem.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult AddGiangVien(GiangVien gv)
         {
             string result = _staffDAO.AddGiangVien(gv);
@@ -219,6 +226,7 @@ namespace StudentManagementSystem.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult AddLichThi(string maLopHP, DateTime ngayThi, int caThi, string phongThi)
         {
             string result = _staffDAO.AddLichThi(maLopHP, ngayThi, caThi, phongThi);
@@ -236,6 +244,7 @@ namespace StudentManagementSystem.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult EditLichThi(string maLopHP, DateTime ngayThi, int caThi, string phongThi)
         {
             string result = _staffDAO.UpdateLichThi(maLopHP, ngayThi, caThi, phongThi);
@@ -246,6 +255,7 @@ namespace StudentManagementSystem.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult DeleteLichThi(string maLopHP)
         {
             if (_staffDAO.DeleteLichThi(maLopHP)) TempData["SuccessMsg"] = $"Đã hủy lịch thi của lớp {maLopHP} thành công!";
@@ -266,6 +276,7 @@ namespace StudentManagementSystem.Controllers
 
         [HttpPost]
         [ValidateInput(false)]
+        [ValidateAntiForgeryToken]
         public ActionResult AddThongBao(string tieuDe, string noiDung, string doiTuong)
         {
             string username = User.Identity.Name;
@@ -303,6 +314,7 @@ namespace StudentManagementSystem.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult AddDiemRenLuyen(string maSV, string hocKy, int diem)
         {
             string xepLoai = TinhXepLoai(diem);
@@ -315,6 +327,7 @@ namespace StudentManagementSystem.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult EditDiemRenLuyen(int id, int diem)
         {
             string xepLoai = TinhXepLoai(diem);
@@ -327,6 +340,7 @@ namespace StudentManagementSystem.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult DeleteDiemRenLuyen(int id)
         {
             if (_staffDAO.DeleteDiemRenLuyen(id))
@@ -348,6 +362,7 @@ namespace StudentManagementSystem.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult CapNhatTrangThaiYeuCau(int MaYC, string TrangThaiMoi)
         {
             bool check = _staffDAO.UpdateTrangThaiYeuCau(MaYC, TrangThaiMoi);

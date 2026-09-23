@@ -7,11 +7,6 @@
 <div class="container mt-4">
     <h2 class="mb-4"><i class="fas fa-folder-open text-primary"></i> Quản Lý Dịch Vụ Hành Chính</h2>
 
-    @if (TempData["SuccessMsg"] != null)
-    {
-        <div class="alert alert-success fw-bold"><i class="fas fa-check-circle"></i> @TempData["SuccessMsg"]</div>
-    }
-
     <div class="card shadow-sm border-0">
         <div class="card-body p-0">
             <table class="table table-hover table-bordered align-middle mb-0">
@@ -63,6 +58,7 @@
                                     @if (item.TrangThai == "Đang chờ xử lý" || item.TrangThai == "Đang xử lý")
                                     {
                                         <form action="@Url.Action("CapNhatTrangThaiYeuCau", "Staff")" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
                                             <input type="hidden" name="MaYC" value="@item.MaYC" />
                                             <div class="btn-group btn-group-sm shadow-sm" role="group">
 

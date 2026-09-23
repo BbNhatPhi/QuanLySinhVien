@@ -8,11 +8,6 @@
         + Thêm Khoa Mới
     </button>
 
-    @if (TempData["SuccessMsg"] != null)
-    {<div class="alert alert-success fw-bold">@TempData["SuccessMsg"]</div>}
-    @if (TempData["ErrorMsg"] != null)
-    {<div class="alert alert-danger fw-bold">@TempData["ErrorMsg"]</div>}
-
     <div class="card shadow-sm border-0">
         <div class="card-body p-0">
             <table class="table table-hover table-bordered mb-0">
@@ -49,6 +44,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <form action="@Url.Action("CreateKhoa", "Admin")" method="post">
+                @Html.AntiForgeryToken()
                 <div class="modal-header bg-dark text-white">
                     <h5 class="modal-title">Thêm Khoa Mới</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>

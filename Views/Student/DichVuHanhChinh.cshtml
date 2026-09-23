@@ -6,15 +6,6 @@
 <div class="container mt-4 mb-5">
     <h2 class="mb-4"><i class="fas fa-university text-primary"></i> Dịch Vụ Hành Chính</h2>
 
-    @if (TempData["SuccessMsg"] != null)
-    {
-        <div class="alert alert-success fw-bold shadow-sm"><i class="fas fa-check-circle"></i> @TempData["SuccessMsg"]</div>
-    }
-    @if (TempData["ErrorMsg"] != null)
-    {
-        <div class="alert alert-danger fw-bold shadow-sm"><i class="fas fa-exclamation-triangle"></i> @TempData["ErrorMsg"]</div>
-    }
-
     <div class="row">
         <!-- Form Gửi Yêu Cầu -->
         <div class="col-md-4 mb-4">
@@ -24,6 +15,7 @@
                 </div>
                 <div class="card-body">
                     <form action="@Url.Action("GuiYeuCau", "Student")" method="post">
+                        @Html.AntiForgeryToken()
                         <div class="mb-3">
                             <label class="form-label fw-bold">Loại Dịch Vụ</label>
                             <select name="loaiDichVu" class="form-select border-primary" required>

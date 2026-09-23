@@ -18,6 +18,7 @@
 
             <!-- Form xử lý -->
             <form action="@Url.Action("XacNhanThanhToan", "Student")" method="post">
+                @Html.AntiForgeryToken()
                 <input type="hidden" name="maLopHP" value="@ViewBag.MaLopHP" />
                 <input type="hidden" name="soTien" value="@ViewBag.SoTien" />
 

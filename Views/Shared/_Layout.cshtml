@@ -27,6 +27,18 @@
     <link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" />
 </head>
 <body>
+    @if (TempData["SuccessMsg"] != null || TempData["Success"] != null || TempData["ErrorMsg"] != null || TempData["Error"] != null || TempData["WarningMsg"] != null || TempData["Warning"] != null)
+    {
+        <div class="toast-container">
+            @if (TempData["SuccessMsg"] != null) { <div class="toast-item toast-success"><i class="fas fa-check-circle"></i> @TempData["SuccessMsg"]</div> }
+            @if (TempData["Success"] != null) { <div class="toast-item toast-success"><i class="fas fa-check-circle"></i> @TempData["Success"]</div> }
+            @if (TempData["ErrorMsg"] != null) { <div class="toast-item toast-danger"><i class="fas fa-circle-exclamation"></i> @TempData["ErrorMsg"]</div> }
+            @if (TempData["Error"] != null) { <div class="toast-item toast-danger"><i class="fas fa-circle-exclamation"></i> @TempData["Error"]</div> }
+            @if (TempData["WarningMsg"] != null) { <div class="toast-item toast-warning"><i class="fas fa-triangle-exclamation"></i> @TempData["WarningMsg"]</div> }
+            @if (TempData["Warning"] != null) { <div class="toast-item toast-warning"><i class="fas fa-triangle-exclamation"></i> @TempData["Warning"]</div> }
+        </div>
+    }
+
     <div class="app">
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
@@ -161,6 +173,31 @@
             if (btn) btn.addEventListener('click', toggle);
             if (overlay) overlay.addEventListener('click', toggle);
         })();
+    </script>
+    <script>
+        // Tự động ẩn toast thông báo sau vài giây
+        (function () {
+            var items = document.querySelectorAll('.toast-item');
+            items.forEach(function (item) {
+                setTimeout(function () {
+                    item.classList.add('hide');
+                    setTimeout(function () { item.remove(); }, 400);
+                }, 4500);
+            });
+        })();
+    </script>
+    <script>
+        // Tìm kiếm nhanh trong bảng (gõ để lọc dòng)
+        document.querySelectorAll('[data-search-table]').forEach(function (input) {
+            var table = document.getElementById(input.getAttribute('data-search-table'));
+            if (!table) return;
+            input.addEventListener('keyup', function () {
+                var q = input.value.toLowerCase();
+                table.querySelectorAll('tbody tr').forEach(function (row) {
+                    row.style.display = row.textContent.toLowerCase().indexOf(q) > -1 ? '' : 'none';
+                });
+            });
+        });
     </script>
 </body>
 </html>

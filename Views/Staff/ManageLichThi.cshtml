@@ -12,15 +12,6 @@
         </button>
     </div>
 
-    @if (TempData["SuccessMsg"] != null)
-    {
-        <div class="alert alert-success fw-bold shadow-sm"><i class="fas fa-check-circle"></i> @TempData["SuccessMsg"]</div>
-    }
-    @if (TempData["ErrorMsg"] != null)
-    {
-        <div class="alert alert-danger fw-bold shadow-sm"><i class="fas fa-exclamation-triangle"></i> @TempData["ErrorMsg"]</div>
-    }
-
     <!-- Bảng danh sách lịch thi đã lên -->
     <div class="card shadow-sm border-0">
         <div class="card-body p-0">
@@ -64,6 +55,7 @@
 
                                         <!-- Nút Xóa có xác nhận -->
                                         <form action="@Url.Action("DeleteLichThi", "Staff")" method="post" onsubmit="return confirm('Hủy bỏ lịch thi của Lớp học phần @item.MaLopHP?');">
+                                            @Html.AntiForgeryToken()
                                             <input type="hidden" name="maLopHP" value="@item.MaLopHP" />
                                             <button type="submit" class="btn btn-sm btn-outline-danger fw-bold shadow-sm">
                                                 <i class="fas fa-trash-alt"></i>
@@ -93,6 +85,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form action="@Url.Action("AddLichThi", "Staff")" method="post">
+                @Html.AntiForgeryToken()
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title fw-bold"><i class="fas fa-calendar-plus"></i> Sắp Xếp Lịch Thi</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -149,6 +142,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form action="@Url.Action("EditLichThi", "Staff")" method="post">
+                @Html.AntiForgeryToken()
                 <div class="modal-header bg-warning text-dark">
                     <h5 class="modal-title fw-bold"><i class="fas fa-edit"></i> Cập Nhật Lịch Thi</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>

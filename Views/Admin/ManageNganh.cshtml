@@ -11,19 +11,6 @@
     </button>
 </div>
 
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success shadow-sm"><i class="fas fa-check-circle"></i> @TempData["Success"]</div>
-}
-@if (TempData["ErrorMsg"] != null)
-{
-    <div class="alert alert-danger shadow-sm"><i class="fas fa-exclamation-triangle"></i> @TempData["ErrorMsg"]</div>
-}
-@if (TempData["SuccessMsg"] != null)
-{
-    <div class="alert alert-success shadow-sm"><i class="fas fa-check-circle"></i> @TempData["SuccessMsg"]</div>
-}
-
 <div class="card shadow border-0">
     <div class="card-body">
         <table class="table table-hover table-bordered align-middle">
@@ -71,6 +58,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <form action="@Url.Action("CreateNganh", "Admin")" method="post">
+                @Html.AntiForgeryToken()
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title fw-bold"><i class="fas fa-plus-circle"></i> Thêm Ngành Đào Tạo</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -111,6 +99,7 @@
         <div class="modal-content">
             <!-- Form trỏ về Action EditNganh -->
             <form action="@Url.Action("EditNganh", "Admin")" method="post">
+                @Html.AntiForgeryToken()
                 <div class="modal-header bg-warning text-dark">
                     <h5 class="modal-title fw-bold"><i class="fas fa-edit"></i> Cập Nhật Ngành Học</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>

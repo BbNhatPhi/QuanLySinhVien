@@ -15,16 +15,6 @@
     </div>
 </div>
 
-<!-- Vùng Hiển Thị Thông Báo -->
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success shadow-sm"><i class="fas fa-check-circle"></i> @TempData["Success"]</div>
-}
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger shadow-sm"><i class="fas fa-exclamation-triangle"></i> @TempData["Error"]</div>
-}
-
 <div class="card shadow border-0">
     <div class="card-body">
         <div class="table-responsive">
@@ -65,6 +55,7 @@
                             <td class="text-center">
                                 <!-- Form cập nhật trạng thái nhanh -->
                                 <form action="@Url.Action("UpdateStatus", "Staff")" method="post" class="d-flex justify-content-center">
+                                    @Html.AntiForgeryToken()
                                     <input type="hidden" name="maSV" value="@sv.MaSV" />
                                     <select name="trangThai" class="form-select form-select-sm w-auto d-inline-block me-1">
                                         <option value="Đang học" @(sv.TrangThaiHocTap == "Đang học" ? "selected" : "")>Đang học</option>
@@ -99,6 +90,7 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="@Url.Action("ThemSinhVien", "Staff")" method="post">
+                @Html.AntiForgeryToken()
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-6 mb-3">

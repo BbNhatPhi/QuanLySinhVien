@@ -54,19 +54,21 @@ namespace StudentManagementSystem.Controllers
             return View("XemLop", _teacherDAO.GetLichDay(User.Identity.Name));
         }
 
-        // GET: /Teacher/ChonLopInBangDiem
-        public ActionResult ChonLopInBangDiem()
+        public ActionResult ChonLopInDiem()
         {
             ViewBag.ChucNang = "InDiem";
             ViewBag.Title = "Chọn Lớp Để In Bảng Điểm";
             return View("XemLop", _teacherDAO.GetLichDay(User.Identity.Name));
         }
 
-        public ActionResult ChonLopInDiem()
+        // Tự động tính học kỳ hiện tại theo tháng (dùng cho Điểm danh)
+        private string TinhHocKyHienTai()
         {
-            ViewBag.ChucNang = "InDiem";
-            ViewBag.Title = "Chọn Lớp Để In Bảng Điểm";
-            return View("XemLop", _teacherDAO.GetLichDay(User.Identity.Name));
+            int nam = DateTime.Now.Year;
+            int thang = DateTime.Now.Month;
+            if (thang >= 9) return string.Format("HK1 ({0}-{1})", nam, nam + 1);
+            if (thang >= 1 && thang <= 6) return string.Format("HK2 ({0}-{1})", nam - 1, nam);
+            return string.Format("HK3 ({0}-{1})", nam - 1, nam);
         }
 
         // ==========================================
@@ -85,13 +87,14 @@ namespace StudentManagementSystem.Controllers
         // ==========================================
         // HÀM LƯU ĐIỂM DANH
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult LuuDiemDanh(FormCollection form)
         {
             // 1. LẤY ĐÚNG TÊN BIẾN TỪ VIEW (maLopTC)
             string maLop = form["maLopTC"];
 
-            // Mặc định học kỳ hiện tại (bạn có thể đổi theo kỳ thực tế)
-            string hocKy = "HK1 (2025-2026)";
+            // Học kỳ hiện tại được tính tự động theo tháng
+            string hocKy = TinhHocKyHienTai();
 
             TeacherDAO dao = new TeacherDAO();
 
@@ -123,7 +126,7 @@ namespace StudentManagementSystem.Controllers
             }
 
             // 4. HIỂN THỊ THÔNG BÁO VÀ TẢI LẠI TRANG (trả về đúng biến maLopTC cho URL)
-            TempData["Success"] = "Đã lưu kết quả điểm danh thành công!";
+            TempData["SuccessMsg"] = "Đã lưu kết quả điểm danh thành công!";
             return RedirectToAction("DanhSachSinhVien", new { maLopTC = maLop });
         }
 
@@ -140,6 +143,7 @@ namespace StudentManagementSystem.Controllers
         // HÀM LƯU ĐIỂM (ĐÃ ĐƯỢC FIX LỖI ÉP KIỂU SỐ THẬP PHÂN)
         // ==========================================
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult LuuDiem(FormCollection form, string maLopTC)
         {
             try
@@ -170,12 +174,12 @@ namespace StudentManagementSystem.Controllers
                         // Ghi xuống CSDL
                         _teacherDAO.UpdateDiem(maSV, maLopTC, cc, gk, ck);
                     }
-                    TempData["Success"] = "Đã lưu bảng điểm thành công! Điểm tổng kết đã tự động cập nhật.";
+                    TempData["SuccessMsg"] = "Đã lưu bảng điểm thành công! Điểm tổng kết đã tự động cập nhật.";
                 }
             }
             catch (Exception ex)
             {
-                TempData["Error"] = "Lỗi hệ thống: " + ex.Message;
+                TempData["ErrorMsg"] = "Lỗi hệ thống: " + ex.Message;
             }
 
             return RedirectToAction("NhapDiem", new { maLopTC = maLopTC });

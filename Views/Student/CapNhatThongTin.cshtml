@@ -8,18 +8,10 @@
         <div class="col-md-8">
             <h2 class="mb-4 text-center"><i class="fas fa-user-edit text-primary"></i> Hồ Sơ Sinh Viên</h2>
 
-            @if (TempData["SuccessMsg"] != null)
-            {
-                <div class="alert alert-success fw-bold"><i class="fas fa-check-circle"></i> @TempData["SuccessMsg"]</div>
-            }
-            @if (TempData["ErrorMsg"] != null)
-            {
-                <div class="alert alert-danger fw-bold"><i class="fas fa-exclamation-triangle"></i> @TempData["ErrorMsg"]</div>
-            }
-
             <div class="card shadow-sm border-0">
                 <div class="card-body p-4">
                     <form action="@Url.Action("CapNhatThongTin", "Student")" method="post">
+                        @Html.AntiForgeryToken()
                         <!-- Thông tin cứng: Không cho sửa (Dùng readonly) -->
                         <div class="row mb-3">
                             <div class="col-md-4">

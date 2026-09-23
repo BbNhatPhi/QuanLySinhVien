@@ -12,18 +12,16 @@
     </button>
 </div>
 
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
+<div class="mb-3" style="max-width: 380px;">
+    <div class="input-group">
+        <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+        <input type="text" class="form-control" placeholder="Tìm kiếm sinh viên..." data-search-table="tblSinhVien" />
+    </div>
+</div>
 
 <div class="card shadow border-0">
     <div class="card-body">
-        <table class="table table-hover table-bordered align-middle text-center">
+        <table id="tblSinhVien" class="table table-hover table-bordered align-middle text-center">
             <thead class="table-dark">
                 <tr>
                     <th>Mã SV</th>
@@ -69,6 +67,7 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form action="@Url.Action("ThemSinhVien", "Staff")" method="post">
+                @Html.AntiForgeryToken()
                 <div class="modal-body px-4">
                     <div class="mb-3">
                         <label class="form-label fw-bold">Mã Sinh Viên</label>

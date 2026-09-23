@@ -11,15 +11,6 @@
         </button>
     </div>
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success fw-bold shadow-sm"><i class="fas fa-check-circle"></i> @TempData["Success"]</div>
-    }
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger fw-bold shadow-sm"><i class="fas fa-exclamation-triangle"></i> @TempData["Error"]</div>
-    }
-
     <!-- Bảng danh sách môn học -->
     <div class="card shadow-sm border-0">
         <div class="card-body p-0">
@@ -77,6 +68,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <form action="@Url.Action("CreateMonHoc", "Staff")" method="post">
+                @Html.AntiForgeryToken()
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title fw-bold"><i class="fas fa-plus-circle"></i> Thêm Môn Học Mới</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -111,6 +103,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <form action="@Url.Action("EditMonHoc", "Staff")" method="post">
+                @Html.AntiForgeryToken()
                 <div class="modal-header bg-warning text-dark">
                     <h5 class="modal-title fw-bold"><i class="fas fa-edit"></i> Cập Nhật Môn Học</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>

@@ -16,6 +16,46 @@ namespace StudentManagementSystem.Controllers
         // Khai báo thêm AccountDAO để xử lý Đổi mật khẩu
         private AccountDAO _accountDAO = new AccountDAO();
 
+        // ============ CHỐNG BRUTE-FORCE (KHÓA TẠM TÀI KHOẢN) ============
+        private static readonly object _lock = new object();
+        private static readonly Dictionary<string, int> _failedAttempts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        private static readonly Dictionary<string, DateTime> _lockoutUntil = new Dictionary<string, DateTime>(StringComparer.OrdinalIgnoreCase);
+        private const int MaxFailedAttempts = 5;
+        private const int LockoutMinutes = 15;
+
+        private bool IsLockedOut(string username)
+        {
+            lock (_lock)
+            {
+                DateTime until;
+                return _lockoutUntil.TryGetValue(username, out until) && until > DateTime.Now;
+            }
+        }
+
+        private void RegisterFailedLogin(string username)
+        {
+            lock (_lock)
+            {
+                int count = _failedAttempts.ContainsKey(username) ? _failedAttempts[username] : 0;
+                count++;
+                _failedAttempts[username] = count;
+                if (count >= MaxFailedAttempts)
+                {
+                    _lockoutUntil[username] = DateTime.Now.AddMinutes(LockoutMinutes);
+                    _failedAttempts[username] = 0;
+                }
+            }
+        }
+
+        private void ResetFailedLogin(string username)
+        {
+            lock (_lock)
+            {
+                _failedAttempts.Remove(username);
+                _lockoutUntil.Remove(username);
+            }
+        }
+
         [HttpGet]
         public ActionResult Login()
         {
@@ -23,12 +63,21 @@ namespace StudentManagementSystem.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Login(string username, string password)
         {
+            if (!string.IsNullOrEmpty(username) && IsLockedOut(username))
+            {
+                ViewBag.Error = string.Format("Tài khoản đã bị khóa tạm thời do nhập sai quá nhiều lần. Vui lòng thử lại sau {0} phút!", LockoutMinutes);
+                return View();
+            }
+
             User user = _userDAO.GetUserByUsername(username);
 
             if (user != null && SecurityHelper.VerifyPassword(password, user.PasswordHash))
             {
+                ResetFailedLogin(username);
+
                 // 1. Khởi tạo vé chứng thực (Authentication Ticket)
                 FormsAuthenticationTicket ticket = new FormsAuthenticationTicket(
                     1,
@@ -55,6 +104,11 @@ namespace StudentManagementSystem.Controllers
                 }
             }
 
+            if (!string.IsNullOrEmpty(username))
+            {
+                RegisterFailedLogin(username);
+            }
+
             ViewBag.Error = "Tên đăng nhập hoặc mật khẩu không đúng!";
             return View();
         }
@@ -79,16 +133,36 @@ namespace StudentManagementSystem.Controllers
         // POST: Xử lý khi người dùng bấm nút Lưu
         [HttpPost]
         [Authorize]
-        public ActionResult ChangePassword(string newPassword, string confirmPassword)
+        [ValidateAntiForgeryToken]
+        public ActionResult ChangePassword(string currentPassword, string newPassword, string confirmPassword)
         {
+            string username = User.Identity.Name;
+
+            if (string.IsNullOrEmpty(currentPassword))
+            {
+                TempData["ErrorMsg"] = "Vui lòng nhập mật khẩu hiện tại!";
+                return RedirectToAction("ChangePassword");
+            }
+
+            // Xác thực mật khẩu hiện tại trước khi cho phép đổi
+            User currentUser = _userDAO.GetUserByUsername(username);
+            if (currentUser == null || !SecurityHelper.VerifyPassword(currentPassword, currentUser.PasswordHash))
+            {
+                TempData["ErrorMsg"] = "Mật khẩu hiện tại không đúng!";
+                return RedirectToAction("ChangePassword");
+            }
+
+            if (string.IsNullOrEmpty(newPassword) || newPassword.Length < 6)
+            {
+                TempData["ErrorMsg"] = "Mật khẩu mới phải có ít nhất 6 ký tự!";
+                return RedirectToAction("ChangePassword");
+            }
+
             if (newPassword != confirmPassword)
             {
                 TempData["ErrorMsg"] = "Mật khẩu xác nhận không khớp! Vui lòng nhập lại.";
                 return RedirectToAction("ChangePassword");
             }
-
-            // Lấy tên tài khoản (Username) của người đang đăng nhập hiện tại
-            string username = User.Identity.Name;
 
             bool isSuccess = _accountDAO.ChangePassword(username, newPassword);
 

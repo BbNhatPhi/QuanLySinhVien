@@ -9,18 +9,16 @@
         <i class="fas fa-plus"></i> Thêm Tài Khoản Mới
     </button>
 
-    @if (TempData["SuccessMsg"] != null)
-    {
-        <div class="alert alert-success fw-bold shadow-sm"><i class="fas fa-check-circle"></i> @TempData["SuccessMsg"]</div>
-    }
-    @if (TempData["ErrorMsg"] != null)
-    {
-        <div class="alert alert-danger fw-bold shadow-sm"><i class="fas fa-exclamation-triangle"></i> @TempData["ErrorMsg"]</div>
-    }
+    <div class="mb-3" style="max-width: 380px;">
+        <div class="input-group">
+            <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+            <input type="text" class="form-control" placeholder="Tìm kiếm tài khoản..." data-search-table="tblUsers" />
+        </div>
+    </div>
 
     <div class="card shadow-sm border-0">
         <div class="card-body p-0">
-            <table class="table table-hover table-bordered mb-0 align-middle">
+            <table id="tblUsers" class="table table-hover table-bordered mb-0 align-middle">
                 <thead class="table-dark">
                     <tr>
                         <th class="text-center">ID</th>
@@ -56,6 +54,7 @@
 
                                 <!-- Nút Khóa / Mở khóa -->
                                 <form action="@Url.Action("ToggleStatus", "Admin")" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
                                     <input type="hidden" name="userId" value="@item.UserID" />
                                     <input type="hidden" name="currentStatus" value="@(item.IsActive ? "true" : "false")" />
                                     <button type="submit" class="btn btn-sm @(item.IsActive ? "btn-outline-warning" : "btn-outline-success") mb-1 shadow-sm" title="@(item.IsActive ? "Khóa tài khoản này" : "Mở khóa tài khoản")">
@@ -75,6 +74,7 @@
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <form action="@Url.Action("ChangeUserRole", "Admin")" method="post">
+                                        @Html.AntiForgeryToken()
                                         <div class="modal-header bg-info text-dark">
                                             <h5 class="modal-title fw-bold"><i class="fas fa-user-shield"></i> Phân Quyền Tài Khoản</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -117,6 +117,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <form action="@Url.Action("CreateUser", "Admin")" method="post">
+                @Html.AntiForgeryToken()
                 <div class="modal-header bg-dark text-white">
                     <h5 class="modal-title fw-bold"><i class="fas fa-user-plus"></i> Tạo Tài Khoản Mới</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>

@@ -12,15 +12,6 @@
         </button>
     </div>
 
-    @if (TempData["SuccessMsg"] != null)
-    {
-        <div class="alert alert-success fw-bold shadow-sm"><i class="fas fa-check-circle"></i> @TempData["SuccessMsg"]</div>
-    }
-    @if (TempData["ErrorMsg"] != null)
-    {
-        <div class="alert alert-danger fw-bold shadow-sm"><i class="fas fa-exclamation-triangle"></i> @TempData["ErrorMsg"]</div>
-    }
-
     <div class="card shadow-sm border-0">
         <div class="card-body p-0">
             <table class="table table-hover table-bordered mb-0 align-middle">
@@ -62,6 +53,7 @@
 
                                         <!-- Nút Xóa -->
                                         <form action="@Url.Action("DeletePhongHoc", "Admin")" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa phòng @item.MaPhong không?');">
+                                            @Html.AntiForgeryToken()
                                             <input type="hidden" name="maPhong" value="@item.MaPhong" />
                                             <button type="submit" class="btn btn-sm btn-outline-danger fw-bold shadow-sm">
                                                 <i class="fas fa-trash-alt"></i>
@@ -91,6 +83,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <form action="@Url.Action("AddPhongHoc", "Admin")" method="post">
+                @Html.AntiForgeryToken()
                 <div class="modal-header bg-success text-white">
                     <h5 class="modal-title fw-bold"><i class="fas fa-plus-circle"></i> Thêm Phòng Học Mới</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -137,6 +130,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <form action="@Url.Action("EditPhongHoc", "Admin")" method="post">
+                @Html.AntiForgeryToken()
                 <div class="modal-header bg-warning text-dark">
                     <h5 class="modal-title fw-bold"><i class="fas fa-edit"></i> Cập Nhật Phòng Học</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>

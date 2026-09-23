@@ -10,15 +10,6 @@
         + Thêm Giảng Viên Mới
     </button>
 
-    @if (TempData["SuccessMsg"] != null)
-    {
-        <div class="alert alert-success">@TempData["SuccessMsg"]</div>
-    }
-    @if (TempData["ErrorMsg"] != null)
-    {
-        <div class="alert alert-danger">@TempData["ErrorMsg"]</div>
-    }
-
     <div class="card shadow-sm">
         <div class="card-body p-0">
             <table class="table table-bordered table-hover mb-0">
@@ -51,6 +42,7 @@
                                         <button class="btn btn-sm btn-outline-primary" title="Sửa"><i class="fas fa-edit"></i></button>
 
                                         <form action="@Url.Action("DeleteGiangVien", "Staff")" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa giảng viên @item.HoTen (@item.MaGV) không? Hệ thống sẽ tự động dọn dẹp cả tài khoản đăng nhập của giảng viên này!');">
+                                            @Html.AntiForgeryToken()
                                             <input type="hidden" name="maGV" value="@item.MaGV" />
                                             <button type="submit" class="btn btn-sm btn-outline-danger shadow-sm" title="Xóa">
                                                 <i class="fas fa-trash-alt"></i>
@@ -79,6 +71,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <form action="@Url.Action("AddGiangVien", "Staff")" method="post">
+                @Html.AntiForgeryToken()
                 <div class="modal-header bg-dark text-white">
                     <h5 class="modal-title">Thêm Hồ Sơ Giảng Viên</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>

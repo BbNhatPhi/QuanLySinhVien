@@ -24,5 +24,17 @@ namespace StudentManagementSystem.Controllers
 
             return View();
         }
+
+        public ActionResult About()
+        {
+            ViewBag.Title = "Giới thiệu";
+            return View();
+        }
+
+        public ActionResult Contact()
+        {
+            ViewBag.Title = "Liên hệ";
+            return View();
+        }
     }
 }

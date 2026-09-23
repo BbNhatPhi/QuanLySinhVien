@@ -55,6 +55,7 @@ namespace StudentManagementSystem.Controllers
 
         // POST: Xử lý nút bấm Đăng ký
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult XuLyDangKy(string maLopHP)
         {
             // Lấy tên đăng nhập của sinh viên hiện tại (chính là Mã Sinh Viên)
@@ -116,6 +117,7 @@ namespace StudentManagementSystem.Controllers
 
         // POST: Xử lý lưu thông tin
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult CapNhatThongTin(SinhVien sv)
         {
             string result = _studentDAO.UpdateThongTinCaNhan(sv);
@@ -142,6 +144,7 @@ namespace StudentManagementSystem.Controllers
 
         // POST: /Student/XacNhanThanhToan (Xử lý khi bấm nút Xác nhận)
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult XacNhanThanhToan(string maLopHP, double soTien)
         {
             // Lấy tài khoản sinh viên đang đăng nhập
@@ -185,6 +188,7 @@ namespace StudentManagementSystem.Controllers
 
         // POST: /Student/GuiYeuCau
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult GuiYeuCau(string loaiDichVu, string moTa, int soLuong = 1)
         {
             string result = _studentDAO.GuiYeuCauHanhChinh(User.Identity.Name, loaiDichVu, moTa, soLuong);
@@ -206,6 +210,7 @@ namespace StudentManagementSystem.Controllers
 
         // POST: /Student/LuuDanhGia
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult LuuDanhGia(string maLopHP, int diemDanhGia, string nhanXet)
         {
             string username = User.Identity.Name;

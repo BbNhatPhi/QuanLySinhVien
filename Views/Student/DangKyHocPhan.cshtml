@@ -9,15 +9,6 @@
 <div class="container mt-4">
     <h2 class="mb-4"><i class="fas fa-mouse-pointer text-primary"></i> Đăng Ký Học Phần</h2>
 
-    @if (TempData["SuccessMsg"] != null)
-    {
-        <div class="alert alert-success fw-bold"><i class="fas fa-check-circle"></i> @TempData["SuccessMsg"]</div>
-    }
-    @if (TempData["ErrorMsg"] != null)
-    {
-        <div class="alert alert-danger fw-bold"><i class="fas fa-exclamation-triangle"></i> @TempData["ErrorMsg"]</div>
-    }
-
     <div class="card shadow-sm border-0">
         <div class="card-header bg-dark text-white fw-bold">
             Danh sách Lớp học phần đang mở
@@ -73,6 +64,7 @@
                                     {
                                         <!-- TRƯỜNG HỢP 3: CHƯA ĐĂNG KÝ VÀ CÒN CHỖ -->
                                         <form action="@Url.Action("XuLyDangKy", "Student")" method="post" class="m-0">
+                                            @Html.AntiForgeryToken()
                                             <input type="hidden" name="maLopHP" value="@item.MaLopHP" />
                                             <button type="submit" class="btn btn-primary btn-sm fw-bold">
                                                 <i class="fas fa-plus"></i> Đăng Ký

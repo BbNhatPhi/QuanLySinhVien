@@ -10,15 +10,6 @@
         + Xếp Lịch Mới
     </button>
 
-    @if (TempData["SuccessMsg"] != null)
-    {
-        <div class="alert alert-success">@TempData["SuccessMsg"]</div>
-    }
-    @if (TempData["ErrorMsg"] != null)
-    {
-        <div class="alert alert-danger">@TempData["ErrorMsg"]</div>
-    }
-
     <div class="card shadow-sm">
         <div class="card-body p-0">
             <table class="table table-bordered table-hover mb-0">
@@ -66,6 +57,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <form action="@Url.Action("AddTKB", "Staff")" method="post">
+                @Html.AntiForgeryToken()
                 <div class="modal-header bg-dark text-white">
                     <h5 class="modal-title">Xếp Lịch Học Mới</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>

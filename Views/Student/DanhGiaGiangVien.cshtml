@@ -9,19 +9,6 @@
         </a>
     </div>
 
-    @if (TempData["WarningMsg"] != null)
-    {
-        <div class="alert alert-warning fw-bold shadow-sm border-2 border-warning">
-            <i class="fas fa-lock"></i> @TempData["WarningMsg"]
-        </div>
-    }
-    @if (TempData["SuccessMsg"] != null)
-    {
-        <div class="alert alert-success fw-bold shadow-sm">
-            <i class="fas fa-check-circle"></i> @TempData["SuccessMsg"]
-        </div>
-    }
-
     <div class="row">
         @if (Model != null && Model.Count > 0)
         {
@@ -47,6 +34,7 @@
                             <hr />
 
                             <form action="@Url.Action("LuuDanhGia", "Student")" method="post">
+                                @Html.AntiForgeryToken()
                                 <input type="hidden" name="maLopHP" value="@item.MaLopHP" />
 
                                 <div class="mb-3">

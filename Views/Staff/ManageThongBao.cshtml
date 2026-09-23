@@ -9,15 +9,6 @@
         </button>
     </div>
 
-    @if (TempData["SuccessMsg"] != null)
-    {
-        <div class="alert alert-success fw-bold shadow-sm"><i class="fas fa-check-circle"></i> @TempData["SuccessMsg"]</div>
-    }
-    @if (TempData["ErrorMsg"] != null)
-    {
-        <div class="alert alert-danger fw-bold shadow-sm"><i class="fas fa-exclamation-triangle"></i> @TempData["ErrorMsg"]</div>
-    }
-
     <!-- Hiển thị danh sách thông báo đã đăng -->
     <div class="row">
         @if (Model != null && Model.Count > 0)
@@ -55,6 +46,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form action="@Url.Action("AddThongBao", "Staff")" method="post">
+                @Html.AntiForgeryToken()
                 <div class="modal-header bg-warning text-dark">
                     <h5 class="modal-title fw-bold"><i class="fas fa-pen-alt"></i> Soạn Thông Báo Mới</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

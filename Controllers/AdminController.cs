@@ -33,6 +33,7 @@ namespace StudentManagementSystem.Controllers
 
         // POST: /Admin/CreateUser
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult CreateUser(string username, string password, int roleId, string hoTen)
         {
             try
@@ -49,6 +50,7 @@ namespace StudentManagementSystem.Controllers
 
         // POST: /Admin/ToggleStatus
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult ToggleStatus(int userId, bool currentStatus)
         {
             _adminDAO.ToggleUserStatus(userId, !currentStatus);
@@ -69,6 +71,7 @@ namespace StudentManagementSystem.Controllers
 
         // POST: /Admin/CreateKhoa
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult CreateKhoa(string tenKhoa, string lienHe)
         {
             _adminDAO.AddKhoa(tenKhoa, lienHe);
@@ -107,6 +110,7 @@ namespace StudentManagementSystem.Controllers
 
         // POST: /Admin/CreateNganh
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult CreateNganh(string tenNganh, int khoaId)
         {
             _adminDAO.AddNganh(tenNganh, khoaId);
@@ -128,6 +132,7 @@ namespace StudentManagementSystem.Controllers
         }
         // POST: /Admin/ChangeUserRole (Đổi quyền)
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult ChangeUserRole(int userId, int newRoleId)
         {
             _adminDAO.ChangeUserRole(userId, newRoleId);
@@ -146,6 +151,7 @@ namespace StudentManagementSystem.Controllers
 
         // POST: /Admin/ExecuteBackup
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult ExecuteBackup()
         {
             string result = _adminDAO.BackupDatabase();
@@ -163,6 +169,7 @@ namespace StudentManagementSystem.Controllers
             return RedirectToAction("BackupData");
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult EditNganh(int nganhId, string tenNganh, int khoaId)
         {
             bool result = _adminDAO.UpdateNganh(nganhId, tenNganh, khoaId);
@@ -189,6 +196,7 @@ namespace StudentManagementSystem.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult AddPhongHoc(string maPhong, int sucChua, string loaiPhong, string tinhTrang)
         {
             if (_adminDAO.AddPhongHoc(maPhong, sucChua, loaiPhong, tinhTrang))
@@ -200,6 +208,7 @@ namespace StudentManagementSystem.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult EditPhongHoc(string maPhong, int sucChua, string loaiPhong, string tinhTrang)
         {
             if (_adminDAO.UpdatePhongHoc(maPhong, sucChua, loaiPhong, tinhTrang))
@@ -211,6 +220,7 @@ namespace StudentManagementSystem.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult DeletePhongHoc(string maPhong)
         {
             if (_adminDAO.DeletePhongHoc(maPhong))
