@@ -1,65 +1,118 @@
-﻿@model IEnumerable<StudentManagementSystem.Models.SinhVienLop>
+@model IEnumerable<StudentManagementSystem.Models.SinhVienLop>
 @{
-    ViewBag.Title = "Danh Sách Sinh Viên";
+    ViewBag.Title = "Điểm Danh Lớp Học Phần";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var dsSinhVien = Model != null ? Model.ToList() : new List<StudentManagementSystem.Models.SinhVienLop>();
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="fas fa-user-check text-primary"></i> Danh sách lớp: @ViewBag.MaLopTC</h2>
-    <a href="@Url.Action("XemLop", "Teacher")" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Quay lại</a>
-</div>
+<div class="container-fluid px-0">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="mb-1 fw-bold text-dark"><i class="fas fa-clipboard-user text-primary me-2"></i>Điểm Danh Lớp: <span class="text-primary">@ViewBag.MaLopTC</span></h2>
+            <p class="text-muted mb-0 small">Điểm danh theo buổi học. Vắng không phép sẽ tự động trừ điểm Chuyên cần và Điểm rèn luyện.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="@Url.Action("XemLop", "Teacher")" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i> Danh sách lớp
+            </a>
+            <button type="button" class="btn btn-outline-success btn-sm" onclick="markAllPresent()">
+                <i class="fas fa-check-double me-1"></i> Đánh dấu Tất cả có mặt
+            </button>
+        </div>
+    </div>
 
-<div class="card shadow border-0">
-    <div class="card-body">
-        <form action="@Url.Action("LuuDiemDanh", "Teacher")" method="post">
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="maLopTC" value="@ViewBag.MaLopTC" />
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+        <div class="card-header bg-dark text-white py-3 d-flex justify-content-between align-items-center">
+            <span class="fw-bold"><i class="fas fa-users me-2"></i>Danh Sách Sinh Viên (@dsSinhVien.Count SV)</span>
+            <small class="text-light">Chọn trạng thái: Có mặt / Có phép / Không phép</small>
+        </div>
+        <div class="card-body p-0">
+            <form action="@Url.Action("LuuDiemDanh", "Teacher")" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="maLopTC" value="@ViewBag.MaLopTC" />
 
-            <table class="table table-hover table-bordered align-middle">
-                <thead class="table-dark text-center">
-                    <tr>
-                        <th>Mã SV</th>
-                        <th class="text-start">Họ Tên</th>
-                        <th>Giới Tính</th>
-                        <th>Email</th>
-                        <th>Điểm CC hiện tại</th>
-                        <th class="text-center" width="35%">Trạng Thái Điểm Danh</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var sv in Model)
-                    {
-                        <tr>
-                            <td class="text-center fw-bold">@sv.MaSV</td>
-                            <td>@sv.HoTen</td>
-                            <td class="text-center">@sv.GioiTinh</td>
-                            <td>@sv.Email</td>
-                            <td class="text-center"><span class="badge bg-info text-dark fs-6">@sv.DiemCC</span></td>
-                            <td class="text-center">
-                                <!-- Layout 3 ô tích (Radio Buttons) -->
-                                <div class="d-flex justify-content-center gap-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="TrangThai_@sv.MaSV" id="comat_@sv.MaSV" value="Có mặt" checked>
-                                        <label class="form-check-label text-success fw-bold" for="comat_@sv.MaSV">Có mặt</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="TrangThai_@sv.MaSV" id="cophep_@sv.MaSV" value="Có phép">
-                                        <label class="form-check-label text-warning fw-bold" for="cophep_@sv.MaSV">Có phép</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="TrangThai_@sv.MaSV" id="khongphep_@sv.MaSV" value="Không phép">
-                                        <label class="form-check-label text-danger fw-bold" for="khongphep_@sv.MaSV">Không phép</label>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered align-middle text-center mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 50px;">STT</th>
+                                <th style="width: 140px;">Mã SV</th>
+                                <th class="text-start">Họ và Tên Sinh Viên</th>
+                                <th style="width: 100px;">Giới Tính</th>
+                                <th class="text-start">Email</th>
+                                <th style="width: 120px;">Điểm CC Hiện Tại</th>
+                                <th style="min-width: 320px;">Trạng Thái Điểm Danh</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!dsSinhVien.Any())
+                            {
+                                <tr>
+                                    <td colspan="7" class="text-muted py-5">
+                                        <i class="fas fa-user-slash fs-1 text-secondary opacity-50 mb-2 d-block"></i>
+                                        Lớp học phần này hiện chưa có sinh viên.
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                int stt = 1;
+                                foreach (var sv in dsSinhVien)
+                                {
+                                    <tr>
+                                        <td class="fw-bold text-muted">@(stt++)</td>
+                                        <td class="fw-bold text-primary">@sv.MaSV</td>
+                                        <td class="text-start fw-bold text-dark">@sv.HoTen</td>
+                                        <td>@sv.GioiTinh</td>
+                                        <td class="text-start small text-muted">@sv.Email</td>
+                                        <td>
+                                            <span class="badge @(sv.DiemCC >= 8 ? "bg-success" : (sv.DiemCC >= 5 ? "bg-warning text-dark" : "bg-danger")) fs-6 px-3 py-2">
+                                                @sv.DiemCC.ToString("0.0")
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex justify-content-center gap-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input check-present" type="radio" name="TrangThai_@sv.MaSV" id="comat_@sv.MaSV" value="Có mặt" checked>
+                                                    <label class="form-check-label text-success fw-bold" for="comat_@sv.MaSV">Có mặt</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="TrangThai_@sv.MaSV" id="cophep_@sv.MaSV" value="Có phép">
+                                                    <label class="form-check-label text-warning fw-bold" for="cophep_@sv.MaSV">Có phép</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="TrangThai_@sv.MaSV" id="khongphep_@sv.MaSV" value="Không phép">
+                                                    <label class="form-check-label text-danger fw-bold" for="khongphep_@sv.MaSV">Không phép</label>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
 
-            <div class="text-end mt-3">
-                <button type="submit" class="btn btn-primary px-4 fw-bold shadow-sm"><i class="fas fa-clipboard-check"></i> LƯU ĐIỂM DANH</button>
-            </div>
-        </form>
+                @if (dsSinhVien.Any())
+                {
+                    <div class="card-footer bg-light py-3 d-flex justify-content-between align-items-center">
+                        <small class="text-muted"><i class="fas fa-info-circle me-1"></i>Hệ thống tự động đồng bộ kết quả vắng học sang bảng Điểm rèn luyện.</small>
+                        <button type="submit" class="btn btn-primary px-4 fw-bold">
+                            <i class="fas fa-save me-1"></i> LƯU KẾT QUẢ ĐIỂM DANH
+                        </button>
+                    </div>
+                }
+            </form>
+        </div>
     </div>
 </div>
+
+@section scripts {
+    <script>
+        function markAllPresent() {
+            document.querySelectorAll('.check-present').forEach(function(radio) {
+                radio.checked = true;
+            });
+        }
+    </script>
+}

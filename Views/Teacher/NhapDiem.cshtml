@@ -1,64 +1,213 @@
-﻿@model IEnumerable<StudentManagementSystem.Models.SinhVienDiem>
+@model IEnumerable<StudentManagementSystem.Models.SinhVienDiem>
 @{
-    ViewBag.Title = "Nhập Điểm";
+    ViewBag.Title = "Nhập Điểm Học Phần";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var dsDiem = Model != null ? Model.ToList() : new List<StudentManagementSystem.Models.SinhVienDiem>();
+    int siSo = dsDiem.Count;
+    int soDat = dsDiem.Count(x => x.DiemTong >= 4.0 && (x.DiemCC > 0 || x.DiemGK > 0 || x.DiemCK > 0));
+    int soChuaDat = dsDiem.Count(x => x.DiemTong < 4.0 && (x.DiemCC > 0 || x.DiemGK > 0 || x.DiemCK > 0));
+    double tiLeDat = (soDat + soChuaDat) > 0 ? Math.Round((double)soDat / (soDat + soChuaDat) * 100, 1) : 0;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="fas fa-graduation-cap text-primary"></i> Bảng Điểm - Lớp: @ViewBag.MaLopTC</h2>
-    <a href="@Url.Action("Index", "Teacher")" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Quay lại lịch dạy</a>
-</div>
+<div class="container-fluid px-0">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="mb-1 fw-bold text-dark">
+                <i class="fas fa-graduation-cap text-primary me-2"></i>Bảng Điểm Học Phần: <span class="text-primary">@ViewBag.MaLopTC</span>
+            </h2>
+            <p class="text-muted mb-0 small">Nhập điểm quá trình, giữa kỳ và thi kết thúc môn. Hệ thống tự động tính điểm tổng kết và xếp loại.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="@Url.Action("Index", "Teacher")" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i> Lịch giảng dạy
+            </a>
+            <a href="@Url.Action("InBangDiem", "Teacher", new { maLopTC = ViewBag.MaLopTC })" target="_blank" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-print me-1"></i> In Bảng Điểm
+            </a>
+        </div>
+    </div>
 
-<div class="card shadow">
-    <div class="card-body">
-        <form action="@Url.Action("LuuDiem", "Teacher")" method="post">
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="MaLopTC" value="@ViewBag.MaLopTC" />
+    <!-- KHỐI THỐNG KÊ LỚP HỌC PHẦN -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-primary">
+                <div class="text-muted small fw-semibold text-uppercase">Sĩ số sinh viên</div>
+                <div class="fs-3 fw-bold text-primary mt-1">@siSo <small class="fs-6 text-muted">SV</small></div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-success">
+                <div class="text-muted small fw-semibold text-uppercase">Số sinh viên Đạt</div>
+                <div class="fs-3 fw-bold text-success mt-1">@soDat <small class="fs-6 text-muted">SV</small></div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-danger">
+                <div class="text-muted small fw-semibold text-uppercase">Số SV Chưa đạt</div>
+                <div class="fs-3 fw-bold text-danger mt-1">@soChuaDat <small class="fs-6 text-muted">SV</small></div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-info">
+                <div class="text-muted small fw-semibold text-uppercase">Tỷ lệ hoàn thành</div>
+                <div class="fs-3 fw-bold text-info mt-1">@tiLeDat%</div>
+            </div>
+        </div>
+    </div>
 
-            <table class="table table-bordered table-striped align-middle text-center">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Mã SV</th>
-                        <th class="text-start">Họ Tên</th>
-                        <th style="width: 15%">Điểm CC (10%)</th>
-                        <th style="width: 15%">Điểm GK (30%)</th>
-                        <th style="width: 15%">Điểm CK (60%)</th>
-                        <th style="width: 15%">Tổng Kết</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (!Model.Any())
-                    {
-                        <tr><td colspan="6" class="text-muted">Chưa có sinh viên nào trong lớp này.</td></tr>
-                    }
-                    @foreach (var sv in Model)
-                    {
-                        <tr>
-                            <td>
-                                <!-- THÊM DÒNG NÀY ĐỂ C# NHẬN DIỆN ĐƯỢC MÃ SINH VIÊN -->
-                                <input type="hidden" name="MaSV" value="@sv.MaSV" />
+    <!-- BẢNG NHẬP ĐIỂM -->
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+        <div class="card-header bg-dark text-white py-3 d-flex justify-content-between align-items-center">
+            <span class="fw-bold"><i class="fas fa-edit me-2"></i>Danh Sách Nhập Điểm - Lớp @ViewBag.MaLopTC</span>
+            <small class="text-light">Thang điểm 10 | Công thức: CC &times; 10% + GK &times; 30% + CK &times; 60%</small>
+        </div>
+        <div class="card-body p-0">
+            <form action="@Url.Action("LuuDiem", "Teacher")" method="post" id="formNhapDiem">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="MaLopTC" value="@ViewBag.MaLopTC" />
 
-                                <!-- Giữ lại MaDiem của bạn đề phòng CSDL cần dùng tới -->
-                                <input type="hidden" name="MaDiem" value="@sv.MaDiem" />
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover align-middle text-center mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 50px;">STT</th>
+                                <th style="width: 130px;">Mã SV</th>
+                                <th class="text-start">Họ và Tên Sinh Viên</th>
+                                <th style="width: 130px;">Điểm CC (10%)</th>
+                                <th style="width: 130px;">Điểm GK (30%)</th>
+                                <th style="width: 130px;">Điểm CK (60%)</th>
+                                <th style="width: 110px;">Điểm TK</th>
+                                <th style="width: 100px;">Điểm Chữ</th>
+                                <th style="width: 110px;">Kết Quả</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!dsDiem.Any())
+                            {
+                                <tr>
+                                    <td colspan="9" class="text-muted py-5">
+                                        <i class="fas fa-users-slash fs-1 text-secondary opacity-50 mb-2 d-block"></i>
+                                        Lớp học phần này hiện chưa có sinh viên đăng ký.
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                int stt = 1;
+                                foreach (var sv in dsDiem)
+                                {
+                                    bool isPass = sv.DiemTong >= 4.0;
+                                    string diemChu = sv.DiemTong >= 8.5 ? "A" : (sv.DiemTong >= 7.0 ? "B" : (sv.DiemTong >= 5.5 ? "C" : (sv.DiemTong >= 4.0 ? "D" : "F")));
 
-                                @sv.MaSV
-                            </td>
-                            <td class="text-start"><b>@sv.HoTen</b></td>
-                            <td><input type="number" step="0.1" min="0" max="10" name="DiemCC" value="@sv.DiemCC" class="form-control text-center" /></td>
-                            <td><input type="number" step="0.1" min="0" max="10" name="DiemGK" value="@sv.DiemGK" class="form-control text-center" /></td>
-                            <td><input type="number" step="0.1" min="0" max="10" name="DiemCK" value="@sv.DiemCK" class="form-control text-center" /></td>
-                            <td><span class="badge bg-primary fs-6">@sv.DiemTong</span></td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-
-            @if (Model.Any())
-            {
-                <div class="text-end mt-3">
-                    <button type="submit" class="btn btn-success px-5"><i class="fas fa-save"></i> LƯU ĐIỂM TOÀN LỚP</button>
+                                    <tr class="grade-row">
+                                        <td class="fw-bold text-muted">@(stt++)</td>
+                                        <td class="fw-bold text-primary">
+                                            <input type="hidden" name="MaSV" value="@sv.MaSV" />
+                                            <input type="hidden" name="MaDiem" value="@sv.MaDiem" />
+                                            @sv.MaSV
+                                        </td>
+                                        <td class="text-start fw-bold text-dark">@sv.HoTen</td>
+                                        <td>
+                                            <input type="number" step="0.1" min="0" max="10" name="DiemCC" 
+                                                   value="@sv.DiemCC" class="form-control text-center input-grade input-cc" required />
+                                        </td>
+                                        <td>
+                                            <input type="number" step="0.1" min="0" max="10" name="DiemGK" 
+                                                   value="@sv.DiemGK" class="form-control text-center input-grade input-gk" required />
+                                        </td>
+                                        <td>
+                                            <input type="number" step="0.1" min="0" max="10" name="DiemCK" 
+                                                   value="@sv.DiemCK" class="form-control text-center input-grade input-ck" required />
+                                        </td>
+                                        <td>
+                                            <span class="badge @(isPass ? "bg-success" : "bg-danger") fs-6 cell-tong">
+                                                @sv.DiemTong.ToString("0.0")
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary cell-chu">@diemChu</span>
+                                        </td>
+                                        <td>
+                                            <span class="cell-status">
+                                                @if (isPass)
+                                                {
+                                                    <span class="badge bg-success-subtle text-success border border-success">Đạt</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger-subtle text-danger border border-danger">Chưa đạt</span>
+                                                }
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
                 </div>
-            }
-        </form>
+
+                @if (dsDiem.Any())
+                {
+                    <div class="card-footer bg-light py-3 d-flex justify-content-between align-items-center">
+                        <small class="text-muted"><i class="fas fa-info-circle me-1"></i>Điểm số sẽ tự động cập nhật ngay trên màn hình khi nhập.</small>
+                        <button type="submit" class="btn btn-success px-4 fw-bold">
+                            <i class="fas fa-save me-1"></i> LƯU BẢNG ĐIỂM TOÀN LỚP
+                        </button>
+                    </div>
+                }
+            </form>
+        </div>
     </div>
 </div>
+
+@section scripts {
+    <script>
+        // TÍNH TOÁN ĐIỂM TỔNG KẾT LIVE KHI GIẢNG VIÊN NHẬP ĐIỂM
+        document.querySelectorAll('.grade-row').forEach(function(row) {
+            var inputCC = row.querySelector('.input-cc');
+            var inputGK = row.querySelector('.input-gk');
+            var inputCK = row.querySelector('.input-ck');
+            var cellTong = row.querySelector('.cell-tong');
+            var cellChu = row.querySelector('.cell-chu');
+            var cellStatus = row.querySelector('.cell-status');
+
+            function recalculate() {
+                var cc = parseFloat(inputCC.value) || 0;
+                var gk = parseFloat(inputGK.value) || 0;
+                var ck = parseFloat(inputCK.value) || 0;
+
+                // Chuẩn hóa giới hạn 0 - 10
+                if (cc < 0) cc = 0; if (cc > 10) cc = 10;
+                if (gk < 0) gk = 0; if (gk > 10) gk = 10;
+                if (ck < 0) ck = 0; if (ck > 10) ck = 10;
+
+                var tong = (cc * 0.1) + (gk * 0.3) + (ck * 0.6);
+                tong = Math.round(tong * 10) / 10;
+
+                cellTong.textContent = tong.toFixed(1);
+                var isPass = tong >= 4.0;
+
+                if (isPass) {
+                    cellTong.className = 'badge bg-success fs-6 cell-tong';
+                    cellStatus.innerHTML = '<span class="badge bg-success-subtle text-success border border-success">Đạt</span>';
+                } else {
+                    cellTong.className = 'badge bg-danger fs-6 cell-tong';
+                    cellStatus.innerHTML = '<span class="badge bg-danger-subtle text-danger border border-danger">Chưa đạt</span>';
+                }
+
+                var chu = 'F';
+                if (tong >= 8.5) chu = 'A';
+                else if (tong >= 7.0) chu = 'B';
+                else if (tong >= 5.5) chu = 'C';
+                else if (tong >= 4.0) chu = 'D';
+
+                cellChu.textContent = chu;
+            }
+
+            inputCC.addEventListener('input', recalculate);
+            inputGK.addEventListener('input', recalculate);
+            inputCK.addEventListener('input', recalculate);
+        });
+    </script>
+}

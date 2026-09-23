@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -23,14 +23,14 @@ namespace StudentManagementSystem.DAO
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 string sql = @"
-                    SELECT lhp.MaLopHP, m.TenMon, gv.HoTen AS TenGV, lhp.HocKy, lhp.NamHoc, 
+                    SELECT lhp.MaLopHP, m.TenMon, m.SoTinChi, gv.HoTen AS TenGV, lhp.HocKy, lhp.NamHoc, 
                            lhp.SoLuongMax, COUNT(dk.MaSV) AS SiSoHienTai
                     FROM LopHocPhan lhp
                     INNER JOIN MonHoc m ON lhp.MaMon = m.MaMon
                     INNER JOIN GiangVien gv ON lhp.MaGV = gv.MaGV
                     LEFT JOIN DangKyHocPhan dk ON lhp.MaLopHP = dk.MaLopHP
                     WHERE lhp.TrangThai = N'Mở đăng ký'
-                    GROUP BY lhp.MaLopHP, m.TenMon, gv.HoTen, lhp.HocKy, lhp.NamHoc, lhp.SoLuongMax";
+                    GROUP BY lhp.MaLopHP, m.TenMon, m.SoTinChi, gv.HoTen, lhp.HocKy, lhp.NamHoc, lhp.SoLuongMax";
 
                 SqlCommand cmd = new SqlCommand(sql, conn);
                 conn.Open();
@@ -42,6 +42,7 @@ namespace StudentManagementSystem.DAO
                         {
                             MaLopHP = reader["MaLopHP"].ToString(),
                             TenMon = reader["TenMon"].ToString(),
+                            SoTinChi = reader["SoTinChi"] != DBNull.Value ? Convert.ToInt32(reader["SoTinChi"]) : 0,
                             TenGV = reader["TenGV"].ToString(),
                             HocKy = Convert.ToInt32(reader["HocKy"]),
                             NamHoc = reader["NamHoc"].ToString(),
@@ -99,13 +100,83 @@ namespace StudentManagementSystem.DAO
                 {
                     conn.Open();
                     cmd.ExecuteNonQuery();
-                    return msgParam.Value.ToString();
+                    return msgParam.Value != null ? msgParam.Value.ToString() : "Success";
                 }
                 catch (Exception ex)
                 {
                     return "Lỗi hệ thống: " + ex.Message;
                 }
             }
+        }
+
+        // TÍNH NĂNG MỚI: Hủy đăng ký học phần
+        public string HuyDangKyLop(string username, string maLopHP)
+        {
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                SqlCommand cmd = new SqlCommand("sp_HuyDangKyHocPhan", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Username", username);
+                cmd.Parameters.AddWithValue("@MaLopHP", maLopHP);
+
+                SqlParameter msgParam = new SqlParameter("@Message", SqlDbType.NVarChar, 255);
+                msgParam.Direction = ParameterDirection.Output;
+                cmd.Parameters.Add(msgParam);
+
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                    return msgParam.Value != null ? msgParam.Value.ToString() : "Success";
+                }
+                catch (Exception ex)
+                {
+                    return "Lỗi hệ thống: " + ex.Message;
+                }
+            }
+        }
+
+        // TÍNH NĂNG MỚI: Lấy danh sách chi tiết các lớp học phần sinh viên đã đăng ký
+        public List<LopHocPhan> GetDanhSachLopDaDangKyChiTiet(string username)
+        {
+            List<LopHocPhan> list = new List<LopHocPhan>();
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                string sql = @"
+                    SELECT lhp.MaLopHP, m.TenMon, m.SoTinChi, gv.HoTen AS TenGV, 
+                           lhp.HocKy, lhp.NamHoc, dk.TrangThaiThanhToan, lhp.TrangThai
+                    FROM DangKyHocPhan dk
+                    INNER JOIN LopHocPhan lhp ON dk.MaLopHP = lhp.MaLopHP
+                    INNER JOIN MonHoc m ON lhp.MaMon = m.MaMon
+                    INNER JOIN GiangVien gv ON lhp.MaGV = gv.MaGV
+                    INNER JOIN SinhVien sv ON dk.MaSV = sv.MaSV
+                    INNER JOIN Users u ON sv.UserID = u.UserID
+                    WHERE u.Username = @Username
+                    ORDER BY lhp.NamHoc DESC, lhp.HocKy DESC";
+
+                SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@Username", username);
+
+                conn.Open();
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        list.Add(new LopHocPhan
+                        {
+                            MaLopHP = reader["MaLopHP"].ToString(),
+                            TenMon = reader["TenMon"].ToString(),
+                            SoTinChi = reader["SoTinChi"] != DBNull.Value ? Convert.ToInt32(reader["SoTinChi"]) : 0,
+                            TenGV = reader["TenGV"].ToString(),
+                            HocKy = Convert.ToInt32(reader["HocKy"]),
+                            NamHoc = reader["NamHoc"].ToString(),
+                            DaThanhToan = Convert.ToBoolean(reader["TrangThaiThanhToan"]),
+                            TrangThai = reader["TrangThai"].ToString()
+                        });
+                    }
+                }
+            }
+            return list;
         }
 
         // ==========================================

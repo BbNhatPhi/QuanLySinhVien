@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -170,6 +170,13 @@ namespace StudentManagementSystem.Controllers
 
                         if (diemCKs != null && i < diemCKs.Length && !string.IsNullOrEmpty(diemCKs[i]))
                             double.TryParse(diemCKs[i].Replace(",", "."), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out ck);
+
+                        // Ràng buộc miền giá trị: thang điểm 0 - 10
+                        if (cc < 0 || cc > 10 || gk < 0 || gk > 10 || ck < 0 || ck > 10)
+                        {
+                            TempData["ErrorMsg"] = $"Lỗi: Điểm của sinh viên {maSV} không hợp lệ (Điểm phải trong thang điểm 0 - 10). Không thể lưu!";
+                            return RedirectToAction("NhapDiem", new { maLopTC = maLopTC });
+                        }
 
                         // Ghi xuống CSDL
                         _teacherDAO.UpdateDiem(maSV, maLopTC, cc, gk, ck);

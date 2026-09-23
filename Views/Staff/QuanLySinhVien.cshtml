@@ -20,8 +20,8 @@
 </div>
 
 <div class="card shadow border-0">
-    <div class="card-body">
-        <table id="tblSinhVien" class="table table-hover table-bordered align-middle text-center">
+    <div class="card-body p-0 table-responsive">
+        <table id="tblSinhVien" class="table table-hover table-bordered align-middle text-center mb-0">
             <thead class="table-dark">
                 <tr>
                     <th>Mã SV</th>
@@ -30,26 +30,60 @@
                     <th>Giới Tính</th>
                     <th>Email</th>
                     <th>Khoa</th>
-                    <th>Thao Tác</th>
+                    <th>Trạng Thái</th>
+                    <th style="min-width: 160px;">Thao Tác</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var sv in Model)
                 {
                     <tr>
-                        <td class="fw-bold">@sv.MaSV</td>
-                        <td class="text-start">@sv.HoTen</td>
+                        <td class="fw-bold text-primary">@sv.MaSV</td>
+                        <td class="text-start fw-bold">@sv.HoTen</td>
                         <td>@(sv.NgaySinh.HasValue ? sv.NgaySinh.Value.ToString("dd/MM/yyyy") : "")</td>
                         <td>@sv.GioiTinh</td>
                         <td>@sv.Email</td>
-                        <!-- Cột này hiển thị Tên Khoa từ Database -->
                         <td class="fw-bold text-primary">@sv.TenKhoa</td>
                         <td>
-                            <a href="@Url.Action("XoaSinhVien", "Staff", new { maSV = sv.MaSV })"
-                               class="btn btn-danger btn-sm"
-                               onclick="return confirm('Bạn có chắc chắn muốn xóa sinh viên này không?');">
-                                <i class="fas fa-trash-alt"></i> Xóa
-                            </a>
+                            @if (sv.TrangThaiHocTap == "Đang học" || sv.TrangThaiHocTap == "Dang h?c")
+                            {
+                                <span class="badge bg-success">Đang học</span>
+                            }
+                            else if (sv.TrangThaiHocTap == "Bảo lưu")
+                            {
+                                <span class="badge bg-warning text-dark">Bảo lưu</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">@(sv.TrangThaiHocTap ?? "Chưa xác định")</span>
+                            }
+                        </td>
+                        <td>
+                            <!-- NÚT SỬA: Mở Modal Chỉnh Sửa Thông Tin -->
+                            <button type="button" class="btn btn-warning btn-sm text-dark me-1"
+                                    data-masv="@sv.MaSV"
+                                    data-hoten="@sv.HoTen"
+                                    data-ngaysinh="@(sv.NgaySinh.HasValue ? sv.NgaySinh.Value.ToString("yyyy-MM-dd") : "")"
+                                    data-gioitinh="@sv.GioiTinh"
+                                    data-email="@sv.Email"
+                                    data-sodt="@sv.SoDienThoai"
+                                    data-diachi="@sv.DiaChi"
+                                    data-khoaid="@sv.KhoaID"
+                                    data-trangthai="@sv.TrangThaiHocTap"
+                                    onclick="openEditModal(this)"
+                                    title="Chỉnh sửa thông tin sinh viên">
+                                <i class="fas fa-edit"></i> Sửa
+                            </button>
+
+                            <!-- NÚT XÓA: Sử dụng POST và AntiForgeryToken để bảo mật -->
+                            <form action="@Url.Action("XoaSinhVien", "Staff")" method="post" class="d-inline"
+                                  onsubmit="return confirm('Bạn có chắc chắn muốn xóa sinh viên @sv.MaSV - @sv.HoTen không?');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="maSV" value="@sv.MaSV" />
+                                <button type="submit" class="btn btn-danger btn-sm" title="Xóa sinh viên này">
+                                    <i class="fas fa-trash-alt"></i> Xóa
+                                </button>
+                            </form>
                         </td>
                     </tr>
                 }
@@ -58,12 +92,12 @@
     </div>
 </div>
 
-<!-- Modal Thêm Sinh Viên Giao diện nổi -->
+<!-- Modal Thêm Sinh Viên -->
 <div class="modal fade" id="addStudentModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header text-white" style="background-color: #0d6efd;">
-                <h5 class="modal-title">Thêm Sinh Viên Mới</h5>
+                <h5 class="modal-title"><i class="fas fa-user-plus"></i> Thêm Sinh Viên Mới</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form action="@Url.Action("ThemSinhVien", "Staff")" method="post">
@@ -71,11 +105,11 @@
                 <div class="modal-body px-4">
                     <div class="mb-3">
                         <label class="form-label fw-bold">Mã Sinh Viên</label>
-                        <input type="text" class="form-control" name="MaSV" required />
+                        <input type="text" class="form-control" name="MaSV" required placeholder="VD: 240001" />
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Họ Tên</label>
-                        <input type="text" class="form-control" name="HoTen" required />
+                        <input type="text" class="form-control" name="HoTen" required placeholder="Họ và tên đầy đủ" />
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -90,12 +124,20 @@
                             </select>
                         </div>
                     </div>
-                    <div class="mb-4">
-                        <label class="form-label fw-bold">Email</label>
-                        <input type="email" class="form-control" name="Email" />
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Email</label>
+                            <input type="email" class="form-control" name="Email" placeholder="sv@school.edu.vn" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Số Điện Thoại</label>
+                            <input type="text" class="form-control" name="SoDienThoai" placeholder="09xxxxxxx" />
+                        </div>
                     </div>
-
-                    <!-- Chỉ có duy nhất ô chọn Khoa, truyền name="KhoaID" về Controller -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Địa Chỉ</label>
+                        <input type="text" class="form-control" name="DiaChi" placeholder="Địa chỉ thường trú" />
+                    </div>
                     <div class="mb-4">
                         <label class="form-label fw-bold text-primary">Trực thuộc Khoa</label>
                         <select class="form-select border-primary" name="KhoaID" required>
@@ -109,7 +151,6 @@
                             }
                         </select>
                     </div>
-
                 </div>
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
@@ -119,3 +160,112 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Chỉnh Sửa Sinh Viên (TÍNH NĂNG MỚI) -->
+<div class="modal fade" id="editStudentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header text-white" style="background-color: #ffc107;">
+                <h5 class="modal-title text-dark"><i class="fas fa-user-edit"></i> Chỉnh Sửa Thông Tin Sinh Viên</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="@Url.Action("EditSinhVien", "Staff")" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body px-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mã Sinh Viên</label>
+                        <input type="text" class="form-control bg-light" id="edit_MaSV" name="MaSV" readonly />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Họ Tên</label>
+                        <input type="text" class="form-control" id="edit_HoTen" name="HoTen" required />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Ngày Sinh</label>
+                            <input type="date" class="form-control" id="edit_NgaySinh" name="NgaySinh" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Giới Tính</label>
+                            <select class="form-select" id="edit_GioiTinh" name="GioiTinh">
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Email</label>
+                            <input type="email" class="form-control" id="edit_Email" name="Email" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Số Điện Thoại</label>
+                            <input type="text" class="form-control" id="edit_SoDienThoai" name="SoDienThoai" />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Địa Chỉ</label>
+                        <input type="text" class="form-control" id="edit_DiaChi" name="DiaChi" />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold text-primary">Trực thuộc Khoa</label>
+                            <select class="form-select border-primary" id="edit_KhoaID" name="KhoaID" required>
+                                <option value="">-- Chọn Khoa --</option>
+                                @if (ViewBag.ListKhoa != null)
+                                {
+                                    foreach (var khoa in ViewBag.ListKhoa)
+                                    {
+                                        <option value="@khoa.KhoaID">@khoa.TenKhoa</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Trạng Thái Học Tập</label>
+                            <select class="form-select" id="edit_TrangThaiHocTap" name="TrangThaiHocTap">
+                                <option value="Đang học">Đang học</option>
+                                <option value="Bảo lưu">Bảo lưu</option>
+                                <option value="Đình chỉ">Đình chỉ</option>
+                                <option value="Tốt nghiệp">Tốt nghiệp</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-warning text-dark fw-bold"><i class="fas fa-check"></i> Cập Nhật Thông Tin</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        function openEditModal(button) {
+            var maSV = button.getAttribute('data-masv');
+            var hoTen = button.getAttribute('data-hoten');
+            var ngaySinh = button.getAttribute('data-ngaysinh');
+            var gioiTinh = button.getAttribute('data-gioitinh');
+            var email = button.getAttribute('data-email');
+            var soDT = button.getAttribute('data-sodt');
+            var diaChi = button.getAttribute('data-diachi');
+            var khoaID = button.getAttribute('data-khoaid');
+            var trangThai = button.getAttribute('data-trangthai');
+
+            document.getElementById('edit_MaSV').value = maSV || '';
+            document.getElementById('edit_HoTen').value = hoTen || '';
+            document.getElementById('edit_NgaySinh').value = ngaySinh || '';
+            document.getElementById('edit_GioiTinh').value = gioiTinh || 'Nam';
+            document.getElementById('edit_Email').value = email || '';
+            document.getElementById('edit_SoDienThoai').value = soDT || '';
+            document.getElementById('edit_DiaChi').value = diaChi || '';
+            document.getElementById('edit_KhoaID').value = khoaID || '';
+            document.getElementById('edit_TrangThaiHocTap').value = trangThai || 'Đang học';
+
+            var editModal = new bootstrap.Modal(document.getElementById('editStudentModal'));
+            editModal.show();
+        }
+    </script>
+}

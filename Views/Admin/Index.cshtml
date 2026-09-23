@@ -1,50 +1,176 @@
-﻿@model Dictionary<string, int>
+@model Dictionary<string, int>
 @{
-    ViewBag.Title = "Dashboard Quản Trị";
+    ViewBag.Title = "Dashboard Quản Trị Hệ Thống";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="page-head">
-    <div>
-        <h1><i class="fas fa-chart-line text-primary me-2"></i>Tổng quan hệ thống</h1>
-        <p class="lead">Thống kê nhanh dữ liệu toàn hệ thống đào tạo.</p>
+<div class="container-fluid px-0">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="mb-1 fw-bold text-dark"><i class="fas fa-chart-line text-primary me-2"></i>Tổng Quan Cổng Quản Trị Đào Tạo</h2>
+            <p class="text-muted mb-0 small">Bảng điều khiển trung tâm quản trị người dùng, cơ cấu tổ chức và an toàn dữ liệu.</p>
+        </div>
+        <div>
+            <span class="badge bg-success-subtle text-success border border-success px-3 py-2">
+                <i class="fas fa-server me-1"></i> Hệ thống đang hoạt động bình thường
+            </span>
+        </div>
     </div>
-</div>
 
-<div class="row g-4">
-    <div class="col-md-3 col-sm-6">
-        <div class="stat-card bg-grad-indigo">
-            <div>
-                <div class="stat-label">Tổng sinh viên</div>
-                <div class="stat-value">@Model["Students"]</div>
+    <!-- KHỐI 4 KPI CHÍNH -->
+    <div class="row g-3 mb-4">
+        <div class="col-xl-3 col-sm-6">
+            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 border-start border-4 border-primary">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Hồ sơ Sinh viên</div>
+                        <div class="fs-2 fw-bold text-primary mt-1">@Model["Students"]</div>
+                        <small class="text-muted"><i class="fas fa-check-circle text-success me-1"></i>Đang theo học</small>
+                    </div>
+                    <div class="p-3 bg-primary-subtle text-primary rounded-circle">
+                        <i class="fas fa-user-graduate fs-3"></i>
+                    </div>
+                </div>
             </div>
-            <i class="fas fa-user-graduate stat-icon"></i>
+        </div>
+
+        <div class="col-xl-3 col-sm-6">
+            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 border-start border-4 border-success">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Giảng viên phụ trách</div>
+                        <div class="fs-2 fw-bold text-success mt-1">@Model["Teachers"]</div>
+                        <small class="text-muted"><i class="fas fa-check-circle text-success me-1"></i>Cán bộ giảng dạy</small>
+                    </div>
+                    <div class="p-3 bg-success-subtle text-success rounded-circle">
+                        <i class="fas fa-user-tie fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-sm-6">
+            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 border-start border-4 border-warning">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Khoa đào tạo</div>
+                        <div class="fs-2 fw-bold text-warning mt-1">@Model["Khoa"]</div>
+                        <small class="text-muted"><i class="fas fa-sitemap text-warning me-1"></i>Đơn vị chuyên môn</small>
+                    </div>
+                    <div class="p-3 bg-warning-subtle text-warning rounded-circle">
+                        <i class="fas fa-building-columns fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-sm-6">
+            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 border-start border-4 border-info">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Tài khoản hoạt động</div>
+                        <div class="fs-2 fw-bold text-info mt-1">@Model["ActiveUsers"]</div>
+                        <small class="text-muted"><i class="fas fa-shield-halved text-info me-1"></i>Bảo mật hệ thống</small>
+                    </div>
+                    <div class="p-3 bg-info-subtle text-info rounded-circle">
+                        <i class="fas fa-users-gear fs-3"></i>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="col-md-3 col-sm-6">
-        <div class="stat-card bg-grad-green">
-            <div>
-                <div class="stat-label">Giảng viên</div>
-                <div class="stat-value">@Model["Teachers"]</div>
+
+    <!-- KHỐI ĐIỀU HƯỚNG NHANH CÁC CHỨC NĂNG QUẢN TRỊ -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-header bg-dark text-white py-3">
+                    <span class="fw-bold"><i class="fas fa-cubes me-2"></i>Trung Tâm Điều Hành Quản Trị</span>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded-3 bg-light h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="fw-bold fs-6 text-dark mb-1"><i class="fas fa-users-gear text-primary me-2"></i>Quản Lý Tài Khoản</div>
+                                    <p class="small text-muted mb-3">Tạo mới, phân quyền (Admin, Giảng viên, Nhân viên, Sinh viên), khóa hoặc kích hoạt tài khoản.</p>
+                                </div>
+                                <a href="@Url.Action("ManageUsers", "Admin")" class="btn btn-outline-primary btn-sm align-self-start">
+                                    Truy cập quản lý <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded-3 bg-light h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="fw-bold fs-6 text-dark mb-1"><i class="fas fa-building-columns text-success me-2"></i>Quản Lý Khoa Viện</div>
+                                    <p class="small text-muted mb-3">Thiết lập danh mục các Khoa, thông tin liên hệ và cơ cấu đào tạo trực thuộc.</p>
+                                </div>
+                                <a href="@Url.Action("ManageKhoa", "Admin")" class="btn btn-outline-success btn-sm align-self-start">
+                                    Truy cập quản lý <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded-3 bg-light h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="fw-bold fs-6 text-dark mb-1"><i class="fas fa-chalkboard-user text-warning me-2"></i>Cơ Sở Vật Chất & Phòng Học</div>
+                                    <p class="small text-muted mb-3">Quản lý danh sách giảng đường, phòng máy tính, phòng học lý thuyết và sức chứa.</p>
+                                </div>
+                                <a href="@Url.Action("ManagePhongHoc", "Admin")" class="btn btn-outline-warning text-dark btn-sm align-self-start">
+                                    Truy cập quản lý <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded-3 bg-light h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="fw-bold fs-6 text-dark mb-1"><i class="fas fa-database text-danger me-2"></i>Sao Lưu Dữ Liệu SQL</div>
+                                    <p class="small text-muted mb-3">Thực hiện sao lưu snapshot cơ sở dữ liệu định kỳ phòng chống mất mát dữ liệu đào tạo.</p>
+                                </div>
+                                <a href="@Url.Action("BackupData", "Admin")" class="btn btn-outline-danger btn-sm align-self-start">
+                                    Truy cập sao lưu <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <i class="fas fa-user-tie stat-icon"></i>
         </div>
-    </div>
-    <div class="col-md-3 col-sm-6">
-        <div class="stat-card bg-grad-amber">
-            <div>
-                <div class="stat-label">Khoa đào tạo</div>
-                <div class="stat-value">@Model["Khoa"]</div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 rounded-3 h-100">
+                <div class="card-header bg-primary text-white py-3">
+                    <span class="fw-bold"><i class="fas fa-circle-info me-2"></i>Thông Tin Hệ Thống</span>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush small">
+                        <li class="list-group-item d-flex justify-content-between px-0 py-2">
+                            <span class="text-muted">Hệ quản trị CSDL:</span>
+                            <span class="fw-bold text-dark">SQL Server 2022</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between px-0 py-2">
+                            <span class="text-muted">Nền tảng:</span>
+                            <span class="fw-bold text-dark">ASP.NET MVC 5 (.NET 4.7.2)</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between px-0 py-2">
+                            <span class="text-muted">Bảo mật mật khẩu:</span>
+                            <span class="fw-bold text-success"><i class="fas fa-lock me-1"></i>BCrypt Hash</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between px-0 py-2">
+                            <span class="text-muted">Chế độ phân quyền:</span>
+                            <span class="fw-bold text-primary">Role-based Access Control</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between px-0 py-2">
+                            <span class="text-muted">Niên khóa hiện tại:</span>
+                            <span class="fw-bold text-dark">2025 - 2026 (HK1)</span>
+                        </li>
+                    </ul>
+                </div>
             </div>
-            <i class="fas fa-building-columns stat-icon"></i>
-        </div>
-    </div>
-    <div class="col-md-3 col-sm-6">
-        <div class="stat-card bg-grad-cyan">
-            <div>
-                <div class="stat-label">Tài khoản hoạt động</div>
-                <div class="stat-value">@Model["ActiveUsers"]</div>
-            </div>
-            <i class="fas fa-user-check stat-icon"></i>
         </div>
     </div>
 </div>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -50,6 +50,9 @@ namespace StudentManagementSystem.Controllers
             // 2. BẮT BUỘC: Lấy các lớp đã đăng ký và truyền sang View để làm mờ nút
             ViewBag.ListMaLopDaDK = _studentDAO.GetMaLopDaDangKy(username);
 
+            // 3. TÍNH NĂNG MỚI: Lấy chi tiết các lớp đã đăng ký để sinh viên tiện theo dõi & hủy
+            ViewBag.ListLopDaDKChiTiet = _studentDAO.GetDanhSachLopDaDangKyChiTiet(username);
+
             return View(danhSachLop);
         }
 
@@ -70,6 +73,27 @@ namespace StudentManagementSystem.Controllers
             else
             {
                 TempData["ErrorMsg"] = result; // Hiện thông báo (Trùng lớp, lớp đầy,...)
+            }
+
+            return RedirectToAction("DangKyHocPhan");
+        }
+
+        // POST: Xử lý nút bấm Hủy đăng ký học phần (Rút môn)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult HuyDangKy(string maLopHP)
+        {
+            string username = User.Identity.Name;
+
+            string result = _studentDAO.HuyDangKyLop(username, maLopHP);
+
+            if (result == "Success")
+            {
+                TempData["SuccessMsg"] = $"Đã hủy đăng ký thành công lớp {maLopHP}!";
+            }
+            else
+            {
+                TempData["ErrorMsg"] = result;
             }
 
             return RedirectToAction("DangKyHocPhan");

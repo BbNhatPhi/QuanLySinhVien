@@ -4,25 +4,37 @@
 
     // Lấy danh sách các mã lớp đã đăng ký từ ViewBag (do Controller truyền sang)
     List<string> listDaDK = ViewBag.ListMaLopDaDK as List<string> ?? new List<string>();
+    List<StudentManagementSystem.Models.LopHocPhan> listLopDaDK = ViewBag.ListLopDaDKChiTiet as List<StudentManagementSystem.Models.LopHocPhan> ?? new List<StudentManagementSystem.Models.LopHocPhan>();
+    int tongTinChi = listLopDaDK.Sum(x => x.SoTinChi);
 }
 
 <div class="container mt-4">
-    <h2 class="mb-4"><i class="fas fa-mouse-pointer text-primary"></i> Đăng Ký Học Phần</h2>
-
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-dark text-white fw-bold">
-            Danh sách Lớp học phần đang mở
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-mouse-pointer text-primary"></i> Đăng Ký Học Phần</h2>
+        <div>
+            <span class="badge bg-primary fs-6 px-3 py-2">
+                <i class="fas fa-book-reader"></i> Đã đăng ký: <strong>@tongTinChi</strong> / 25 Tín chỉ
+            </span>
         </div>
-        <div class="card-body p-0">
+    </div>
+
+    <!-- 1. BẢNG CÁC LỚP HỌC PHẦN ĐANG MỞ -->
+    <div class="card shadow-sm border-0 mb-5">
+        <div class="card-header bg-dark text-white fw-bold d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-list"></i> Danh sách Lớp học phần đang mở đăng ký</span>
+            <span class="badge bg-secondary">@(Model != null ? Model.Count : 0) lớp mở</span>
+        </div>
+        <div class="card-body p-0 table-responsive">
             <table class="table table-hover table-bordered mb-0 align-middle">
                 <thead class="table-light">
                     <tr>
                         <th class="text-center">Mã Lớp HP</th>
                         <th>Môn Học</th>
+                        <th class="text-center">Số TC</th>
                         <th>Giảng Viên</th>
                         <th class="text-center">Học Kỳ / Năm</th>
-                        <th class="text-center">Sỉ số</th>
-                        <th class="text-center">Thao tác</th>
+                        <th class="text-center">Sĩ số</th>
+                        <th class="text-center" style="min-width: 170px;">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -30,17 +42,16 @@
                     {
                         foreach (var item in Model)
                         {
-                            // Kiểm tra xem môn này đã đăng ký chưa và đã đầy chưa
                             bool isRegistered = listDaDK.Contains(item.MaLopHP);
                             bool isFull = Convert.ToInt32(item.TrangThai) >= item.SoLuongMax;
 
-                            <tr>
+                            <tr class="@(isRegistered ? "table-success" : "")">
                                 <td class="text-center fw-bold text-primary">@item.MaLopHP</td>
                                 <td class="fw-bold">@item.TenMon</td>
+                                <td class="text-center fw-bold text-secondary">@item.SoTinChi</td>
                                 <td>@item.TenGV</td>
                                 <td class="text-center">HK @item.HocKy<br /><small class="text-muted">@item.NamHoc</small></td>
                                 <td class="text-center">
-                                    <!-- Hiển thị Sỉ số hiện tại / Sỉ số Max -->
                                     <span class="badge @(isFull ? "bg-danger" : "bg-success") fs-6">
                                         @item.TrangThai / @item.SoLuongMax
                                     </span>
@@ -48,25 +59,32 @@
                                 <td class="text-center">
                                     @if (isRegistered)
                                     {
-                                        <!-- TRƯỜNG HỢP 1: ĐÃ ĐĂNG KÝ -->
-                                        <button type="button" class="btn btn-secondary btn-sm fw-bold" disabled>
-                                            <i class="fas fa-check"></i> Đã đăng ký
-                                        </button>
+                                        <!-- ĐÃ ĐĂNG KÝ: Hiển thị badge và nút Hủy môn -->
+                                        <div class="d-flex justify-content-center align-items-center gap-1">
+                                            <span class="badge bg-success py-2 px-2">
+                                                <i class="fas fa-check"></i> Đã ĐK
+                                            </span>
+                                            <form action="@Url.Action("HuyDangKy", "Student")" method="post" class="m-0" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đăng ký lớp @item.MaLopHP (@item.TenMon) không?');">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="maLopHP" value="@item.MaLopHP" />
+                                                <button type="submit" class="btn btn-outline-danger btn-sm" title="Hủy đăng ký môn học này">
+                                                    <i class="fas fa-times"></i> Hủy
+                                                </button>
+                                            </form>
+                                        </div>
                                     }
                                     else if (isFull)
                                     {
-                                        <!-- TRƯỜNG HỢP 2: LỚP ĐÃ ĐẦY -->
                                         <button type="button" class="btn btn-danger btn-sm fw-bold" disabled>
                                             <i class="fas fa-ban"></i> Đã đầy
                                         </button>
                                     }
                                     else
                                     {
-                                        <!-- TRƯỜNG HỢP 3: CHƯA ĐĂNG KÝ VÀ CÒN CHỖ -->
                                         <form action="@Url.Action("XuLyDangKy", "Student")" method="post" class="m-0">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="maLopHP" value="@item.MaLopHP" />
-                                            <button type="submit" class="btn btn-primary btn-sm fw-bold">
+                                            <button type="submit" class="btn btn-primary btn-sm fw-bold px-3">
                                                 <i class="fas fa-plus"></i> Đăng Ký
                                             </button>
                                         </form>
@@ -78,7 +96,77 @@
                     else
                     {
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-4">Hiện tại không có lớp học phần nào mở đăng ký!</td>
+                            <td colspan="7" class="text-center text-muted py-4">Hiện tại không có lớp học phần nào mở đăng ký!</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 2. BẢNG CÁC HỌC PHẦN ĐÃ ĐĂNG KÝ TRONG HỌC KỲ (TÍNH NĂNG MỚI) -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-primary text-white fw-bold d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-clipboard-check"></i> Các Học Phần Đã Đăng Ký Của Bạn</span>
+            <span class="badge bg-light text-primary">@listLopDaDK.Count môn học</span>
+        </div>
+        <div class="card-body p-0 table-responsive">
+            <table class="table table-striped table-bordered mb-0 align-middle text-center">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mã Lớp HP</th>
+                        <th class="text-start">Môn Học</th>
+                        <th>Số TC</th>
+                        <th>Giảng Viên</th>
+                        <th>Học Kỳ / Năm</th>
+                        <th>Trạng Thái Học Phí</th>
+                        <th>Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (listLopDaDK.Any())
+                    {
+                        foreach (var dk in listLopDaDK)
+                        {
+                            <tr>
+                                <td class="fw-bold text-primary">@dk.MaLopHP</td>
+                                <td class="text-start fw-bold">@dk.TenMon</td>
+                                <td class="fw-bold">@dk.SoTinChi</td>
+                                <td>@dk.TenGV</td>
+                                <td>HK @dk.HocKy (@dk.NamHoc)</td>
+                                <td>
+                                    @if (dk.DaThanhToan)
+                                    {
+                                        <span class="badge bg-success"><i class="fas fa-check-circle"></i> Đã đóng</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark"><i class="fas fa-clock"></i> Chưa đóng</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!dk.DaThanhToan)
+                                    {
+                                        <form action="@Url.Action("HuyDangKy", "Student")" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đăng ký lớp @dk.MaLopHP không?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="maLopHP" value="@dk.MaLopHP" />
+                                            <button type="submit" class="btn btn-danger btn-sm">
+                                                <i class="fas fa-trash-alt"></i> Hủy Môn
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">Liên hệ P.ĐT</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-muted py-4">Bạn chưa đăng ký môn học nào. Vui lòng chọn môn từ danh sách bên trên để đăng ký!</td>
                         </tr>
                     }
                 </tbody>

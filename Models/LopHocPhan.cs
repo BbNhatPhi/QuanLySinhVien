@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -15,6 +15,7 @@ namespace StudentManagementSystem.Models
         public string NamHoc { get; set; }
         public int SoLuongMax { get; set; }
         public string TrangThai { get; set; }
-
+        public int SoTinChi { get; set; }
+        public bool DaThanhToan { get; set; }
     }
 }

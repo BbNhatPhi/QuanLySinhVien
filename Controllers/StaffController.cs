@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -61,11 +61,35 @@ namespace StudentManagementSystem.Controllers
             return RedirectToAction("QuanLySinhVien");
         }
 
+        // TÍNH NĂNG MỚI: Chỉnh sửa thông tin sinh viên
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditSinhVien(SinhVien sv)
+        {
+            string result = _staffDAO.UpdateSinhVien(sv);
+            if (result == "Success")
+            {
+                TempData["SuccessMsg"] = $"Cập nhật thông tin sinh viên {sv.MaSV} thành công!";
+            }
+            else
+            {
+                TempData["ErrorMsg"] = "Lỗi cập nhật: " + result;
+            }
+            return RedirectToAction("QuanLySinhVien");
+        }
+
+        // FIX LỖI BẢO MẬT: Chuyển xóa sang HttpPost và AntiForgeryToken
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult XoaSinhVien(string maSV)
         {
             if (_staffDAO.DeleteSinhVien(maSV))
             {
                 TempData["SuccessMsg"] = $"Đã xóa thành công sinh viên {maSV}!";
+            }
+            else
+            {
+                TempData["ErrorMsg"] = $"Không thể xóa sinh viên {maSV}. Sinh viên có thể đang có dữ liệu điểm hoặc đăng ký học phần liên quan!";
             }
             return RedirectToAction("QuanLySinhVien");
         }

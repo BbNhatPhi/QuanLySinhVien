@@ -1,48 +1,90 @@
-﻿@model IEnumerable<StudentManagementSystem.Models.LichDay>
+@model IEnumerable<StudentManagementSystem.Models.LichDay>
 @{
     ViewBag.Title = "Lịch Giảng Dạy";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var dsLichDay = Model != null ? Model.ToList() : new List<StudentManagementSystem.Models.LichDay>();
 }
 
-<h2 class="mb-4"><i class="fas fa-calendar-alt text-primary"></i> Lịch Giảng Dạy Của Tôi</h2>
+<div class="container-fluid px-0">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="mb-1 fw-bold text-dark"><i class="fas fa-chalkboard-user text-primary me-2"></i>Lịch Giảng Dạy Của Giảng Viên</h2>
+            <p class="text-muted mb-0 small">Kế hoạch phân công giảng dạy các lớp học phần trong Học kỳ 1 (2025 - 2026).</p>
+        </div>
+        <div class="d-flex gap-2">
+            <span class="badge bg-primary fs-6 px-3 py-2 d-flex align-items-center">
+                <i class="fas fa-layer-group me-2"></i> @dsLichDay.Select(x => x.MaLopHP).Distinct().Count() Lớp phân công
+            </span>
+            <button onclick="window.print()" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-print me-1"></i> In lịch dạy
+            </button>
+        </div>
+    </div>
 
-<div class="card shadow border-0">
-    <div class="card-body">
-        <table class="table table-hover table-bordered align-middle text-center">
-            <thead class="table-dark">
-                <tr>
-                    <th>STT</th>
-                    <th>Mã Lớp Học Phần</th>
-                    <th class="text-start">Môn Học</th>
-                    <th>Thời Gian</th>
-                    <th>Phòng Học</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (!Model.Any())
-                {
+    <!-- BẢNG LỊCH DẠY -->
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+        <div class="card-header bg-dark text-white py-3 d-flex justify-content-between align-items-center">
+            <span class="fw-bold"><i class="fas fa-calendar-check me-2"></i>Danh Sách Lớp Học Phần Phụ Trách</span>
+            <small class="text-light">Bao gồm công cụ Nhập điểm &amp; Điểm danh nhanh</small>
+        </div>
+        <div class="card-body p-0 table-responsive">
+            <table class="table table-hover table-bordered align-middle text-center mb-0">
+                <thead class="table-light">
                     <tr>
-                        <td colspan="5" class="text-muted py-4">Bạn chưa có lịch giảng dạy nào.</td>
+                        <th style="width: 50px;">STT</th>
+                        <th style="width: 140px;">Mã Lớp HP</th>
+                        <th class="text-start">Tên Môn Học</th>
+                        <th style="width: 160px;">Thời Gian Dạy</th>
+                        <th style="width: 130px;">Phòng Học</th>
+                        <th style="width: 280px;">Tác Vụ Giảng Dạy</th>
                     </tr>
-                }
-                else
-                {
-                    int stt = 1;
-                    foreach (var item in Model)
+                </thead>
+                <tbody>
+                    @if (!dsLichDay.Any())
                     {
                         <tr>
-                            <td>@(stt++)</td>
-                            <td class="fw-bold text-primary">@item.MaLopHP</td>
-                            <td class="text-start"><b>@item.TenMon</b></td>
-                            <td>
-                                <span class="badge bg-warning text-dark">@item.TenNgayHoc</span>
-                                <span class="badge bg-secondary">Ca @item.TenCaHoc</span>
+                            <td colspan="6" class="text-center text-muted py-5">
+                                <i class="fas fa-calendar-xmark fs-1 text-secondary opacity-50 mb-2 d-block"></i>
+                                Quý Thầy/Cô hiện chưa được phân công giảng dạy lớp học phần nào trong kỳ này.
                             </td>
-                            <td><span class="badge bg-info text-dark fs-6">@item.PhongHoc</span></td>
                         </tr>
                     }
-                }
-            </tbody>
-        </table>
+                    else
+                    {
+                        int stt = 1;
+                        foreach (var item in dsLichDay)
+                        {
+                            <tr>
+                                <td class="fw-bold text-muted">@(stt++)</td>
+                                <td class="fw-bold text-primary">@item.MaLopHP</td>
+                                <td class="text-start fw-bold text-dark">@item.TenMon</td>
+                                <td>
+                                    <span class="badge bg-warning text-dark me-1">@item.TenNgayHoc</span>
+                                    <span class="badge bg-secondary">Ca @item.TenCaHoc</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary px-3 py-2 fs-6">
+                                        <i class="fas fa-location-dot me-1"></i>@item.PhongHoc
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex justify-content-center gap-1">
+                                        <a href="@Url.Action("NhapDiem", "Teacher", new { maLopTC = item.MaLopHP })" class="btn btn-primary btn-sm" title="Nhập điểm học phần">
+                                            <i class="fas fa-pen-to-square me-1"></i>Nhập Điểm
+                                        </a>
+                                        <a href="@Url.Action("DanhSachSinhVien", "Teacher", new { maLopTC = item.MaLopHP })" class="btn btn-success btn-sm" title="Điểm danh chuyên cần">
+                                            <i class="fas fa-clipboard-user me-1"></i>Điểm Danh
+                                        </a>
+                                        <a href="@Url.Action("InBangDiem", "Teacher", new { maLopTC = item.MaLopHP })" target="_blank" class="btn btn-outline-secondary btn-sm" title="In bảng điểm tổng kết">
+                                            <i class="fas fa-print"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

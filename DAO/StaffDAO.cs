@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -85,6 +85,8 @@ namespace StudentManagementSystem.DAO
 
                 // Truyền trực tiếp KhoaID xuống SQL
                 cmd.Parameters.AddWithValue("@KhoaID", sv.KhoaID);
+                cmd.Parameters.AddWithValue("@SoDienThoai", (object)sv.SoDienThoai ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@DiaChi", (object)sv.DiaChi ?? DBNull.Value);
 
                 SqlParameter msgParam = new SqlParameter("@Message", SqlDbType.NVarChar, 255);
                 msgParam.Direction = ParameterDirection.Output;
@@ -95,6 +97,41 @@ namespace StudentManagementSystem.DAO
                     conn.Open();
                     cmd.ExecuteNonQuery();
                     return msgParam.Value.ToString();
+                }
+                catch (Exception ex)
+                {
+                    return ex.Message;
+                }
+            }
+        }
+
+        // TÍNH NĂNG MỚI: Cập nhật thông tin sinh viên từ phía cán bộ đào tạo
+        public string UpdateSinhVien(SinhVien sv)
+        {
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                SqlCommand cmd = new SqlCommand("sp_UpdateSinhVien", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("@MaSV", sv.MaSV);
+                cmd.Parameters.AddWithValue("@HoTen", (object)sv.HoTen ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@NgaySinh", (object)sv.NgaySinh ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@GioiTinh", (object)sv.GioiTinh ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Email", (object)sv.Email ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@SoDienThoai", (object)sv.SoDienThoai ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@DiaChi", (object)sv.DiaChi ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@KhoaID", sv.KhoaID);
+                cmd.Parameters.AddWithValue("@TrangThaiHocTap", (object)sv.TrangThaiHocTap ?? DBNull.Value);
+
+                SqlParameter msgParam = new SqlParameter("@Message", SqlDbType.NVarChar, 255);
+                msgParam.Direction = ParameterDirection.Output;
+                cmd.Parameters.Add(msgParam);
+
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                    return msgParam.Value != null ? msgParam.Value.ToString() : "Success";
                 }
                 catch (Exception ex)
                 {

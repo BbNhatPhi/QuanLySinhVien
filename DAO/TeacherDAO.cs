@@ -1,4 +1,4 @@
-﻿using StudentManagementSystem.Models;
+using StudentManagementSystem.Models;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -146,12 +146,14 @@ namespace StudentManagementSystem.DAO
             return list;
         }
 
-        // 5. Hàm trừ điểm chuyên cần khi vắng mặt
+        // 5. Hàm trừ điểm chuyên cần khi vắng mặt (tự động cập nhật lại Điểm Tổng kết)
         public void TruDiemChuyenCan(string maSV, string maLopHP)
         {
             using (SqlConnection conn = new SqlConnection(connStr))
             {
-                string sql = @"UPDATE Diem SET DiemCC = CASE WHEN DiemCC >= 1 THEN DiemCC - 1 ELSE 0 END 
+                string sql = @"UPDATE Diem 
+                               SET DiemCC = CASE WHEN DiemCC >= 1 THEN DiemCC - 1 ELSE 0 END,
+                                   DiemTong = ROUND(((CASE WHEN DiemCC >= 1 THEN DiemCC - 1 ELSE 0 END) * 0.1) + (ISNULL(DiemGK, 0) * 0.3) + (ISNULL(DiemCK, 0) * 0.6), 1)
                                WHERE MaSV = @MaSV AND MaLopHP = @MaLopHP";
                 SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@MaSV", maSV);

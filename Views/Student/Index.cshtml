@@ -1,48 +1,129 @@
-﻿@model IEnumerable<StudentManagementSystem.Models.ThoiKhoaBieuSV>
+@model IEnumerable<StudentManagementSystem.Models.ThoiKhoaBieuSV>
 @{
-    ViewBag.Title = "Thời Khóa Biểu";
+    ViewBag.Title = "Thời Khóa Biểu Sinh Viên";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var dsTKB = Model != null ? Model.ToList() : new List<StudentManagementSystem.Models.ThoiKhoaBieuSV>();
 }
 
-<h2 class="mb-4"><i class="fas fa-calendar-check text-primary"></i> Thời Khóa Biểu Của Tôi</h2>
+<div class="container-fluid px-0">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="mb-1 fw-bold text-dark"><i class="fas fa-calendar-days text-primary me-2"></i>Thời Khóa Biểu Cá Nhân</h2>
+            <p class="text-muted mb-0 small">Lịch học hàng tuần các lớp học phần trong Học kỳ 1 (Năm học 2025 - 2026).</p>
+        </div>
+        <div class="d-flex gap-2">
+            <span class="badge bg-primary fs-6 px-3 py-2 d-flex align-items-center">
+                <i class="fas fa-book-open me-2"></i> @dsTKB.Select(x => x.MaLopHP).Distinct().Count() Lớp học phần
+            </span>
+            <button onclick="window.print()" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-print me-1"></i> In TKB
+            </button>
+        </div>
+    </div>
 
-<div class="card shadow border-0">
-    <div class="card-body">
-        <table class="table table-hover table-bordered align-middle">
-            <thead class="table-primary text-center">
-                <tr>
-                    <th>Thứ</th>
-                    <th>Ca Học</th>
-                    <th>Môn Học</th>
-                    <th>Mã Lớp TC</th>
-                    <th>Phòng Học</th>
-                    <th>Giảng Viên</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (!Model.Any())
-                {
-                    <tr><td colspan="6" class="text-center text-muted py-4">Bạn chưa có lịch học nào trong học kỳ này.</td></tr>
-                }
-                @foreach (var item in Model)
-                {
-                    <tr class="text-center">
-                        <td><b>@item.NgayHoc</b></td>
-                        <td>
-                            @if (item.CaHoc == 1)
-                            {<span class="badge bg-success">Sáng</span> }
-                            else if (item.CaHoc == 2)
-                            { <span class="badge bg-warning text-dark">Chiều</span> }
-                            else
-                            { <span class="badge bg-dark">Tối</span>}
-                        </td>
-                        <td class="text-start fw-bold">@item.TenMon</td>
-                        <td>@item.MaLopHP</td>
-                        <td><span class="badge bg-info text-dark">@item.PhongHoc</span></td>
-                        <td>@item.TenGiangVien</td>
+    <!-- THÔNG TIN TIẾT HỌC CHUẨN ĐẠI HỌC -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-3 rounded-3 bg-white border-start border-4 border-success">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-2 bg-success-subtle text-success rounded-circle">
+                        <i class="fas fa-sun fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold text-dark">Ca 1 (Sáng)</div>
+                        <small class="text-muted">Tiết 1 - 5 (07:00 - 11:15)</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-3 rounded-3 bg-white border-start border-4 border-warning">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-2 bg-warning-subtle text-warning rounded-circle">
+                        <i class="fas fa-cloud-sun fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold text-dark">Ca 2 (Chiều)</div>
+                        <small class="text-muted">Tiết 6 - 10 (12:45 - 17:00)</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-3 rounded-3 bg-white border-start border-4 border-dark">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-2 bg-secondary-subtle text-dark rounded-circle">
+                        <i class="fas fa-moon fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold text-dark">Ca 3 (Tối)</div>
+                        <small class="text-muted">Tiết 11 - 14 (17:45 - 21:00)</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BẢNG THỜI KHÓA BIỂU -->
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+        <div class="card-header bg-dark text-white py-3 d-flex justify-content-between align-items-center">
+            <span class="fw-bold"><i class="fas fa-calendar-week me-2"></i>Lịch Học Trong Tuần</span>
+            <small class="text-light">Xếp lịch từ Thứ 2 đến Chủ nhật</small>
+        </div>
+        <div class="card-body p-0 table-responsive">
+            <table class="table table-hover table-bordered align-middle text-center mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 120px;">Thứ</th>
+                        <th style="width: 140px;">Ca Học / Giờ</th>
+                        <th class="text-start">Tên Môn Học</th>
+                        <th style="width: 140px;">Mã Lớp HP</th>
+                        <th style="width: 140px;">Phòng Học</th>
+                        <th style="width: 220px;" class="text-start">Giảng Viên Phụ Trách</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @if (!dsTKB.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-5">
+                                <i class="fas fa-calendar-xmark fs-1 text-secondary opacity-50 mb-2 d-block"></i>
+                                Bạn chưa có lịch học nào trong học kỳ này. Hãy kiểm tra đăng ký học phần!
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var item in dsTKB.OrderBy(x => x.NgayHoc).ThenBy(x => x.CaHoc))
+                        {
+                            string tenThu = item.NgayHoc == 8 ? "Chủ Nhật" : $"Thứ {item.NgayHoc}";
+                            string gioHoc = item.CaHoc == 1 ? "07:00 - 11:15" : (item.CaHoc == 2 ? "12:45 - 17:00" : "17:45 - 21:00");
+                            string badgeCa = item.CaHoc == 1 ? "bg-success" : (item.CaHoc == 2 ? "bg-warning text-dark" : "bg-dark");
+                            string tenCa = item.CaHoc == 1 ? "Sáng" : (item.CaHoc == 2 ? "Chiều" : "Tối");
+
+                            <tr>
+                                <td class="fw-bold text-dark fs-6 bg-light">
+                                    <i class="far fa-calendar text-primary me-1"></i>@tenThu
+                                </td>
+                                <td>
+                                    <span class="badge @badgeCa">Ca @item.CaHoc (@tenCa)</span>
+                                    <div class="small text-muted mt-1">@gioHoc</div>
+                                </td>
+                                <td class="text-start fw-bold text-primary">@item.TenMon</td>
+                                <td class="fw-semibold">@item.MaLopHP</td>
+                                <td>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary px-3 py-2 fs-6">
+                                        <i class="fas fa-location-dot me-1"></i>@item.PhongHoc
+                                    </span>
+                                </td>
+                                <td class="text-start">
+                                    <i class="fas fa-user-tie text-secondary me-1"></i>@item.TenGiangVien
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

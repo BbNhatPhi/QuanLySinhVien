@@ -1,4 +1,4 @@
-﻿@{
+@{
     var pageTitle = ViewBag.Title != null ? ViewBag.Title.ToString() : "Trang chủ";
     var userName = User.Identity.Name ?? "";
     var avatarChar = !string.IsNullOrEmpty(userName) ? userName.Substring(0, 1).ToUpper() : "U";
@@ -21,7 +21,9 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@pageTitle - Cổng thông tin Đào tạo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" />
@@ -131,7 +133,10 @@
                     <div class="topbar-title">@pageTitle</div>
                     <div class="topbar-breadcrumb">Cổng thông tin đào tạo / @roleLabel</div>
                 </div>
-                <div class="topbar-right">
+                <div class="topbar-right d-flex align-items-center">
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 fw-semibold d-none d-md-inline-block me-3">
+                        <i class="fas fa-graduation-cap me-1 text-primary"></i> HK1 (2025 - 2026)
+                    </span>
                     <div class="dropdown">
                         <a href="#" class="user-chip dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                             <span class="avatar">@avatarChar</span>

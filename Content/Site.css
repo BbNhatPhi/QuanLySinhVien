@@ -1,4 +1,4 @@
-﻿/* ============================================================
+/* ============================================================
    HỆ THỐNG QUẢN LÝ ĐÀO TẠO - ĐH NGUYỄN TẤT THÀNH
    Stylesheet tùy chỉnh (dùng chung với Bootstrap 5)
    ============================================================ */
@@ -27,11 +27,12 @@
 html, body { margin: 0; padding: 0; min-height: 100%; }
 
 body {
-    font-family: "Segoe UI", "Roboto", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-family: 'Be Vietnam Pro', 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
     background: var(--bg);
     color: var(--text);
     font-size: 0.95rem;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 a { text-decoration: none; }

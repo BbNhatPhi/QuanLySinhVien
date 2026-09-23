@@ -1,39 +1,94 @@
-﻿@model List<StudentManagementSystem.Models.LichThi>
-@{ ViewBag.Title = "Lịch Thi Cá Nhân"; }
+@model List<StudentManagementSystem.Models.LichThi>
+@{ 
+    ViewBag.Title = "Lịch Thi Học Kỳ"; 
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var dsLichThi = Model ?? new List<StudentManagementSystem.Models.LichThi>();
+}
 
-<div class="container mt-4">
-    <h2 class="mb-4"><i class="fas fa-calendar-check text-danger"></i> Lịch Thi Kết Thúc Học Phần</h2>
+<div class="container-fluid px-0">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="mb-1 fw-bold text-dark"><i class="fas fa-calendar-check text-danger me-2"></i>Lịch Thi Kết Thúc Học Phần</h2>
+            <p class="text-muted mb-0 small">Tra cứu ngày thi, ca thi, phòng thi và quy chế thi chính thức học kỳ 1 (2025 - 2026).</p>
+        </div>
+        <div>
+            <button onclick="window.print()" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-print me-1"></i> In lịch thi
+            </button>
+        </div>
+    </div>
 
-    <div class="card shadow-sm border-0">
-        <table class="table table-hover table-bordered mb-0 align-middle">
-            <thead class="table-dark text-center">
-                <tr>
-                    <th>Mã Lớp HP</th>
-                    <th>Tên Môn Học</th>
-                    <th>Ngày Thi</th>
-                    <th>Ca Thi</th>
-                    <th>Phòng Thi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model != null && Model.Count > 0)
-                {
-                    foreach (var item in Model)
+    <!-- KHỐI QUY ĐỊNH PHÒNG THI -->
+    <div class="alert alert-warning border-warning d-flex align-items-start gap-3 p-3 rounded-3 mb-4 shadow-sm">
+        <i class="fas fa-triangle-exclamation text-warning fs-3 mt-1"></i>
+        <div class="small">
+            <strong class="d-block text-dark fs-6 mb-1">Lưu ý quan trọng dành cho sinh viên dự thi:</strong>
+            <ul class="mb-0 ps-3">
+                <li>Sinh viên bắt buộc phải mang theo <strong>Thẻ sinh viên</strong> hoặc <strong>Căn cước công dân</strong> còn hiệu lực để xuất trình khi vào phòng thi.</li>
+                <li>Có mặt tại phòng thi trước giờ bắt đầu ít nhất <strong>15 phút</strong>. Thí sinh đến muộn quá 15 phút sau khi phát đề sẽ không được dự thi.</li>
+                <li>Tuyệt đối nghiêm cấm mang điện thoại di động, đồng hồ thông minh và các thiết bị truyền tin vào phòng thi.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- BẢNG LỊCH THI -->
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-header bg-dark text-white py-3 d-flex justify-content-between align-items-center">
+            <span class="fw-bold"><i class="fas fa-list-check me-2"></i>Danh Sách Môn Thi Cá Nhân</span>
+            <span class="badge bg-danger">@dsLichThi.Count môn thi</span>
+        </div>
+        <div class="card-body p-0 table-responsive">
+            <table class="table table-hover table-bordered mb-0 align-middle text-center">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 50px;">STT</th>
+                        <th style="width: 130px;">Mã Lớp HP</th>
+                        <th class="text-start">Tên Môn Học</th>
+                        <th style="width: 130px;">Ngày Thi</th>
+                        <th style="width: 140px;">Ca Thi / Giờ</th>
+                        <th style="width: 120px;">Phòng Thi</th>
+                        <th style="width: 120px;">SBD</th>
+                        <th style="width: 130px;">Ghi Chú</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (dsLichThi.Count > 0)
+                    {
+                        int stt = 1;
+                        foreach (var item in dsLichThi)
+                        {
+                            string gioThi = item.CaThi == 1 ? "07:30 - 09:00" : (item.CaThi == 2 ? "09:30 - 11:00" : (item.CaThi == 3 ? "13:30 - 15:00" : "15:30 - 17:00"));
+
+                            <tr>
+                                <td class="fw-bold text-muted">@(stt++)</td>
+                                <td class="fw-bold text-primary">@item.MaLopHP</td>
+                                <td class="text-start fw-bold text-dark">@item.TenMon</td>
+                                <td class="fw-bold text-danger">@item.NgayThi.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">Ca @item.CaThi</span>
+                                    <div class="small text-muted mt-1">@gioThi</div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary fs-6 px-3 py-2">@item.PhongThi</span>
+                                </td>
+                                <td class="fw-semibold text-secondary">@User.Identity.Name</td>
+                                <td>
+                                    <span class="badge bg-success-subtle text-success border border-success">Chính thức</span>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
                     {
                         <tr>
-                            <td class="text-center fw-bold text-primary">@item.MaLopHP</td>
-                            <td class="fw-bold">@item.TenMon</td>
-                            <td class="text-center fw-bold text-danger">@item.NgayThi.ToString("dd/MM/yyyy")</td>
-                            <td class="text-center">Ca @item.CaThi</td>
-                            <td class="text-center fw-bold">@item.PhongThi</td>
+                            <td colspan="8" class="text-center text-muted py-5">
+                                <i class="fas fa-calendar-xmark fs-1 text-secondary opacity-50 mb-2 d-block"></i>
+                                Hiện tại chưa có lịch thi chính thức nào được công bố cho học phần của bạn.
+                            </td>
                         </tr>
                     }
-                }
-                else
-                {
-                    <tr><td colspan="5" class="text-center py-4">Chưa có lịch thi nào được công bố!</td></tr>
-                }
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
