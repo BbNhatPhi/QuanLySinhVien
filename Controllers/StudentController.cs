@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -175,9 +175,18 @@ namespace StudentManagementSystem.Controllers
             string username = User.Identity.Name;
 
             // Gọi DAO để cập nhật trạng thái môn này thành "Đã thanh toán"
-            _studentDAO.ThanhToanHocPhi(username, maLopHP);
+            // FIX LỖI LOGIC: Kiểm tra kết quả trả về, không báo thành công khi giao dịch thất bại
+            bool isSuccess = _studentDAO.ThanhToanHocPhi(username, maLopHP);
 
-            TempData["SuccessMsg"] = $"Giao dịch thành công! Bạn đã nộp {soTien:N0} VNĐ cho học phần {maLopHP}.";
+            if (isSuccess)
+            {
+                TempData["SuccessMsg"] = $"Giao dịch thành công! Bạn đã nộp {soTien:N0} VNĐ cho học phần {maLopHP}.";
+            }
+            else
+            {
+                TempData["ErrorMsg"] = $"Thanh toán thất bại cho học phần {maLopHP}. Vui lòng thử lại hoặc liên hệ Phòng Đào tạo!";
+            }
+
             return RedirectToAction("XemHocPhi");
         }
 

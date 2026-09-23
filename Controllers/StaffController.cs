@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -225,6 +225,9 @@ namespace StudentManagementSystem.Controllers
             return RedirectToAction("GiangVienList");
         }
 
+        // FIX LỖI BẢO MẬT: Xóa giảng viên phải dùng POST + AntiForgeryToken (chống CSRF)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult DeleteGiangVien(string maGV)
         {
             if (_staffDAO.DeleteGiangVien(maGV))

@@ -200,10 +200,22 @@ BEGIN
         VALUES (@MaSV, @HoTen, @NgaySinh, @GioiTinh, @Email, @SoDienThoai, @DiaChi, @KhoaID, N'Đang học', @NewUserID); 
 
         -- 4. Khởi tạo điểm rèn luyện mặc định 100 điểm (Xuất sắc)
-        IF NOT EXISTS (SELECT 1 FROM DiemRenLuyen WHERE MaSV = @MaSV AND HocKy = N'HK1 (2025-2026)')
+        -- FIX LỖI LOGIC: Học kỳ phải được tính động theo ngày hiện tại (khớp cách tính của TeacherController.TinhHocKyHienTai)
+        -- thay vì hard-code 'HK1 (2025-2026)' - khiến bản ghi không khớp học kỳ và chức năng trừ điểm rèn luyện khi điểm danh bị vô hiệu.
+        DECLARE @HocKyHienTai NVARCHAR(50);
+        DECLARE @NamHienTai INT = YEAR(GETDATE());
+        DECLARE @ThangHienTai INT = MONTH(GETDATE());
+        IF @ThangHienTai >= 9
+            SET @HocKyHienTai = N'HK1 (' + CAST(@NamHienTai AS NVARCHAR(4)) + N'-' + CAST(@NamHienTai + 1 AS NVARCHAR(4)) + N')';
+        ELSE IF @ThangHienTai BETWEEN 1 AND 6
+            SET @HocKyHienTai = N'HK2 (' + CAST(@NamHienTai - 1 AS NVARCHAR(4)) + N'-' + CAST(@NamHienTai AS NVARCHAR(4)) + N')';
+        ELSE
+            SET @HocKyHienTai = N'HK3 (' + CAST(@NamHienTai - 1 AS NVARCHAR(4)) + N'-' + CAST(@NamHienTai AS NVARCHAR(4)) + N')';
+
+        IF NOT EXISTS (SELECT 1 FROM DiemRenLuyen WHERE MaSV = @MaSV AND HocKy = @HocKyHienTai)
         BEGIN
             INSERT INTO DiemRenLuyen (MaSV, HocKy, Diem, XepLoai)
-            VALUES (@MaSV, N'HK1 (2025-2026)', 100, N'Xuất sắc');
+            VALUES (@MaSV, @HocKyHienTai, 100, N'Xuất sắc');
         END
 
         COMMIT TRANSACTION;

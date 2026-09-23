@@ -62,10 +62,14 @@
                                     </button>
                                 </form>
 
-                                <!-- Nút Xóa -->
-                                <a href="@Url.Action("DeleteUser", "Admin", new { id = item.UserID })" class="btn btn-sm btn-outline-danger mb-1 shadow-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa tài khoản này khỏi hệ thống không?');" title="Xóa tài khoản">
-                                    <i class="fas fa-trash-alt"></i>
-                                </a>
+                                <!-- Nút Xóa (FIX LỖI BẢO MẬT: dùng POST + AntiForgeryToken thay cho link GET) -->
+                                <form action="@Url.Action("DeleteUser", "Admin")" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa tài khoản này khỏi hệ thống không?');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@item.UserID" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger mb-1 shadow-sm" title="Xóa tài khoản">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
 

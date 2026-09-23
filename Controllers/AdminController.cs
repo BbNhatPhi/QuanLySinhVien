@@ -79,7 +79,9 @@ namespace StudentManagementSystem.Controllers
             return RedirectToAction("ManageKhoa");
         }
 
-        // GET: /Admin/DeleteKhoa
+        // FIX LỖI BẢO MẬT: Xóa khoa phải dùng POST + AntiForgeryToken (chống CSRF)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult DeleteKhoa(int id)
         {
             if (_adminDAO.DeleteKhoa(id))
@@ -117,7 +119,9 @@ namespace StudentManagementSystem.Controllers
             TempData["SuccessMsg"] = "Đã thêm ngành học mới thành công!";
             return RedirectToAction("ManageNganh");
         }
-        // GET: /Admin/DeleteUser
+        // FIX LỖI BẢO MẬT: Xóa tài khoản phải dùng POST + AntiForgeryToken (chống CSRF)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult DeleteUser(int id)
         {
             if (_adminDAO.DeleteUser(id))

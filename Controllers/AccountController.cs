@@ -78,19 +78,24 @@ namespace StudentManagementSystem.Controllers
             {
                 ResetFailedLogin(username);
 
+                // FIX LỖI LOGIC: Lấy đúng thời gian timeout cấu hình trong Web.config (2880 phút = 48 tiếng)
+                // thay vì hard-code 60 phút như trước (khiến người dùng bị đăng xuất sớm hơn cấu hình rất nhiều).
+                double timeoutMinutes = FormsAuthentication.Timeout.TotalMinutes;
+
                 // 1. Khởi tạo vé chứng thực (Authentication Ticket)
                 FormsAuthenticationTicket ticket = new FormsAuthenticationTicket(
                     1,
                     user.Username,
                     DateTime.Now,
-                    DateTime.Now.AddMinutes(60), // Hết hạn sau 60 phút
+                    DateTime.Now.AddMinutes(timeoutMinutes),
                     false,
                     user.RoleName // Cất RoleName vào UserData của Ticket để làm Phân quyền
                 );
 
-                // 2. Mã hóa vé và lưu vào Cookie
+                // 2. Mã hóa vé và lưu vào Cookie (đặt hạn cookie khớp hạn vé để giữ đăng nhập đủ 48 giờ)
                 string encryptedTicket = FormsAuthentication.Encrypt(ticket);
                 HttpCookie cookie = new HttpCookie(FormsAuthentication.FormsCookieName, encryptedTicket);
+                cookie.Expires = ticket.Expiration;
                 Response.Cookies.Add(cookie);
 
                 // 3. Điều hướng theo phân quyền (Role-based Routing)

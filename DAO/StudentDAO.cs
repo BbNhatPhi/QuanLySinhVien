@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -415,7 +415,8 @@ namespace StudentManagementSystem.DAO
             return list;
         }
 
-        public void ThanhToanHocPhi(string username, string maLopHP)
+        // FIX LỖI LOGIC: Trả về kết quả để Controller biết giao dịch thành công hay thất bại
+        public bool ThanhToanHocPhi(string username, string maLopHP)
         {
             using (SqlConnection conn = new SqlConnection(connStr))
             {
@@ -424,8 +425,16 @@ namespace StudentManagementSystem.DAO
                 cmd.Parameters.AddWithValue("@Username", username);
                 cmd.Parameters.AddWithValue("@MaLopHP", maLopHP);
 
-                conn.Open();
-                cmd.ExecuteNonQuery();
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
             }
         }
 

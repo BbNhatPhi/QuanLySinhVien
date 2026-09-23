@@ -1,4 +1,4 @@
-@{
+﻿@{
     var pageTitle = ViewBag.Title != null ? ViewBag.Title.ToString() : "Trang chủ";
     var userName = User.Identity.Name ?? "";
     var avatarChar = !string.IsNullOrEmpty(userName) ? userName.Substring(0, 1).ToUpper() : "U";

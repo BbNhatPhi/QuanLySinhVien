@@ -27,9 +27,14 @@
                             <td class="fw-bold">@item.TenKhoa</td>
                             <td>@item.LienHe</td>
                             <td class="text-center">
-                                <a href="@Url.Action("DeleteKhoa", "Admin", new { id = item.KhoaID })" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa khoa này không?');">
-                                    <i class="fas fa-trash-alt"></i> Xóa
-                                </a>
+                                <!-- FIX LỖI BẢO MẬT: dùng POST + AntiForgeryToken thay cho link GET -->
+                                <form action="@Url.Action("DeleteKhoa", "Admin")" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa khoa này không?');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@item.KhoaID" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash-alt"></i> Xóa
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     }
