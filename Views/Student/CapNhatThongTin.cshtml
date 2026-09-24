@@ -1,66 +1,134 @@
-﻿@model StudentManagementSystem.Models.SinhVien
+@model StudentManagementSystem.Models.SinhVien
 @{
     ViewBag.Title = "Thông Tin Cá Nhân";
 }
 
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <h2 class="mb-4 text-center"><i class="fas fa-user-edit text-primary"></i> Hồ Sơ Sinh Viên</h2>
+<div class="container-fluid px-4 mt-4 mb-5">
 
-            <div class="card shadow-sm border-0">
+    <!-- Page Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom">
+        <div>
+            <h2 class="mb-0 fw-bold text-dark">
+                <i class="fas fa-user-edit text-primary me-2"></i>Hồ Sơ Sinh Viên
+            </h2>
+            <nav aria-label="breadcrumb" class="mt-1">
+                <ol class="breadcrumb mb-0 small">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index","Student")" class="text-decoration-none">Trang chủ</a></li>
+                    <li class="breadcrumb-item active">Cập Nhật Thông Tin</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-9 col-lg-8">
+
+            <!-- Avatar + Identity Banner -->
+            <div class="card shadow border-0 mb-4">
+                <div class="card-body p-0">
+                    <div class="bg-primary p-4 text-white d-flex align-items-center gap-4" style="border-radius: 0.375rem 0.375rem 0 0;">
+                        <div class="rounded-circle bg-white d-flex align-items-center justify-content-center shadow"
+                             style="width:72px; height:72px; min-width:72px;">
+                            <i class="fas fa-user-graduate fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-0 fw-bold">@Model.HoTen</h5>
+                            <p class="mb-0 opacity-75 small">MSSV: @Model.MaSV</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Form Card -->
+            <div class="card shadow border-0">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h6 class="mb-0 fw-bold text-dark">
+                        <i class="fas fa-id-card text-primary me-2"></i>Thông Tin Chi Tiết
+                    </h6>
+                </div>
                 <div class="card-body p-4">
                     <form action="@Url.Action("CapNhatThongTin", "Student")" method="post">
                         @Html.AntiForgeryToken()
-                        <!-- Thông tin cứng: Không cho sửa (Dùng readonly) -->
-                        <div class="row mb-3">
-                            <div class="col-md-4">
-                                <label class="form-label fw-bold text-muted">Mã Sinh Viên</label>
-                                <input type="text" name="MaSV" class="form-control bg-light" value="@Model.MaSV" readonly />
-                            </div>
-                            <div class="col-md-8">
-                                <label class="form-label fw-bold text-muted">Họ và Tên</label>
-                                <input type="text" class="form-control bg-light" value="@Model.HoTen" readonly />
+
+                        <!-- Read-only section -->
+                        <div class="p-3 rounded mb-4" style="background:#f8f9fa; border-left: 4px solid #6c757d;">
+                            <p class="text-muted small mb-3 fw-semibold">
+                                <i class="fas fa-lock me-1"></i>THÔNG TIN CỐ ĐỊNH — Liên hệ Phòng Đào Tạo để thay đổi
+                            </p>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold small text-muted">Mã Sinh Viên</label>
+                                    <input type="text" name="MaSV" class="form-control bg-white text-muted" value="@Model.MaSV" readonly />
+                                </div>
+                                <div class="col-md-8">
+                                    <label class="form-label fw-bold small text-muted">Họ và Tên</label>
+                                    <input type="text" class="form-control bg-white text-muted" value="@Model.HoTen" readonly />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-muted">Ngày Sinh</label>
+                                    <input type="text" class="form-control bg-white text-muted"
+                                           value="@(Model.NgaySinh.HasValue ? Model.NgaySinh.Value.ToString("dd/MM/yyyy") : "")" readonly />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-muted">Giới Tính</label>
+                                    <input type="text" class="form-control bg-white text-muted" value="@Model.GioiTinh" readonly />
+                                </div>
                             </div>
                         </div>
 
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold text-muted">Ngày Sinh</label>
-                                <input type="text" class="form-control bg-light" value="@(Model.NgaySinh.HasValue ? Model.NgaySinh.Value.ToString("dd/MM/yyyy") : "")" readonly />
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold text-muted">Giới Tính</label>
-                                <input type="text" class="form-control bg-light" value="@Model.GioiTinh" readonly />
-                            </div>
+                        <!-- Editable section -->
+                        <div class="mb-1">
+                            <h6 class="text-primary fw-bold mb-3">
+                                <i class="fas fa-pen me-2"></i>Thông Tin Liên Hệ
+                                <small class="text-muted fw-normal">(Có thể thay đổi)</small>
+                            </h6>
                         </div>
 
-                        <hr class="mb-4" />
-                        <h5 class="text-primary mb-3">Thông Tin Liên Hệ (Có thể thay đổi)</h5>
-
-                        <!-- Thông tin mềm: Cho phép sinh viên tự sửa -->
-                        <div class="row mb-3">
+                        <div class="row g-3 mb-3">
                             <div class="col-md-6">
-                                <label class="form-label fw-bold">Email</label>
-                                <input type="email" name="Email" class="form-control" value="@Model.Email" placeholder="Nhập địa chỉ email" />
+                                <label class="form-label fw-bold small">
+                                    <i class="fas fa-envelope text-primary me-1"></i>Email
+                                </label>
+                                <input type="email" name="Email" class="form-control"
+                                       value="@Model.Email" placeholder="Nhập địa chỉ email" />
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-bold">Số Điện Thoại</label>
-                                <input type="text" name="SoDienThoai" class="form-control" value="@Model.SoDienThoai" placeholder="Nhập số điện thoại" />
+                                <label class="form-label fw-bold small">
+                                    <i class="fas fa-phone text-primary me-1"></i>Số Điện Thoại
+                                </label>
+                                <input type="text" name="SoDienThoai" class="form-control"
+                                       value="@Model.SoDienThoai" placeholder="Nhập số điện thoại" />
                             </div>
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label fw-bold">Địa Chỉ Thường Trú / Tạm Trú</label>
-                            <input type="text" name="DiaChi" class="form-control" value="@Model.DiaChi" placeholder="Nhập địa chỉ của bạn" />
+                            <label class="form-label fw-bold small">
+                                <i class="fas fa-map-marker-alt text-primary me-1"></i>Địa Chỉ Thường Trú / Tạm Trú
+                            </label>
+                            <input type="text" name="DiaChi" class="form-control"
+                                   value="@Model.DiaChi" placeholder="Nhập địa chỉ của bạn" />
                         </div>
 
-                        <div class="text-center">
-                            <button type="submit" class="btn btn-primary px-5 fw-bold"><i class="fas fa-save"></i> Lưu Thay Đổi</button>
+                        <div class="d-flex gap-3 justify-content-end">
+                            <a href="@Url.Action("Index","Student")" class="btn btn-outline-secondary px-4">
+                                <i class="fas fa-times me-1"></i>Hủy
+                            </a>
+                            <button type="submit" class="btn btn-primary px-5 fw-bold">
+                                <i class="fas fa-save me-1"></i>Lưu Thay Đổi
+                            </button>
                         </div>
+
                     </form>
                 </div>
             </div>
+
+            <!-- Help note -->
+            <div class="alert alert-light border-start border-4 border-warning mt-3 small shadow-sm">
+                <i class="fas fa-info-circle text-warning me-1"></i>
+                Để thay đổi thông tin cố định (Họ tên, Ngày sinh, Giới tính), vui lòng đến <strong>Phòng Đào Tạo</strong>
+                hoặc liên hệ qua email <strong>daotao@university.edu.vn</strong> với các giấy tờ chứng minh liên quan.
+            </div>
+
         </div>
     </div>
 </div>

@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Optimization;
@@ -19,6 +20,13 @@ namespace StudentManagementSystem
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+        }
+
+        // FIX FONT TIẾNG VIỆT: Buộc toàn bộ response dùng UTF-8
+        protected void Application_BeginRequest()
+        {
+            Response.ContentEncoding = Encoding.UTF8;
+            Request.ContentEncoding = Encoding.UTF8;
         }
 
         // 2. Hàm đọc Cookie và cấp quyền (Bắt buộc phải nằm gọn trong class này)

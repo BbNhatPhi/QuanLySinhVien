@@ -1,27 +1,76 @@
-﻿@model List<StudentManagementSystem.Models.DiemRenLuyen>
+@model List<StudentManagementSystem.Models.DiemRenLuyen>
 @{
     ViewBag.Title = "Quản lý Điểm rèn luyện";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-4 mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0"><i class="fas fa-medal text-primary"></i> Quản Lý Điểm Rèn Luyện</h2>
-        <button type="button" class="btn btn-success fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addDiemModal">
-            <i class="fas fa-plus"></i> Nhập Điểm Mới
-        </button>
-    </div>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0"><i class="fas fa-medal text-primary"></i> Quản Lý Điểm Rèn Luyện</h2>
+    <button type="button" class="btn btn-success fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addDiemModal">
+        <i class="fas fa-plus me-1"></i> Nhập Điểm Mới
+    </button>
+</div>
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
-            <table class="table table-hover table-bordered mb-0 align-middle">
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Stats Row -->
+<div class="row g-3 mb-4">
+    @{
+        var xuatSac = Model?.Count(x => x.XepLoai == "Xuất sắc") ?? 0;
+        var tot = Model?.Count(x => x.XepLoai == "Tốt") ?? 0;
+        var kha = Model?.Count(x => x.XepLoai == "Khá") ?? 0;
+        var yeu = Model?.Count(x => x.XepLoai == "Yếu") ?? 0;
+    }
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm text-center py-3 border-top border-4 border-primary">
+            <div class="text-primary fs-2 fw-bold">@(Model?.Count ?? 0)</div>
+            <div class="text-muted small">Tổng bản ghi</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm text-center py-3 border-top border-4 border-success">
+            <div class="text-success fs-2 fw-bold">@xuatSac</div>
+            <div class="text-muted small">Xuất sắc</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm text-center py-3 border-top border-4 border-info">
+            <div class="text-info fs-2 fw-bold">@(tot + kha)</div>
+            <div class="text-muted small">Tốt / Khá</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm text-center py-3 border-top border-4 border-danger">
+            <div class="text-danger fs-2 fw-bold">@yeu</div>
+            <div class="text-muted small">Yếu / Kém</div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow border-0">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <span class="text-muted small"><i class="fas fa-list me-1"></i> Danh sách điểm rèn luyện</span>
+        <div class="input-group" style="max-width: 320px;">
+            <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+            <input type="text" class="form-control border-start-0 bg-light" placeholder="Tìm theo mã SV, học kỳ..." data-search-table="drlTable">
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle mb-0" id="drlTable">
                 <thead class="table-dark text-center">
                     <tr>
-                        <th width="15%">Mã SV</th>
-                        <th width="20%">Học Kỳ</th>
-                        <th width="15%">Điểm Số</th>
+                        <th style="width:120px;">Mã SV</th>
+                        <th style="width:180px;">Học Kỳ</th>
+                        <th style="width:120px;">Điểm Số</th>
                         <th>Xếp Loại</th>
-                        <th width="15%">Thao tác</th>
+                        <th style="width:130px;">Thao Tác</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -30,9 +79,20 @@
                         foreach (var item in Model)
                         {
                             <tr>
-                                <td class="text-center fw-bold text-primary">@item.MaSV</td>
+                                <td class="text-center">
+                                    <span class="badge bg-primary fw-bold">@item.MaSV</span>
+                                </td>
                                 <td class="text-center fw-bold">@item.HocKy</td>
-                                <td class="text-center fw-bold text-danger fs-5">@item.Diem</td>
+                                <td class="text-center">
+                                    <span class="fs-5 fw-bold @(item.Diem >= 90 ? "text-success" : item.Diem >= 70 ? "text-primary" : item.Diem >= 50 ? "text-warning" : "text-danger")">
+                                        @item.Diem
+                                    </span>
+                                    <div style="height:4px;border-radius:2px;" class="bg-light mt-1">
+                                        <div style="width:@(item.Diem)%;height:4px;border-radius:2px;" 
+                                             class="@(item.Diem >= 90 ? "bg-success" : item.Diem >= 70 ? "bg-primary" : item.Diem >= 50 ? "bg-warning" : "bg-danger")">
+                                        </div>
+                                    </div>
+                                </td>
                                 <td class="text-center">
                                     @{
                                         string bgClass = "bg-secondary";
@@ -42,26 +102,25 @@
                                         else if (item.XepLoai == "Trung bình") { bgClass = "bg-warning text-dark"; }
                                         else if (item.XepLoai == "Yếu") { bgClass = "bg-danger"; }
                                     }
-                                    <span class="badge @bgClass p-2">@item.XepLoai</span>
+                                    <span class="badge @bgClass p-2 fs-6">@item.XepLoai</span>
                                 </td>
                                 <td class="text-center">
-                                    <div class="d-flex justify-content-center gap-2">
-                                        <!-- Nút Sửa -->
-                                        <button type="button" class="btn btn-sm btn-outline-warning fw-bold edit-diem-btn shadow-sm"
+                                    <div class="d-flex justify-content-center gap-1">
+                                        <button type="button" class="btn btn-sm btn-outline-warning fw-bold edit-diem-btn"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#editDiemModal"
                                                 data-id="@item.ID"
                                                 data-masv="@item.MaSV"
                                                 data-hocky="@item.HocKy"
-                                                data-diem="@item.Diem">
+                                                data-diem="@item.Diem"
+                                                title="Sửa điểm">
                                             <i class="fas fa-edit"></i>
                                         </button>
-
-                                        <!-- Nút Xóa -->
-                                        <form action="@Url.Action("DeleteDiemRenLuyen", "Staff")" method="post" onsubmit="return confirm('Xóa điểm rèn luyện của sinh viên @item.MaSV trong @item.HocKy?');">
+                                        <form action="@Url.Action("DeleteDiemRenLuyen", "Staff")" method="post"
+                                              onsubmit="return confirm('Xóa điểm rèn luyện của sinh viên @item.MaSV trong @item.HocKy?');">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="id" value="@item.ID" />
-                                            <button type="submit" class="btn btn-sm btn-outline-danger fw-bold shadow-sm">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa">
                                                 <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </form>
@@ -73,7 +132,10 @@
                     else
                     {
                         <tr>
-                            <td colspan="5" class="text-center py-4 text-muted">Chưa có dữ liệu điểm rèn luyện!</td>
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                <i class="fas fa-medal fa-2x mb-2 d-block text-secondary"></i>
+                                Chưa có dữ liệu điểm rèn luyện!
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -82,61 +144,58 @@
     </div>
 </div>
 
-<!-- ========================================== -->
-<!-- 1. MODAL THÊM ĐIỂM -->
-<!-- ========================================== -->
+<!-- Modal Thêm Điểm -->
 <div class="modal fade" id="addDiemModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <form action="@Url.Action("AddDiemRenLuyen", "Staff")" method="post">
                 @Html.AntiForgeryToken()
                 <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title fw-bold"><i class="fas fa-plus-circle"></i> Nhập Điểm Rèn Luyện</h5>
+                    <h5 class="modal-title fw-bold"><i class="fas fa-plus-circle me-2"></i>Nhập Điểm Rèn Luyện</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Mã Sinh Viên</label>
-                        <input type="text" name="maSV" class="form-control border-success" placeholder="VD: 2400000099" required />
+                        <label class="form-label fw-bold">Mã Sinh Viên <span class="text-danger">*</span></label>
+                        <input type="text" name="maSV" class="form-control" placeholder="VD: 2400000099" required />
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Học Kỳ</label>
-                        <select name="hocKy" class="form-select border-success" required>
+                        <label class="form-label fw-bold">Học Kỳ <span class="text-danger">*</span></label>
+                        <select name="hocKy" class="form-select" required>
                             <option value="HK1 (2025-2026)">HK1 (2025-2026)</option>
                             <option value="HK2 (2025-2026)">HK2 (2025-2026)</option>
                             <option value="HK3 (2025-2026)">HK3 (2025-2026)</option>
+                            <option value="HK1 (2026-2027)">HK1 (2026-2027)</option>
+                            <option value="HK2 (2026-2027)">HK2 (2026-2027)</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Điểm Số (0 - 100)</label>
-                        <input type="number" name="diem" class="form-control border-success" min="0" max="100" required />
-                        <small class="text-muted">Hệ thống sẽ tự động tính xếp loại (Xuất sắc, Tốt, Khá...)</small>
+                        <label class="form-label fw-bold">Điểm Số (0 – 100) <span class="text-danger">*</span></label>
+                        <input type="number" name="diem" class="form-control" min="0" max="100" required />
+                        <div class="form-text"><i class="fas fa-info-circle me-1 text-primary"></i>Hệ thống tự động tính xếp loại (Xuất sắc ≥ 90, Tốt ≥ 80, Khá ≥ 65, Trung bình ≥ 50, Yếu &lt; 50).</div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="submit" class="btn btn-success fw-bold"><i class="fas fa-save"></i> Lưu Điểm</button>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i>Hủy</button>
+                    <button type="submit" class="btn btn-success fw-bold"><i class="fas fa-save me-1"></i>Lưu Điểm</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<!-- ========================================== -->
-<!-- 2. MODAL SỬA ĐIỂM -->
-<!-- ========================================== -->
+<!-- Modal Sửa Điểm -->
 <div class="modal fade" id="editDiemModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <form action="@Url.Action("EditDiemRenLuyen", "Staff")" method="post">
                 @Html.AntiForgeryToken()
                 <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title fw-bold"><i class="fas fa-edit"></i> Cập Nhật Điểm Rèn Luyện</h5>
+                    <h5 class="modal-title fw-bold"><i class="fas fa-edit me-2"></i>Cập Nhật Điểm Rèn Luyện</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
                     <input type="hidden" name="id" id="editID" />
-
                     <div class="row mb-3">
                         <div class="col-6">
                             <label class="form-label fw-bold">Mã Sinh Viên</label>
@@ -147,32 +206,41 @@
                             <input type="text" id="editHocKy" class="form-control bg-light" readonly />
                         </div>
                     </div>
-
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Sửa Điểm Số</label>
+                        <label class="form-label fw-bold">Sửa Điểm Số (0 – 100) <span class="text-danger">*</span></label>
                         <input type="number" name="diem" id="editDiem" class="form-control border-warning" min="0" max="100" required />
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy bỏ</button>
-                    <button type="submit" class="btn btn-warning fw-bold"><i class="fas fa-save"></i> Lưu Thay Đổi</button>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i>Hủy bỏ</button>
+                    <button type="submit" class="btn btn-warning fw-bold text-dark"><i class="fas fa-save me-1"></i>Lưu Thay Đổi</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<!-- ========================================== -->
-<!-- SCRIPT ĐIỀN DỮ LIỆU -->
-<!-- ========================================== -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    $(document).ready(function () {
-        $('.edit-diem-btn').on('click', function () {
-            $('#editID').val($(this).data('id'));
-            $('#editMaSV').val($(this).data('masv'));
-            $('#editHocKy').val($(this).data('hocky'));
-            $('#editDiem').val($(this).data('diem'));
+    document.addEventListener('DOMContentLoaded', function () {
+        // Populate edit modal (vanilla JS, no jQuery)
+        document.querySelectorAll('.edit-diem-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                document.getElementById('editID').value = this.getAttribute('data-id');
+                document.getElementById('editMaSV').value = this.getAttribute('data-masv');
+                document.getElementById('editHocKy').value = this.getAttribute('data-hocky');
+                document.getElementById('editDiem').value = this.getAttribute('data-diem');
+            });
+        });
+
+        // Table search
+        document.querySelectorAll('[data-search-table]').forEach(function (input) {
+            input.addEventListener('keyup', function () {
+                var tableId = this.getAttribute('data-search-table');
+                var filter = this.value.toLowerCase();
+                document.getElementById(tableId).querySelectorAll('tbody tr').forEach(function (row) {
+                    row.style.display = row.textContent.toLowerCase().includes(filter) ? '' : 'none';
+                });
+            });
         });
     });
 </script>

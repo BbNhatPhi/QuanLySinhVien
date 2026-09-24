@@ -1,24 +1,90 @@
-﻿@model List<StudentManagementSystem.Models.YeuCauHanhChinh>
+@model List<StudentManagementSystem.Models.YeuCauHanhChinh>
 @{
     ViewBag.Title = "Quản lý Yêu cầu Hành chính";
-    Layout = "~/Views/Shared/_Layout.cshtml"; // Đổi layout cho khớp với dự án của bạn
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-4">
-    <h2 class="mb-4"><i class="fas fa-folder-open text-primary"></i> Quản Lý Dịch Vụ Hành Chính</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0"><i class="fas fa-folder-open text-primary"></i> Quản Lý Dịch Vụ Hành Chính</h2>
+    <span class="badge bg-primary fs-6"><i class="fas fa-inbox me-1"></i> @(Model?.Count ?? 0) yêu cầu</span>
+</div>
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
-            <table class="table table-hover table-bordered align-middle mb-0">
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+    @{
+        var choXuLy = Model?.Count(x => x.TrangThai == "Đang chờ xử lý") ?? 0;
+        var dangXuLy = Model?.Count(x => x.TrangThai == "Đang xử lý") ?? 0;
+        var hoanThanh = Model?.Count(x => x.TrangThai == "Hoàn thành") ?? 0;
+        var tuChoi = Model?.Count(x => x.TrangThai == "Từ chối") ?? 0;
+    }
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm text-center py-3 border-top border-4 border-warning">
+            <div class="text-warning fs-2 fw-bold">@choXuLy</div>
+            <div class="text-muted small"><i class="fas fa-hourglass-half me-1"></i>Chờ xử lý</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm text-center py-3 border-top border-4 border-info">
+            <div class="text-info fs-2 fw-bold">@dangXuLy</div>
+            <div class="text-muted small"><i class="fas fa-cog me-1"></i>Đang xử lý</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm text-center py-3 border-top border-4 border-success">
+            <div class="text-success fs-2 fw-bold">@hoanThanh</div>
+            <div class="text-muted small"><i class="fas fa-check-circle me-1"></i>Hoàn thành</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm text-center py-3 border-top border-4 border-danger">
+            <div class="text-danger fs-2 fw-bold">@tuChoi</div>
+            <div class="text-muted small"><i class="fas fa-ban me-1"></i>Từ chối</div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow border-0">
+    <div class="card-header bg-white py-3 d-flex flex-wrap gap-2 justify-content-between align-items-center">
+        <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-sm btn-outline-secondary active" onclick="filterStatus(this, '')">Tất cả</button>
+            <button class="btn btn-sm btn-outline-warning" onclick="filterStatus(this, 'Đang chờ xử lý')">
+                <i class="fas fa-hourglass-half me-1"></i>Chờ xử lý
+            </button>
+            <button class="btn btn-sm btn-outline-info" onclick="filterStatus(this, 'Đang xử lý')">
+                <i class="fas fa-cog me-1"></i>Đang xử lý
+            </button>
+            <button class="btn btn-sm btn-outline-success" onclick="filterStatus(this, 'Hoàn thành')">
+                <i class="fas fa-check me-1"></i>Hoàn thành
+            </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="filterStatus(this, 'Từ chối')">
+                <i class="fas fa-ban me-1"></i>Từ chối
+            </button>
+        </div>
+        <div class="input-group" style="max-width: 280px;">
+            <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+            <input type="text" class="form-control border-start-0 bg-light" placeholder="Tìm mã SV, loại dịch vụ..." data-search-table="ycTable">
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle mb-0" id="ycTable">
                 <thead class="table-dark text-center">
                     <tr>
-                        <th width="5%">Mã</th>
-                        <th width="15%">Sinh Viên</th>
-                        <th width="20%">Loại Dịch Vụ</th>
-                        <th width="25%">Mô Tả / Lý Do</th>
-                        <th width="10%">Ngày Gửi</th>
-                        <th width="10%">Trạng Thái</th>
-                        <th width="15%">Thao Tác</th>
+                        <th style="width:60px;">Mã</th>
+                        <th style="width:160px;">Sinh Viên</th>
+                        <th style="width:190px;">Loại Dịch Vụ</th>
+                        <th>Mô Tả / Lý Do</th>
+                        <th style="width:130px;">Ngày Gửi</th>
+                        <th style="width:130px;">Trạng Thái</th>
+                        <th style="width:140px;">Thao Tác</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -26,53 +92,60 @@
                     {
                         foreach (var item in Model)
                         {
-                            <tr>
-                                <td class="text-center fw-bold">#@item.MaYC</td>
+                            var rowTrangThai = item.TrangThai;
+                            <tr data-status="@rowTrangThai">
+                                <td class="text-center fw-bold text-primary">#@item.MaYC</td>
                                 <td>
-                                    <b>@item.HoTen</b><br />
-                                    <small class="text-muted">@item.MaSV</small>
+                                    <div class="fw-bold">@item.HoTen</div>
+                                    <small class="text-muted"><i class="fas fa-id-card me-1"></i>@item.MaSV</small>
                                 </td>
-                                <td class="text-primary fw-bold">@item.LoaiDichVu</td>
-                                <td><small>@item.MoTa</small></td>
-                                <td class="text-center">@item.NgayGui.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>
+                                    <span class="badge bg-primary text-wrap" style="font-size:0.8rem;">
+                                        <i class="fas fa-file-alt me-1"></i>@item.LoaiDichVu
+                                    </span>
+                                </td>
+                                <td><small class="text-muted">@item.MoTa</small></td>
+                                <td class="text-center">
+                                    <small><i class="fas fa-clock text-muted me-1"></i>@item.NgayGui.ToString("dd/MM/yyyy")</small><br />
+                                    <small class="text-muted">@item.NgayGui.ToString("HH:mm")</small>
+                                </td>
                                 <td class="text-center">
                                     @if (item.TrangThai == "Đang chờ xử lý")
                                     {
-                                        <span class="badge bg-warning text-dark"><i class="fas fa-hourglass-half"></i> Chờ xử lý</span>
+                                        <span class="badge bg-warning text-dark"><i class="fas fa-hourglass-half me-1"></i>Chờ xử lý</span>
                                     }
                                     else if (item.TrangThai == "Đang xử lý")
                                     {
-                                        <span class="badge bg-info text-dark"><i class="fas fa-cog fa-spin"></i> Đang xử lý</span>
+                                        <span class="badge bg-info text-dark"><i class="fas fa-cog me-1"></i>Đang xử lý</span>
                                     }
                                     else if (item.TrangThai == "Hoàn thành")
                                     {
-                                        <span class="badge bg-success"><i class="fas fa-check"></i> Hoàn thành</span>
+                                        <span class="badge bg-success"><i class="fas fa-check me-1"></i>Hoàn thành</span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-danger"><i class="fas fa-times"></i> Từ chối</span>
+                                        <span class="badge bg-danger"><i class="fas fa-times me-1"></i>Từ chối</span>
                                     }
                                 </td>
                                 <td class="text-center">
-                                    <!-- Chỉ hiện nút nếu chưa Hoàn thành hoặc Từ chối -->
                                     @if (item.TrangThai == "Đang chờ xử lý" || item.TrangThai == "Đang xử lý")
                                     {
                                         <form action="@Url.Action("CapNhatTrangThaiYeuCau", "Staff")" method="post" class="d-inline">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="MaYC" value="@item.MaYC" />
-                                            <div class="btn-group btn-group-sm shadow-sm" role="group">
-
+                                            <div class="btn-group btn-group-sm" role="group">
                                                 @if (item.TrangThai == "Đang chờ xử lý")
                                                 {
-                                                    <button type="submit" name="TrangThaiMoi" value="Đang xử lý" class="btn btn-outline-info" title="Tiếp nhận">
+                                                    <button type="submit" name="TrangThaiMoi" value="Đang xử lý" class="btn btn-outline-info" title="Tiếp nhận xử lý">
                                                         <i class="fas fa-play"></i>
                                                     </button>
                                                 }
-
-                                                <button type="submit" name="TrangThaiMoi" value="Hoàn thành" class="btn btn-outline-success" title="Hoàn thành" onclick="return confirm('Xác nhận hoàn thành giấy tờ này?');">
+                                                <button type="submit" name="TrangThaiMoi" value="Hoàn thành" class="btn btn-outline-success" title="Hoàn thành"
+                                                        onclick="return confirm('Xác nhận hoàn thành giấy tờ này?');">
                                                     <i class="fas fa-check"></i>
                                                 </button>
-                                                <button type="submit" name="TrangThaiMoi" value="Từ chối" class="btn btn-outline-danger" title="Từ chối" onclick="return confirm('Bạn có chắc chắn muốn từ chối giấy tờ này?');">
+                                                <button type="submit" name="TrangThaiMoi" value="Từ chối" class="btn btn-outline-danger" title="Từ chối"
+                                                        onclick="return confirm('Bạn có chắc chắn muốn từ chối giấy tờ này?');">
                                                     <i class="fas fa-ban"></i>
                                                 </button>
                                             </div>
@@ -80,7 +153,7 @@
                                     }
                                     else
                                     {
-                                        <span class="text-muted"><i class="fas fa-lock"></i> Đã đóng</span>
+                                        <span class="text-muted small"><i class="fas fa-lock me-1"></i>Đã đóng</span>
                                     }
                                 </td>
                             </tr>
@@ -89,7 +162,10 @@
                     else
                     {
                         <tr>
-                            <td colspan="7" class="text-center text-muted py-4">Chưa có yêu cầu hành chính nào.</td>
+                            <td colspan="7" class="text-center text-muted py-5">
+                                <i class="fas fa-folder-open fa-2x mb-2 d-block text-secondary"></i>
+                                Chưa có yêu cầu hành chính nào.
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -97,3 +173,29 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('[data-search-table]').forEach(function (input) {
+            input.addEventListener('keyup', function () {
+                var tableId = this.getAttribute('data-search-table');
+                var filter = this.value.toLowerCase();
+                document.getElementById(tableId).querySelectorAll('tbody tr').forEach(function (row) {
+                    row.style.display = row.textContent.toLowerCase().includes(filter) ? '' : 'none';
+                });
+            });
+        });
+    });
+
+    function filterStatus(btn, status) {
+        document.querySelectorAll('.btn[onclick^="filterStatus"]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('#ycTable tbody tr').forEach(function (row) {
+            if (!status || row.getAttribute('data-status') === status) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+</script>
