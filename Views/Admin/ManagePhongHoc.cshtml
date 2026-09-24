@@ -4,74 +4,157 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-4 mb-5">
+<div class="container-fluid px-4 mt-4 mb-5">
+
+    <!-- Page Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0"><i class="fas fa-chalkboard text-primary"></i> Quản Lý Phòng Học</h2>
+        <div>
+            <h2 class="mb-1"><i class="fas fa-chalkboard text-primary"></i> Quản Lý Phòng Học</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 small">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index","Admin")" class="text-decoration-none">Trang Chủ</a></li>
+                    <li class="breadcrumb-item active">Quản Lý Phòng Học</li>
+                </ol>
+            </nav>
+        </div>
         <button type="button" class="btn btn-success fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addPhongModal">
-            <i class="fas fa-plus"></i> Thêm Phòng Mới
+            <i class="fas fa-plus me-1"></i> Thêm Phòng Mới
         </button>
     </div>
 
-    <div class="card shadow-sm border-0">
+    <!-- Stats Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm bg-primary text-white">
+                <div class="card-body d-flex align-items-center gap-3 py-3">
+                    <i class="fas fa-door-open fa-2x opacity-75"></i>
+                    <div>
+                        <div class="fs-4 fw-bold">@(Model != null ? Model.Count : 0)</div>
+                        <div class="small opacity-75">Tổng số phòng</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm bg-success text-white">
+                <div class="card-body d-flex align-items-center gap-3 py-3">
+                    <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                    <div>
+                        <div class="fs-4 fw-bold">@(Model != null ? Model.Count(p => p.TinhTrang == "Đang sử dụng") : 0)</div>
+                        <div class="small opacity-75">Đang sử dụng</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm bg-warning text-dark">
+                <div class="card-body d-flex align-items-center gap-3 py-3">
+                    <i class="fas fa-tools fa-2x opacity-75"></i>
+                    <div>
+                        <div class="fs-4 fw-bold">@(Model != null ? Model.Count(p => p.TinhTrang != "Đang sử dụng") : 0)</div>
+                        <div class="small opacity-75">Đang bảo trì</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm bg-info text-white">
+                <div class="card-body d-flex align-items-center gap-3 py-3">
+                    <i class="fas fa-users fa-2x opacity-75"></i>
+                    <div>
+                        <div class="fs-4 fw-bold">@(Model != null && Model.Any() ? Model.Sum(p => p.SucChua) : 0)</div>
+                        <div class="small opacity-75">Tổng sức chứa</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="card shadow border-0">
+        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <span class="fw-semibold text-secondary"><i class="fas fa-list me-1"></i> Danh sách phòng học</span>
+            <div style="max-width: 300px; width: 100%;">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" class="form-control border-start-0 ps-0" placeholder="Tìm kiếm phòng..." data-search-table="tblPhong" />
+                </div>
+            </div>
+        </div>
         <div class="card-body p-0">
-            <table class="table table-hover table-bordered mb-0 align-middle">
-                <thead class="table-dark text-center">
-                    <tr>
-                        <th width="15%">Mã Phòng</th>
-                        <th width="15%">Sức Chứa</th>
-                        <th>Loại Phòng</th>
-                        <th width="20%">Tình Trạng</th>
-                        <th width="15%">Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model != null && Model.Count > 0)
-                    {
-                        foreach (var item in Model)
+            <div class="table-responsive">
+                <table id="tblPhong" class="table table-hover table-bordered align-middle mb-0">
+                    <thead class="table-dark text-center">
+                        <tr>
+                            <th style="width:15%;">Mã Phòng</th>
+                            <th style="width:15%;">Sức Chứa</th>
+                            <th>Loại Phòng</th>
+                            <th style="width:18%;">Tình Trạng</th>
+                            <th style="width:12%;">Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model == null || Model.Count == 0)
                         {
                             <tr>
-                                <td class="text-center fw-bold text-primary">@item.MaPhong</td>
-                                <td class="text-center fw-bold text-danger">@item.SucChua <span class="text-muted fw-normal">chỗ</span></td>
-                                <td class="text-center">@item.LoaiPhong</td>
-                                <td class="text-center">
-                                    <span class="badge @(item.TinhTrang == "Đang sử dụng" ? "bg-success" : "bg-warning text-dark")">
-                                        @item.TinhTrang
-                                    </span>
-                                </td>
-                                <td class="text-center">
-                                    <div class="d-flex justify-content-center gap-2">
-                                        <!-- Nút Sửa -->
-                                        <button type="button" class="btn btn-sm btn-outline-warning fw-bold edit-phong-btn shadow-sm"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#editPhongModal"
-                                                data-maphong="@item.MaPhong"
-                                                data-succhua="@item.SucChua"
-                                                data-loaiphong="@item.LoaiPhong"
-                                                data-tinhtrang="@item.TinhTrang">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-
-                                        <!-- Nút Xóa -->
-                                        <form action="@Url.Action("DeletePhongHoc", "Admin")" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa phòng @item.MaPhong không?');">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="maPhong" value="@item.MaPhong" />
-                                            <button type="submit" class="btn btn-sm btn-outline-danger fw-bold shadow-sm">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </button>
-                                        </form>
-                                    </div>
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    <i class="fas fa-chalkboard fa-2x d-block mb-2 opacity-25"></i>
+                                    Chưa có dữ liệu phòng học trong hệ thống!
                                 </td>
                             </tr>
                         }
-                    }
-                    else
-                    {
-                        <tr>
-                            <td colspan="5" class="text-center py-4 text-muted">Chưa có dữ liệu phòng học trong hệ thống!</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+                        else
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="text-center fw-bold text-primary">@item.MaPhong</td>
+                                    <td class="text-center">
+                                        <span class="fw-bold text-danger">@item.SucChua</span>
+                                        <span class="text-muted small"> chỗ</span>
+                                    </td>
+                                    <td>
+                                        <i class="fas fa-door-closed text-muted me-1"></i>@item.LoaiPhong
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge @(item.TinhTrang == "Đang sử dụng" ? "bg-success" : "bg-warning text-dark") rounded-pill px-3">
+                                            <i class="fas @(item.TinhTrang == "Đang sử dụng" ? "fa-check-circle" : "fa-tools") me-1"></i>
+                                            @item.TinhTrang
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="d-flex justify-content-center gap-1">
+                                            <!-- Nút Sửa -->
+                                            <button type="button" class="btn btn-sm btn-outline-warning edit-phong-btn"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#editPhongModal"
+                                                    data-maphong="@item.MaPhong"
+                                                    data-succhua="@item.SucChua"
+                                                    data-loaiphong="@item.LoaiPhong"
+                                                    data-tinhtrang="@item.TinhTrang"
+                                                    title="Chỉnh sửa">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+
+                                            <!-- Nút Xóa -->
+                                            <form action="@Url.Action("DeletePhongHoc", "Admin")" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa phòng @item.MaPhong không?');">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="maPhong" value="@item.MaPhong" />
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa phòng">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-white border-top text-muted small py-2 px-3">
+            Tổng cộng <strong>@(Model != null ? Model.Count : 0)</strong> phòng học.
         </div>
     </div>
 </div>
@@ -80,25 +163,32 @@
 <!-- 1. MODAL THÊM PHÒNG -->
 <!-- ========================================== -->
 <div class="modal fade" id="addPhongModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
             <form action="@Url.Action("AddPhongHoc", "Admin")" method="post">
                 @Html.AntiForgeryToken()
                 <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title fw-bold"><i class="fas fa-plus-circle"></i> Thêm Phòng Học Mới</h5>
+                    <h5 class="modal-title fw-bold"><i class="fas fa-plus-circle me-2"></i>Thêm Phòng Học Mới</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Mã Phòng</label>
-                        <input type="text" name="maPhong" class="form-control border-success" placeholder="VD: A1-102" required />
+                        <label class="form-label fw-semibold">Mã Phòng</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-door-open text-muted"></i></span>
+                            <input type="text" name="maPhong" class="form-control border-success" placeholder="VD: A1-102" required />
+                        </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Sức Chứa (Chỗ ngồi)</label>
-                        <input type="number" name="sucChua" class="form-control border-success" min="10" max="500" value="50" required />
+                        <label class="form-label fw-semibold">Sức Chứa (Chỗ ngồi)</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-users text-muted"></i></span>
+                            <input type="number" name="sucChua" class="form-control border-success" min="10" max="500" value="50" required />
+                            <span class="input-group-text">chỗ</span>
+                        </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Loại Phòng</label>
+                        <label class="form-label fw-semibold">Loại Phòng</label>
                         <select name="loaiPhong" class="form-select border-success" required>
                             <option value="Phòng Lý thuyết">Phòng Lý thuyết</option>
                             <option value="Phòng Thực hành máy tính">Phòng Thực hành máy tính</option>
@@ -106,17 +196,17 @@
                             <option value="Hội trường">Hội trường</option>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Tình Trạng</label>
+                    <div class="mb-1">
+                        <label class="form-label fw-semibold">Tình Trạng</label>
                         <select name="tinhTrang" class="form-select border-success" required>
                             <option value="Đang sử dụng">Đang sử dụng</option>
                             <option value="Bảo trì">Đang bảo trì / Sửa chữa</option>
                         </select>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="submit" class="btn btn-success fw-bold"><i class="fas fa-save"></i> Lưu Thông Tin</button>
+                <div class="modal-footer bg-light border-top">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i>Hủy</button>
+                    <button type="submit" class="btn btn-success btn-sm fw-bold"><i class="fas fa-save me-1"></i>Lưu Thông Tin</button>
                 </div>
             </form>
         </div>
@@ -127,25 +217,32 @@
 <!-- 2. MODAL SỬA PHÒNG -->
 <!-- ========================================== -->
 <div class="modal fade" id="editPhongModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
             <form action="@Url.Action("EditPhongHoc", "Admin")" method="post">
                 @Html.AntiForgeryToken()
                 <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title fw-bold"><i class="fas fa-edit"></i> Cập Nhật Phòng Học</h5>
+                    <h5 class="modal-title fw-bold"><i class="fas fa-edit me-2"></i>Cập Nhật Phòng Học</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Mã Phòng (Cố định)</label>
-                        <input type="text" name="maPhong" id="editMaPhong" class="form-control bg-light text-secondary" readonly />
+                        <label class="form-label fw-semibold">Mã Phòng <span class="text-muted fw-normal">(Cố định)</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-door-open text-muted"></i></span>
+                            <input type="text" name="maPhong" id="editMaPhong" class="form-control bg-light text-secondary" readonly />
+                        </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Sức Chứa</label>
-                        <input type="number" name="sucChua" id="editSucChua" class="form-control border-warning" min="10" max="500" required />
+                        <label class="form-label fw-semibold">Sức Chứa</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-users text-muted"></i></span>
+                            <input type="number" name="sucChua" id="editSucChua" class="form-control border-warning" min="10" max="500" required />
+                            <span class="input-group-text">chỗ</span>
+                        </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Loại Phòng</label>
+                        <label class="form-label fw-semibold">Loại Phòng</label>
                         <select name="loaiPhong" id="editLoaiPhong" class="form-select border-warning" required>
                             <option value="Phòng Lý thuyết">Phòng Lý thuyết</option>
                             <option value="Phòng Thực hành máy tính">Phòng Thực hành máy tính</option>
@@ -153,17 +250,17 @@
                             <option value="Hội trường">Hội trường</option>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Tình Trạng</label>
+                    <div class="mb-1">
+                        <label class="form-label fw-semibold">Tình Trạng</label>
                         <select name="tinhTrang" id="editTinhTrang" class="form-select border-warning" required>
                             <option value="Đang sử dụng">Đang sử dụng</option>
                             <option value="Bảo trì">Đang bảo trì / Sửa chữa</option>
                         </select>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy bỏ</button>
-                    <button type="submit" class="btn btn-warning fw-bold"><i class="fas fa-save"></i> Lưu Thay Đổi</button>
+                <div class="modal-footer bg-light border-top">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i>Hủy bỏ</button>
+                    <button type="submit" class="btn btn-warning btn-sm fw-bold"><i class="fas fa-save me-1"></i>Lưu Thay Đổi</button>
                 </div>
             </form>
         </div>
@@ -171,16 +268,17 @@
 </div>
 
 <!-- ========================================== -->
-<!-- SCRIPT ĐIỀN DỮ LIỆU TỰ ĐỘNG VÀO MODAL SỬA -->
+<!-- SCRIPT ĐIỀN DỮ LIỆU TỰ ĐỘNG VÀO MODAL SỬA (vanilla JS) -->
 <!-- ========================================== -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    $(document).ready(function () {
-        $('.edit-phong-btn').on('click', function () {
-            $('#editMaPhong').val($(this).data('maphong'));
-            $('#editSucChua').val($(this).data('succhua'));
-            $('#editLoaiPhong').val($(this).data('loaiphong'));
-            $('#editTinhTrang').val($(this).data('tinhtrang'));
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.edit-phong-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                document.getElementById('editMaPhong').value = this.dataset.maphong;
+                document.getElementById('editSucChua').value = this.dataset.succhua;
+                document.getElementById('editLoaiPhong').value = this.dataset.loaiphong;
+                document.getElementById('editTinhTrang').value = this.dataset.tinhtrang;
+            });
         });
     });
 </script>

@@ -3,24 +3,46 @@
     ViewBag.Title = "Quản lý Giảng Viên";
 }
 
-<div class="container mt-4">
-    <h2 class="mb-4"><i class="fas fa-chalkboard-teacher"></i> Quản Lý Phân Công Giảng Viên</h2>
-
-    <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addGVModal">
-        + Thêm Giảng Viên Mới
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0"><i class="fas fa-chalkboard-teacher text-primary"></i> Quản Lý Phân Công Giảng Viên</h2>
+    <button type="button" class="btn btn-success fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addGVModal">
+        <i class="fas fa-user-plus me-1"></i> Thêm Giảng Viên Mới
     </button>
+</div>
 
-    <div class="card shadow-sm">
-        <div class="card-body p-0">
-            <table class="table table-bordered table-hover mb-0">
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i> @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow border-0">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <span class="text-muted small"><i class="fas fa-list me-1"></i> Tổng số: <strong class="text-dark">@(Model?.Count ?? 0)</strong> giảng viên</span>
+        <div class="input-group" style="max-width: 320px;">
+            <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+            <input type="text" class="form-control border-start-0 bg-light" placeholder="Tìm kiếm giảng viên..." data-search-table="gvTable">
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle mb-0" id="gvTable">
                 <thead class="table-dark">
                     <tr>
-                        <th class="text-center">Mã GV</th>
-                        <th>Họ Tên</th>
+                        <th class="text-center" style="width:100px;">Mã GV</th>
+                        <th>Họ và Tên</th>
                         <th>Đơn Vị / Khoa</th>
-                        <!-- Đã xóa cột Môn phụ trách -->
                         <th>Liên Hệ</th>
-                        <th class="text-center">Thao tác</th>
+                        <th class="text-center" style="width:120px;">Thao Tác</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -29,22 +51,46 @@
                         foreach (var item in Model)
                         {
                             <tr>
-                                <td class="text-center fw-bold text-primary">@item.MaGV</td>
-                                <td class="fw-bold">@item.HoTen</td>
-                                <td>@item.TenKhoa</td>
-                                <!-- Đã xóa nội dung hiển thị Môn -->
+                                <td class="text-center">
+                                    <span class="badge bg-primary fs-6 fw-bold">@item.MaGV</span>
+                                </td>
                                 <td>
-                                    <small><i class="fas fa-envelope"></i> @item.Email</small><br />
-                                    <small><i class="fas fa-phone"></i> @item.SoDienThoai</small>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar-circle bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold"
+                                             style="width:38px;height:38px;min-width:38px;font-size:15px;">
+                                            @(item.HoTen?.Length > 0 ? item.HoTen.Trim().Split(' ').Last()[0].ToString().ToUpper() : "G")
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">@item.HoTen</div>
+                                            <small class="text-muted">Giảng viên</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border"><i class="fas fa-university me-1 text-primary"></i>@item.TenKhoa</span>
+                                </td>
+                                <td>
+                                    <div><small><i class="fas fa-envelope text-muted me-1"></i>@item.Email</small></div>
+                                    <div><small><i class="fas fa-phone text-muted me-1"></i>@item.SoDienThoai</small></div>
                                 </td>
                                 <td class="text-center">
-                                    <div class="d-flex justify-content-center gap-2">
-                                        <button class="btn btn-sm btn-outline-primary" title="Sửa"><i class="fas fa-edit"></i></button>
-
-                                        <form action="@Url.Action("DeleteGiangVien", "Staff")" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa giảng viên @item.HoTen (@item.MaGV) không? Hệ thống sẽ tự động dọn dẹp cả tài khoản đăng nhập của giảng viên này!');">
+                                    <div class="d-flex justify-content-center gap-1">
+                                        <button class="btn btn-sm btn-outline-warning fw-bold"
+                                                title="Sửa thông tin"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editGVModal"
+                                                data-magv="@item.MaGV"
+                                                data-hoten="@item.HoTen"
+                                                data-email="@item.Email"
+                                                data-sdt="@item.SoDienThoai"
+                                                data-khoaid="@item.KhoaID">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <form action="@Url.Action("DeleteGiangVien", "Staff")" method="post"
+                                              onsubmit="return confirm('Bạn có chắc chắn muốn xóa giảng viên @item.HoTen (@item.MaGV) không?\nHệ thống sẽ tự động dọn dẹp cả tài khoản đăng nhập của giảng viên này!');">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="maGV" value="@item.MaGV" />
-                                            <button type="submit" class="btn btn-sm btn-outline-danger shadow-sm" title="Xóa">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa">
                                                 <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </form>
@@ -56,8 +102,10 @@
                     else
                     {
                         <tr>
-                            <!-- Giảm colspan từ 6 xuống 5 vì đã bớt 1 cột -->
-                            <td colspan="5" class="text-center text-muted">Chưa có dữ liệu Giảng viên.</td>
+                            <td colspan="5" class="text-center text-muted py-5">
+                                <i class="fas fa-user-slash fa-2x mb-2 d-block text-secondary"></i>
+                                Chưa có dữ liệu giảng viên.
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -66,32 +114,29 @@
     </div>
 </div>
 
-<!-- Modal Form Thêm GV -->
+<!-- Modal Thêm Giảng Viên -->
 <div class="modal fade" id="addGVModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <form action="@Url.Action("AddGiangVien", "Staff")" method="post">
                 @Html.AntiForgeryToken()
-                <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title">Thêm Hồ Sơ Giảng Viên</h5>
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-user-plus me-2"></i>Thêm Hồ Sơ Giảng Viên</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body p-4">
                     <div class="row mb-3">
                         <div class="col-4">
-                            <label class="form-label fw-bold">Mã GV</label>
+                            <label class="form-label fw-bold">Mã GV <span class="text-danger">*</span></label>
                             <input type="text" name="MaGV" class="form-control" placeholder="VD: GV002" required />
                         </div>
                         <div class="col-8">
-                            <label class="form-label fw-bold">Họ và Tên</label>
+                            <label class="form-label fw-bold">Họ và Tên <span class="text-danger">*</span></label>
                             <input type="text" name="HoTen" class="form-control" placeholder="Nhập tên giảng viên" required />
                         </div>
                     </div>
-
-                    <!-- ĐÃ XÓA PHẦN COMBOBOX CHỌN MÔN CHUYÊN MÔN -->
-
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Trực thuộc Khoa</label>
+                        <label class="form-label fw-bold">Trực thuộc Khoa <span class="text-danger">*</span></label>
                         <select name="KhoaID" class="form-select" required>
                             <option value="">-- Chọn Khoa --</option>
                             @if (ViewBag.ListKhoa != null)
@@ -103,23 +148,109 @@
                             }
                         </select>
                     </div>
-
                     <div class="row mb-3">
                         <div class="col-6">
                             <label class="form-label fw-bold">Điện thoại</label>
-                            <input type="text" name="SoDienThoai" class="form-control" />
+                            <input type="text" name="SoDienThoai" class="form-control" placeholder="0901234567" />
                         </div>
                         <div class="col-6">
                             <label class="form-label fw-bold">Email</label>
-                            <input type="email" name="Email" class="form-control" />
+                            <input type="email" name="Email" class="form-control" placeholder="gv@university.edu.vn" />
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="submit" class="btn btn-success">Lưu Thông Tin</button>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i>Hủy</button>
+                    <button type="submit" class="btn btn-success fw-bold"><i class="fas fa-save me-1"></i>Lưu Thông Tin</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<!-- Modal Sửa Giảng Viên -->
+<div class="modal fade" id="editGVModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="@Url.Action("EditGiangVien", "Staff")" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-user-edit me-2"></i>Cập Nhật Thông Tin Giảng Viên</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <input type="hidden" name="MaGV" id="editMaGV" />
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mã GV</label>
+                        <input type="text" id="editMaGVDisplay" class="form-control bg-light" readonly />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Họ và Tên <span class="text-danger">*</span></label>
+                        <input type="text" name="HoTen" id="editHoTen" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Trực thuộc Khoa <span class="text-danger">*</span></label>
+                        <select name="KhoaID" id="editKhoaID" class="form-select" required>
+                            <option value="">-- Chọn Khoa --</option>
+                            @if (ViewBag.ListKhoa != null)
+                            {
+                                foreach (var khoa in ViewBag.ListKhoa)
+                                {
+                                    <option value="@khoa.KhoaID">@khoa.TenKhoa</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label fw-bold">Điện thoại</label>
+                            <input type="text" name="SoDienThoai" id="editSdt" class="form-control" />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold">Email</label>
+                            <input type="email" name="Email" id="editEmail" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i>Hủy</button>
+                    <button type="submit" class="btn btn-warning fw-bold text-dark"><i class="fas fa-save me-1"></i>Lưu Thay Đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Populate edit modal with row data
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('[data-bs-target="#editGVModal"]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var maGV = this.getAttribute('data-magv');
+                var hoTen = this.getAttribute('data-hoten');
+                var email = this.getAttribute('data-email');
+                var sdt = this.getAttribute('data-sdt');
+                var khoaId = this.getAttribute('data-khoaid');
+                document.getElementById('editMaGV').value = maGV;
+                document.getElementById('editMaGVDisplay').value = maGV;
+                document.getElementById('editHoTen').value = hoTen;
+                document.getElementById('editEmail').value = email;
+                document.getElementById('editSdt').value = sdt;
+                var sel = document.getElementById('editKhoaID');
+                if (sel) sel.value = khoaId;
+            });
+        });
+
+        // Table search
+        document.querySelectorAll('[data-search-table]').forEach(function (input) {
+            input.addEventListener('keyup', function () {
+                var tableId = this.getAttribute('data-search-table');
+                var filter = this.value.toLowerCase();
+                var rows = document.getElementById(tableId).querySelectorAll('tbody tr');
+                rows.forEach(function (row) {
+                    row.style.display = row.textContent.toLowerCase().includes(filter) ? '' : 'none';
+                });
+            });
+        });
+    });
+</script>

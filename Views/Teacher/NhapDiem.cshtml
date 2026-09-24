@@ -1,4 +1,4 @@
-﻿@model IEnumerable<StudentManagementSystem.Models.SinhVienDiem>
+@model IEnumerable<StudentManagementSystem.Models.SinhVienDiem>
 @{
     ViewBag.Title = "Nhập Điểm Học Phần";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -110,19 +110,19 @@
                                         <td class="text-start fw-bold text-dark">@sv.HoTen</td>
                                         <td>
                                             <input type="number" step="0.1" min="0" max="10" name="DiemCC" 
-                                                   value="@sv.DiemCC" class="form-control text-center input-grade input-cc" required />
+                                                   value="@sv.DiemCC.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)" class="form-control text-center input-grade input-cc" required />
                                         </td>
                                         <td>
                                             <input type="number" step="0.1" min="0" max="10" name="DiemGK" 
-                                                   value="@sv.DiemGK" class="form-control text-center input-grade input-gk" required />
+                                                   value="@sv.DiemGK.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)" class="form-control text-center input-grade input-gk" required />
                                         </td>
                                         <td>
                                             <input type="number" step="0.1" min="0" max="10" name="DiemCK" 
-                                                   value="@sv.DiemCK" class="form-control text-center input-grade input-ck" required />
+                                                   value="@sv.DiemCK.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)" class="form-control text-center input-grade input-ck" required />
                                         </td>
                                         <td>
                                             <span class="badge @(isPass ? "bg-success" : "bg-danger") fs-6 cell-tong">
-                                                @sv.DiemTong.ToString("0.0")
+                                                @sv.DiemTong.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)
                                             </span>
                                         </td>
                                         <td>

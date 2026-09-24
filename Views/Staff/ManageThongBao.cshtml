@@ -1,82 +1,157 @@
 ﻿@model List<StudentManagementSystem.Models.ThongBao>
 @{ ViewBag.Title = "Quản Lý Thông Báo"; }
 
-<div class="container mt-4 mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0"><i class="fas fa-bullhorn text-warning"></i> Bảng Tin Thông Báo</h2>
-        <button type="button" class="btn btn-success fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addThongBaoModal">
-            <i class="fas fa-plus"></i> Đăng Thông Báo Mới
-        </button>
-    </div>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0"><i class="fas fa-bullhorn text-warning"></i> Bảng Tin Thông Báo</h2>
+    <button type="button" class="btn btn-success fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addThongBaoModal">
+        <i class="fas fa-pen-alt me-1"></i> Đăng Thông Báo Mới
+    </button>
+</div>
 
-    <!-- Hiển thị danh sách thông báo đã đăng -->
-    <div class="row">
-        @if (Model != null && Model.Count > 0)
-        {
-            foreach (var item in Model)
-            {
-                <div class="col-md-12 mb-3">
-                    <div class="card shadow-sm border-0 border-start border-4 border-warning">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <h5 class="card-title text-primary fw-bold mb-1">@item.TieuDe</h5>
-                                <span class="badge bg-secondary h-100">Đến: @item.DoiTuong</span>
-                            </div>
-                            <p class="text-muted small mb-2">
-                                <i class="fas fa-clock"></i> @item.NgayDang.ToString("dd/MM/yyyy HH:mm") |
-                                <i class="fas fa-user-edit"></i> Đăng bởi: @item.NguoiDang
-                            </p>
-                            <p class="card-text text-dark" style="white-space: pre-wrap;">@item.NoiDung</p>
-                        </div>
-                    </div>
-                </div>
-            }
-        }
-        else
-        {
-            <div class="col-12">
-                <div class="alert alert-secondary text-center py-4">Chưa có thông báo nào được đăng trên hệ thống.</div>
-            </div>
-        }
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm text-center py-3 border-top border-4 border-warning">
+            <div class="text-warning fs-2 fw-bold">@(Model?.Count ?? 0)</div>
+            <div class="text-muted small">Tổng thông báo</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm text-center py-3 border-top border-4 border-primary">
+            <div class="text-primary fs-2 fw-bold">@(Model?.Count(x => x.DoiTuong == "SinhVien") ?? 0)</div>
+            <div class="text-muted small">Dành cho Sinh Viên</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm text-center py-3 border-top border-4 border-info">
+            <div class="text-info fs-2 fw-bold">@(Model?.Count(x => x.DoiTuong == "All") ?? 0)</div>
+            <div class="text-muted small">Toàn trường</div>
+        </div>
     </div>
 </div>
 
-<!-- Modal Đăng Thông Báo Mới -->
+<!-- Filter bar -->
+<div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
+    <span class="text-muted small fw-bold me-1"><i class="fas fa-filter me-1"></i>Đối tượng:</span>
+    <button class="btn btn-sm btn-outline-secondary active" onclick="filterTarget(this, '')">Tất cả</button>
+    <button class="btn btn-sm btn-outline-primary" onclick="filterTarget(this, 'SinhVien')">
+        <i class="fas fa-user-graduate me-1"></i>Sinh viên
+    </button>
+    <button class="btn btn-sm btn-outline-info" onclick="filterTarget(this, 'GiangVien')">
+        <i class="fas fa-chalkboard-teacher me-1"></i>Giảng viên
+    </button>
+    <button class="btn btn-sm btn-outline-warning" onclick="filterTarget(this, 'All')">
+        <i class="fas fa-globe me-1"></i>Toàn trường
+    </button>
+    <div class="ms-auto input-group" style="max-width: 280px;">
+        <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+        <input type="text" class="form-control border-start-0 bg-light" id="tbSearch" placeholder="Tìm thông báo...">
+    </div>
+</div>
+
+<!-- Notification cards -->
+<div id="tbContainer">
+    @if (Model != null && Model.Count > 0)
+    {
+        foreach (var item in Model)
+        {
+            var borderColor = item.DoiTuong == "SinhVien" ? "border-primary" : (item.DoiTuong == "GiangVien" ? "border-info" : "border-warning");
+            var badgeColor = item.DoiTuong == "SinhVien" ? "bg-primary" : (item.DoiTuong == "GiangVien" ? "bg-info text-dark" : "bg-warning text-dark");
+            var doiTuongText = item.DoiTuong == "SinhVien" ? "Sinh Viên" : (item.DoiTuong == "GiangVien" ? "Giảng Viên" : "Toàn trường");
+            <div class="tb-card mb-3" data-target="@item.DoiTuong">
+                <div class="card shadow-sm border-0 border-start border-4 @borderColor">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title text-primary fw-bold mb-0">
+                                <i class="fas fa-bell me-2 text-warning"></i>@item.TieuDe
+                            </h5>
+                            <div class="d-flex gap-2 align-items-center">
+                                <span class="badge @badgeColor"><i class="fas fa-users me-1"></i>@doiTuongText</span>
+                            </div>
+                        </div>
+                        <p class="text-muted small mb-2">
+                            <i class="fas fa-clock me-1"></i> @item.NgayDang.ToString("dd/MM/yyyy HH:mm") &nbsp;|&nbsp;
+                            <i class="fas fa-user-edit me-1"></i> Đăng bởi: <strong>@item.NguoiDang</strong>
+                        </p>
+                        <div class="card-text text-dark p-3 bg-light rounded" style="white-space: pre-wrap; font-size: 0.95rem;">@item.NoiDung</div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="alert alert-secondary text-center py-5">
+            <i class="fas fa-bell-slash fa-2x mb-2 d-block text-muted"></i>
+            Chưa có thông báo nào được đăng trên hệ thống.
+        </div>
+    }
+</div>
+
+<!-- Modal Đăng Thông Báo -->
 <div class="modal fade" id="addThongBaoModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form action="@Url.Action("AddThongBao", "Staff")" method="post">
                 @Html.AntiForgeryToken()
                 <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title fw-bold"><i class="fas fa-pen-alt"></i> Soạn Thông Báo Mới</h5>
+                    <h5 class="modal-title fw-bold"><i class="fas fa-pen-alt me-2"></i>Soạn Thông Báo Mới</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Tiêu đề thông báo</label>
-                        <input type="text" name="tieuDe" class="form-control fw-bold text-primary" required placeholder="Nhập tiêu đề thật ngắn gọn và nổi bật..." />
+                        <label class="form-label fw-bold">Tiêu đề thông báo <span class="text-danger">*</span></label>
+                        <input type="text" name="tieuDe" class="form-control fw-bold text-primary" required placeholder="Nhập tiêu đề ngắn gọn và nổi bật..." />
                     </div>
-
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Đối tượng nhận thông báo</label>
+                        <label class="form-label fw-bold">Đối tượng nhận thông báo <span class="text-danger">*</span></label>
                         <select name="doiTuong" class="form-select" required>
-                            <option value="All">Tất cả mọi người (Sinh viên & Giảng viên)</option>
+                            <option value="All">Tất cả mọi người (Sinh viên &amp; Giảng viên)</option>
                             <option value="SinhVien">Chỉ dành cho Sinh Viên</option>
                             <option value="GiangVien">Chỉ dành cho Giảng Viên</option>
                         </select>
                     </div>
-
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Nội dung chi tiết</label>
-                        <!-- Dùng textarea hỗ trợ xuống dòng -->
+                        <label class="form-label fw-bold">Nội dung chi tiết <span class="text-danger">*</span></label>
                         <textarea name="noiDung" class="form-control" rows="6" required placeholder="Soạn nội dung chi tiết tại đây..."></textarea>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="submit" class="btn btn-success fw-bold"><i class="fas fa-paper-plane"></i> Xuất Bản Thông Báo</button>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i>Hủy</button>
+                    <button type="submit" class="btn btn-success fw-bold"><i class="fas fa-paper-plane me-1"></i>Xuất Bản Thông Báo</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('tbSearch').addEventListener('keyup', function () {
+            var filter = this.value.toLowerCase();
+            document.querySelectorAll('.tb-card').forEach(function (card) {
+                card.style.display = card.textContent.toLowerCase().includes(filter) ? '' : 'none';
+            });
+        });
+    });
+
+    function filterTarget(btn, target) {
+        document.querySelectorAll('.btn[onclick^="filterTarget"]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.tb-card').forEach(function (card) {
+            if (!target || card.getAttribute('data-target') === target) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+</script>

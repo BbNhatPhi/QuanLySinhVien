@@ -3,24 +3,53 @@
     ViewBag.Title = "Quản lý Thời Khóa Biểu";
 }
 
-<div class="container mt-4">
-    <h2 class="mb-4"><i class="fas fa-calendar-alt"></i> Lập Thời Khóa Biểu</h2>
-
-    <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addTKBModal">
-        + Xếp Lịch Mới
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0"><i class="fas fa-calendar-alt text-primary"></i> Lập Thời Khóa Biểu</h2>
+    <button type="button" class="btn btn-success fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addTKBModal">
+        <i class="fas fa-plus-circle me-1"></i> Xếp Lịch Mới
     </button>
+</div>
 
-    <div class="card shadow-sm">
-        <div class="card-body p-0">
-            <table class="table table-bordered table-hover mb-0">
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Quick filter chips -->
+<div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
+    <span class="text-muted small fw-bold me-1"><i class="fas fa-filter me-1"></i>Lọc nhanh:</span>
+    <button class="btn btn-sm btn-outline-secondary active" onclick="filterDay(this, '')">Tất cả</button>
+    <button class="btn btn-sm btn-outline-secondary" onclick="filterDay(this, 'Thứ 2')">Thứ 2</button>
+    <button class="btn btn-sm btn-outline-secondary" onclick="filterDay(this, 'Thứ 3')">Thứ 3</button>
+    <button class="btn btn-sm btn-outline-secondary" onclick="filterDay(this, 'Thứ 4')">Thứ 4</button>
+    <button class="btn btn-sm btn-outline-secondary" onclick="filterDay(this, 'Thứ 5')">Thứ 5</button>
+    <button class="btn btn-sm btn-outline-secondary" onclick="filterDay(this, 'Thứ 6')">Thứ 6</button>
+    <button class="btn btn-sm btn-outline-secondary" onclick="filterDay(this, 'Thứ 7')">Thứ 7</button>
+    <button class="btn btn-sm btn-outline-secondary" onclick="filterDay(this, 'Chủ nhật')">CN</button>
+</div>
+
+<div class="card shadow border-0">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <span class="text-muted small"><i class="fas fa-list me-1"></i> Tổng số: <strong class="text-dark">@(Model?.Count ?? 0)</strong> lịch học</span>
+        <div class="input-group" style="max-width: 320px;">
+            <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+            <input type="text" class="form-control border-start-0 bg-light" placeholder="Tìm môn học, giảng viên, phòng..." data-search-table="tkbTable">
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle mb-0" id="tkbTable">
                 <thead class="table-dark">
                     <tr>
-                        <th class="text-center">Mã Lớp HP</th>
+                        <th class="text-center" style="width:130px;">Mã Lớp HP</th>
                         <th>Môn Học</th>
                         <th>Giảng Viên</th>
-                        <th class="text-center">Thứ / Ngày</th>
-                        <th class="text-center">Ca Học</th>
-                        <th class="text-center">Phòng Học</th>
+                        <th class="text-center" style="width:100px;">Thứ / Ngày</th>
+                        <th class="text-center" style="width:110px;">Ca Học</th>
+                        <th class="text-center" style="width:110px;">Phòng Học</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -28,22 +57,44 @@
                     {
                         foreach (var item in Model)
                         {
-                            <tr>
-                                <td class="text-center fw-bold text-primary">@item.MaLopHP</td>
-                                <td>@item.TenMon</td>
-                                <td>@item.TenGV</td>
-                                <td class="text-center fw-bold">@item.TenNgayHoc</td>
+                            <tr data-ngay="@item.TenNgayHoc">
                                 <td class="text-center">
-                                    <span class="badge bg-info text-dark">Ca @item.TenCaHoc</span>
+                                    <span class="badge bg-primary fs-6 fw-bold">@item.MaLopHP</span>
                                 </td>
-                                <td class="text-center fw-bold text-danger">@item.PhongHoc</td>
+                                <td>
+                                    <div class="fw-bold"><i class="fas fa-book-open text-muted me-1"></i>@item.TenMon</div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="fas fa-user-tie text-primary"></i>
+                                        <span>@item.TenGV</span>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-dark fw-bold">@item.TenNgayHoc</span>
+                                </td>
+                                <td class="text-center">
+                                    @{
+                                        var caClass = "bg-info text-dark";
+                                        var caIcon = "fas fa-sun";
+                                        if (item.TenCaHoc != null && item.TenCaHoc.ToLower().Contains("chiều")) { caClass = "bg-warning text-dark"; caIcon = "fas fa-cloud-sun"; }
+                                        else if (item.TenCaHoc != null && item.TenCaHoc.ToLower().Contains("tối")) { caClass = "bg-secondary"; caIcon = "fas fa-moon"; }
+                                    }
+                                    <span class="badge @caClass"><i class="@caIcon me-1"></i>@item.TenCaHoc</span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-danger fs-6"><i class="fas fa-door-open me-1"></i>@item.PhongHoc</span>
+                                </td>
                             </tr>
                         }
                     }
                     else
                     {
                         <tr>
-                            <td colspan="6" class="text-center text-muted">Chưa có dữ liệu Thời khóa biểu.</td>
+                            <td colspan="6" class="text-center text-muted py-5">
+                                <i class="fas fa-calendar-times fa-2x mb-2 d-block text-secondary"></i>
+                                Chưa có dữ liệu thời khóa biểu.
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -52,19 +103,19 @@
     </div>
 </div>
 
-<!-- Modal Form Lập TKB -->
+<!-- Modal Lập TKB -->
 <div class="modal fade" id="addTKBModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <form action="@Url.Action("AddTKB", "Staff")" method="post">
                 @Html.AntiForgeryToken()
-                <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title">Xếp Lịch Học Mới</h5>
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-calendar-plus me-2"></i>Xếp Lịch Học Mới</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Chọn Lớp Học Phần</label>
+                        <label class="form-label fw-bold">Chọn Lớp Học Phần <span class="text-danger">*</span></label>
                         <select name="MaLopHP" class="form-select" required>
                             <option value="">-- Chọn Lớp Học Phần --</option>
                             @if (ViewBag.ListLopHocPhan != null)
@@ -78,7 +129,7 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-6">
-                            <label class="form-label fw-bold">Ngày Học</label>
+                            <label class="form-label fw-bold">Ngày Học <span class="text-danger">*</span></label>
                             <select name="NgayHoc" class="form-select" required>
                                 <option value="2">Thứ 2</option>
                                 <option value="3">Thứ 3</option>
@@ -90,24 +141,51 @@
                             </select>
                         </div>
                         <div class="col-6">
-                            <label class="form-label fw-bold">Ca Học</label>
+                            <label class="form-label fw-bold">Ca Học <span class="text-danger">*</span></label>
                             <select name="CaHoc" class="form-select" required>
-                                <option value="1">Ca Sáng</option>
-                                <option value="2">Ca Chiều</option>
-                                <option value="3">Ca Tối</option>
+                                <option value="1">Ca Sáng (7:00 – 11:30)</option>
+                                <option value="2">Ca Chiều (12:30 – 17:00)</option>
+                                <option value="3">Ca Tối (17:30 – 21:00)</option>
                             </select>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Phòng Học</label>
+                        <label class="form-label fw-bold">Phòng Học <span class="text-danger">*</span></label>
                         <input type="text" name="PhongHoc" class="form-control" placeholder="VD: A1-202" required />
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="submit" class="btn btn-success">Lưu Thời Khóa Biểu</button>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i>Hủy</button>
+                    <button type="submit" class="btn btn-primary fw-bold"><i class="fas fa-save me-1"></i>Lưu Thời Khóa Biểu</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Search
+        document.querySelectorAll('[data-search-table]').forEach(function (input) {
+            input.addEventListener('keyup', function () {
+                var tableId = this.getAttribute('data-search-table');
+                var filter = this.value.toLowerCase();
+                document.getElementById(tableId).querySelectorAll('tbody tr').forEach(function (row) {
+                    row.style.display = row.textContent.toLowerCase().includes(filter) ? '' : 'none';
+                });
+            });
+        });
+    });
+
+    function filterDay(btn, day) {
+        document.querySelectorAll('.btn[onclick^="filterDay"]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('#tkbTable tbody tr').forEach(function (row) {
+            if (!day || row.getAttribute('data-ngay') === day) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+</script>

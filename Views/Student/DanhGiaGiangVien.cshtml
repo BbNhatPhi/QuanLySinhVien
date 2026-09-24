@@ -1,45 +1,95 @@
 ﻿@model List<StudentManagementSystem.Models.DanhGiaItem>
 @{ ViewBag.Title = "Khảo Sát Đánh Giá Giảng Viên"; }
 
-<div class="container mt-4 mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0"><i class="fas fa-poll text-primary"></i> Khảo Sát Ý Kiến Sinh Viên Về Giảng Viên</h2>
-        <a href="@Url.Action("XemDiem", "Student")" class="btn btn-outline-primary fw-bold">
-            <i class="fas fa-arrow-right"></i> Đến Trang Xem Điểm
-        </a>
+<div class="container-fluid px-4 mt-4 mb-5">
+
+    <!-- Page Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom">
+        <div>
+            <h2 class="mb-0 fw-bold text-dark">
+                <i class="fas fa-poll text-primary me-2"></i>Khảo Sát Ý Kiến Sinh Viên Về Giảng Viên
+            </h2>
+            <nav aria-label="breadcrumb" class="mt-1">
+                <ol class="breadcrumb mb-0 small">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index","Student")" class="text-decoration-none">Trang chủ</a></li>
+                    <li class="breadcrumb-item active">Đánh Giá Giảng Viên</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+            @if (Model != null && Model.Count > 0)
+            {
+                int daDG = Model.Count(x => x.DaDanhGia);
+                <span class="badge @(daDG == Model.Count ? "bg-success" : "bg-warning text-dark") fs-6 px-3 py-2">
+                    <i class="fas fa-check-double me-1"></i>@daDG / @Model.Count môn đã đánh giá
+                </span>
+            }
+            <a href="@Url.Action("XemDiem", "Student")" class="btn btn-outline-primary fw-bold">
+                <i class="fas fa-arrow-right me-1"></i>Đến Trang Xem Điểm
+            </a>
+        </div>
     </div>
 
-    <div class="row">
+    <!-- Alert notice -->
+    <div class="alert alert-warning border-start border-4 border-warning d-flex gap-3 align-items-start mb-4 shadow-sm">
+        <i class="fas fa-exclamation-triangle text-warning fs-5 mt-1"></i>
+        <div class="small">
+            <strong>Lưu ý quan trọng:</strong> Phiếu khảo sát được thực hiện <strong>ẩn danh</strong> và chỉ phục vụ mục đích cải tiến chất lượng giảng dạy.
+            Vui lòng hoàn thành đánh giá <strong>tất cả các học phần</strong> trước khi kết thúc học kỳ.
+        </div>
+    </div>
+
+    <!-- Survey Cards Grid -->
+    <div class="row g-4">
         @if (Model != null && Model.Count > 0)
         {
             foreach (var item in Model)
             {
-                <div class="col-md-6 mb-4">
-                    <div class="card shadow-sm border-0 h-100 border-top border-4 @(item.DaDanhGia ? "border-success" : "border-danger")">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <h5 class="card-title fw-bold text-primary mb-0">@item.TenMon</h5>
+                <div class="col-md-6">
+                    <div class="card shadow border-0 h-100">
+                        <!-- Card header with color indicator -->
+                        <div class="card-header @(item.DaDanhGia ? "bg-success" : "bg-danger") text-white py-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0 fw-bold">
+                                    <i class="fas fa-book me-2"></i>@item.TenMon
+                                </h6>
                                 @if (item.DaDanhGia)
                                 {
-                                    <span class="badge bg-success"><i class="fas fa-check"></i> Đã đánh giá</span>
+                                    <span class="badge bg-white text-success fw-bold">
+                                        <i class="fas fa-check-circle me-1"></i>Đã đánh giá
+                                    </span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-danger"><i class="fas fa-exclamation-triangle"></i> Chưa đánh giá</span>
+                                    <span class="badge bg-white text-danger fw-bold">
+                                        <i class="fas fa-clock me-1"></i>Chưa đánh giá
+                                    </span>
                                 }
                             </div>
-                            <p class="text-muted mb-1">Mã LHP: <strong>@item.MaLopHP</strong></p>
-                            <p class="text-muted mb-3"><i class="fas fa-user-tie text-secondary"></i> Giảng viên: <strong class="text-dark">@item.TenGV</strong></p>
-
-                            <hr />
+                        </div>
+                        <div class="card-body p-4">
+                            <!-- Course meta -->
+                            <div class="d-flex gap-4 mb-3 p-3 bg-light rounded">
+                                <div>
+                                    <p class="text-muted small mb-0">Mã lớp học phần</p>
+                                    <strong class="text-dark">@item.MaLopHP</strong>
+                                </div>
+                                <div class="vr"></div>
+                                <div>
+                                    <p class="text-muted small mb-0">Giảng viên phụ trách</p>
+                                    <strong class="text-primary"><i class="fas fa-user-tie me-1"></i>@item.TenGV</strong>
+                                </div>
+                            </div>
 
                             <form action="@Url.Action("LuuDanhGia", "Student")" method="post">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="maLopHP" value="@item.MaLopHP" />
 
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold small">Mức độ hài lòng về chất lượng giảng dạy:</label>
-                                    <select name="diemDanhGia" class="form-select border-primary" required>
+                                    <label class="form-label fw-bold small text-dark">
+                                        <i class="fas fa-star text-warning me-1"></i>Mức độ hài lòng về chất lượng giảng dạy:
+                                    </label>
+                                    <select name="diemDanhGia" class="form-select" required>
                                         <option value="5" @(item.DiemDanhGia == 5 ? "selected" : "")>⭐⭐⭐⭐⭐ Rất Hài Lòng (5 sao)</option>
                                         <option value="4" @(item.DiemDanhGia == 4 ? "selected" : "")>⭐⭐⭐⭐ Hài Lòng (4 sao)</option>
                                         <option value="3" @(item.DiemDanhGia == 3 ? "selected" : "")>⭐⭐⭐ Bình Thường (3 sao)</option>
@@ -49,12 +99,16 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold small">Ý kiến đóng góp / Góp ý:</label>
-                                    <textarea name="nhanXet" class="form-control" rows="2" placeholder="Nhập nhận xét về phương pháp giảng dạy, thái độ phục vụ...">@item.NhanXet</textarea>
+                                    <label class="form-label fw-bold small text-dark">
+                                        <i class="fas fa-comment-dots text-info me-1"></i>Ý kiến đóng góp / Góp ý:
+                                    </label>
+                                    <textarea name="nhanXet" class="form-control" rows="3"
+                                              placeholder="Nhập nhận xét về phương pháp giảng dạy, thái độ phục vụ...">@item.NhanXet</textarea>
                                 </div>
 
                                 <button type="submit" class="btn @(item.DaDanhGia ? "btn-outline-success" : "btn-primary") w-100 fw-bold">
-                                    <i class="fas fa-paper-plane"></i> @(item.DaDanhGia ? "Cập Nhật Lại Đánh Giá" : "Gửi Phiếu Đánh Giá")
+                                    <i class="fas fa-paper-plane me-1"></i>
+                                    @(item.DaDanhGia ? "Cập Nhật Lại Đánh Giá" : "Gửi Phiếu Đánh Giá")
                                 </button>
                             </form>
                         </div>
@@ -65,8 +119,15 @@
         else
         {
             <div class="col-12">
-                <div class="alert alert-secondary text-center py-4">Bạn chưa đăng ký môn học nào trong kỳ này để thực hiện khảo sát.</div>
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-clipboard-list fa-3x text-secondary mb-3"></i>
+                        <h5 class="text-muted">Chưa có học phần nào để đánh giá</h5>
+                        <p class="text-muted small">Bạn chưa đăng ký môn học nào trong kỳ này để thực hiện khảo sát.</p>
+                    </div>
+                </div>
             </div>
         }
     </div>
+
 </div>

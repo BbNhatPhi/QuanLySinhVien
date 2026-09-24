@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -93,10 +93,10 @@ namespace StudentManagementSystem.Controllers
             // 1. LẤY ĐÚNG TÊN BIẾN TỪ VIEW (maLopTC)
             string maLop = form["maLopTC"];
 
-            // Học kỳ hiện tại được tính tự động theo tháng
-            string hocKy = TinhHocKyHienTai();
-
             TeacherDAO dao = new TeacherDAO();
+
+            // Lấy đúng học kỳ của lớp học phần, fallback về học kỳ tính theo tháng
+            string hocKy = dao.GetHocKyByMaLopHP(maLop) ?? TinhHocKyHienTai();
 
             // 2. QUÉT TOÀN BỘ DANH SÁCH SINH VIÊN ĐƯỢC GỬI LÊN TỪ FORM
             foreach (string key in form.AllKeys)

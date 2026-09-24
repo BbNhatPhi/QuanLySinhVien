@@ -2,56 +2,147 @@
 @{
     ViewBag.Title = "Điểm Rèn Luyện";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    // Tính điểm trung bình rèn luyện
+    double diemTB = (Model != null && Model.Count > 0) ? Math.Round(Model.Average(x => (double)x.Diem), 1) : 0;
 }
 
-<div class="container mt-4 mb-5">
-    <h2 class="mb-4"><i class="fas fa-medal text-primary"></i> Điểm Rèn Luyện Của Tôi</h2>
+<div class="container-fluid px-4 mt-4 mb-5">
 
-    <div class="card shadow-sm border-0">
+    <!-- Page Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom">
+        <div>
+            <h2 class="mb-0 fw-bold text-dark">
+                <i class="fas fa-medal text-primary me-2"></i>Điểm Rèn Luyện Của Tôi
+            </h2>
+            <nav aria-label="breadcrumb" class="mt-1">
+                <ol class="breadcrumb mb-0 small">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index","Student")" class="text-decoration-none">Trang chủ</a></li>
+                    <li class="breadcrumb-item active">Điểm Rèn Luyện</li>
+                </ol>
+            </nav>
+        </div>
+        @if (Model != null && Model.Count > 0)
+        {
+            <div class="text-end">
+                <p class="text-muted small mb-0">Điểm TB toàn khoá</p>
+                <h4 class="fw-bold mb-0 @(diemTB >= 80 ? "text-success" : diemTB >= 65 ? "text-primary" : diemTB >= 50 ? "text-warning" : "text-danger")">
+                    @diemTB <small class="fs-6 text-muted">/ 100</small>
+                </h4>
+            </div>
+        }
+    </div>
+
+    <!-- Summary badges -->
+    @if (Model != null && Model.Count > 0)
+    {
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm border-top border-4 border-primary text-center py-3 px-2">
+                    <h5 class="fw-bold text-primary mb-0">@Model.Count</h5>
+                    <p class="text-muted small mb-0">Số học kỳ</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm border-top border-4 border-success text-center py-3 px-2">
+                    <h5 class="fw-bold text-success mb-0">@Model.Max(x => x.Diem)</h5>
+                    <p class="text-muted small mb-0">Điểm cao nhất</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm border-top border-4 border-warning text-center py-3 px-2">
+                    <h5 class="fw-bold text-warning mb-0">@Model.Min(x => x.Diem)</h5>
+                    <p class="text-muted small mb-0">Điểm thấp nhất</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm border-top border-4 border-info text-center py-3 px-2">
+                    <h5 class="fw-bold text-info mb-0">@diemTB</h5>
+                    <p class="text-muted small mb-0">Điểm trung bình</p>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Table Card -->
+    <div class="card shadow border-0">
+        <div class="card-header bg-dark text-white py-3 d-flex justify-content-between align-items-center">
+            <h6 class="mb-0 fw-bold"><i class="fas fa-table me-2"></i>Lịch Sử Điểm Rèn Luyện Theo Học Kỳ</h6>
+            <span class="badge bg-secondary">@(Model != null ? Model.Count : 0) học kỳ</span>
+        </div>
         <div class="card-body p-0">
-            <table class="table table-hover table-bordered mb-0 align-middle">
-                <thead class="table-dark text-center">
-                    <tr>
-                        <th width="10%">STT</th>
-                        <th width="25%">Học Kỳ</th>
-                        <th width="20%">Điểm Số</th>
-                        <th>Xếp Loại</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model != null && Model.Count > 0)
-                    {
-                        int stt = 1;
-                        foreach (var item in Model)
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered align-middle mb-0" id="tblDiemRenLuyen">
+                    <thead class="table-dark text-center">
+                        <tr>
+                            <th width="8%">STT</th>
+                            <th width="30%">Học Kỳ</th>
+                            <th width="20%">Điểm Số</th>
+                            <th>Xếp Loại</th>
+                            <th width="25%">Nhận Xét</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Count > 0)
+                        {
+                            int stt = 1;
+                            foreach (var item in Model)
+                            {
+                                string bgClass = "bg-secondary";
+                                string icon = "fas fa-minus-circle";
+                                if (item.XepLoai == "Xuất sắc") { bgClass = "bg-success"; icon = "fas fa-trophy"; }
+                                else if (item.XepLoai == "Tốt") { bgClass = "bg-primary"; icon = "fas fa-star"; }
+                                else if (item.XepLoai == "Khá") { bgClass = "bg-info text-dark"; icon = "fas fa-thumbs-up"; }
+                                else if (item.XepLoai == "Trung bình") { bgClass = "bg-warning text-dark"; icon = "fas fa-exclamation-circle"; }
+                                else if (item.XepLoai == "Yếu") { bgClass = "bg-danger"; icon = "fas fa-times-circle"; }
+
+                                <tr>
+                                    <td class="text-center fw-bold text-muted">@(stt++)</td>
+                                    <td class="fw-semibold">
+                                        <i class="fas fa-calendar-alt text-primary me-2"></i>@item.HocKy
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="fs-5 fw-bold @(item.Diem >= 80 ? "text-success" : item.Diem >= 65 ? "text-primary" : item.Diem >= 50 ? "text-warning" : "text-danger")">
+                                            @item.Diem
+                                        </span>
+                                        <small class="text-muted">/100</small>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge @bgClass px-3 py-2 fs-6">
+                                            <i class="@icon me-1"></i>@item.XepLoai
+                                        </span>
+                                    </td>
+                                    <td class="text-muted small fst-italic">
+                                        @if (item.XepLoai == "Xuất sắc") { <text>Hoàn thành xuất sắc các hoạt động</text> }
+                                        else if (item.XepLoai == "Tốt") { <text>Hoàn thành tốt các hoạt động</text> }
+                                        else if (item.XepLoai == "Khá") { <text>Tham gia đầy đủ các hoạt động</text> }
+                                        else if (item.XepLoai == "Trung bình") { <text>Cần tích cực hơn trong học kỳ tới</text> }
+                                        else { <text>Cần cải thiện nghiêm túc</text> }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
                         {
                             <tr>
-                                <td class="text-center fw-bold">@(stt++)</td>
-                                <td class="text-center fw-bold">@item.HocKy</td>
-                                <td class="text-center fw-bold text-danger fs-5">@item.Diem</td>
-                                <td class="text-center">
-                                    @{
-                                        string bgClass = "bg-secondary";
-                                        if (item.XepLoai == "Xuất sắc") { bgClass = "bg-success"; }
-                                        else if (item.XepLoai == "Tốt") { bgClass = "bg-primary"; }
-                                        else if (item.XepLoai == "Khá") { bgClass = "bg-info text-dark"; }
-                                        else if (item.XepLoai == "Trung bình") { bgClass = "bg-warning text-dark"; }
-                                        else if (item.XepLoai == "Yếu") { bgClass = "bg-danger"; }
-                                    }
-                                    <span class="badge @bgClass p-2 fs-6">@item.XepLoai</span>
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    <i class="fas fa-inbox fa-2x mb-3 d-block text-secondary"></i>
+                                    Bạn chưa có dữ liệu điểm rèn luyện trong hệ thống.
                                 </td>
                             </tr>
                         }
-                    }
-                    else
-                    {
-                        <tr>
-                            <td colspan="4" class="text-center py-4 text-muted">
-                                <i class="fas fa-info-circle"></i> Bạn chưa có dữ liệu điểm rèn luyện trong hệ thống.
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-light text-muted small">
+            <i class="fas fa-info-circle me-1"></i>
+            Điểm rèn luyện được Phòng Công tác Sinh viên tổng hợp và công bố sau mỗi học kỳ.
+            Từ 90–100: <strong class="text-success">Xuất sắc</strong> |
+            80–89: <strong class="text-primary">Tốt</strong> |
+            65–79: <strong class="text-info">Khá</strong> |
+            50–64: <strong class="text-warning">Trung bình</strong> |
+            &lt;50: <strong class="text-danger">Yếu</strong>
         </div>
     </div>
+
 </div>

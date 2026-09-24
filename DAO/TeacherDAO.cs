@@ -1,4 +1,4 @@
-﻿using StudentManagementSystem.Models;
+using StudentManagementSystem.Models;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -17,11 +17,14 @@ namespace StudentManagementSystem.DAO
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 string sql = @"
-                    SELECT lhp.MaLopHP, m.TenMon, tkb.PhongHoc, tkb.NgayHoc, tkb.CaHoc
+                    SELECT lhp.MaLopHP, m.TenMon, 
+                           ISNULL(tkb.PhongHoc, N'Chưa xếp phòng') AS PhongHoc, 
+                           ISNULL(tkb.NgayHoc, 0) AS NgayHoc, 
+                           ISNULL(tkb.CaHoc, 0) AS CaHoc
                     FROM Users u
                     INNER JOIN GiangVien gv ON u.UserID = gv.UserID
                     INNER JOIN LopHocPhan lhp ON gv.MaGV = lhp.MaGV
-                    INNER JOIN ThoiKhoaBieu tkb ON lhp.MaLopHP = tkb.MaLopHP
+                    LEFT JOIN ThoiKhoaBieu tkb ON lhp.MaLopHP = tkb.MaLopHP
                     INNER JOIN MonHoc m ON lhp.MaMon = m.MaMon
                     WHERE u.Username = @Username
                     ORDER BY tkb.NgayHoc ASC, tkb.CaHoc ASC";
@@ -93,9 +96,17 @@ namespace StudentManagementSystem.DAO
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 string sql = @"
-                    UPDATE Diem 
-                    SET DiemCC = @CC, DiemGK = @GK, DiemCK = @CK, DiemTong = @Tong
-                    WHERE MaSV = @MaSV AND MaLopHP = @MaLopHP";
+                    IF EXISTS (SELECT 1 FROM Diem WHERE MaSV = @MaSV AND MaLopHP = @MaLopHP)
+                    BEGIN
+                        UPDATE Diem 
+                        SET DiemCC = @CC, DiemGK = @GK, DiemCK = @CK, DiemTong = @Tong
+                        WHERE MaSV = @MaSV AND MaLopHP = @MaLopHP;
+                    END
+                    ELSE
+                    BEGIN
+                        INSERT INTO Diem (MaSV, MaLopHP, DiemCC, DiemGK, DiemCK, DiemTong)
+                        VALUES (@MaSV, @MaLopHP, @CC, @GK, @CK, @Tong);
+                    END";
 
                 SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@CC", diemCC);
@@ -178,5 +189,23 @@ namespace StudentManagementSystem.DAO
             }
         }
 
+        public string GetHocKyByMaLopHP(string maLopHP)
+        {
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                string sql = "SELECT HocKy, NamHoc FROM LopHocPhan WHERE MaLopHP = @MaLopHP";
+                SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@MaLopHP", maLopHP);
+                conn.Open();
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        return string.Format("HK{0} ({1})", reader["HocKy"], reader["NamHoc"]);
+                    }
+                }
+            }
+            return null;
+        }
     }
 }

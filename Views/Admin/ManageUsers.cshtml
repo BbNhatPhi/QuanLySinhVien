@@ -1,115 +1,195 @@
 ﻿@model List<StudentManagementSystem.Models.User>
 @{ ViewBag.Title = "Quản lý Tài Khoản"; }
 
-<div class="container mt-4 mb-5">
-    <h2 class="mb-4"><i class="fas fa-users-cog text-primary"></i> Quản Lý Tài Khoản Hệ Thống</h2>
+<div class="container-fluid px-4 mt-4 mb-5">
 
-    <!-- Nút kích hoạt Modal Thêm Tài Khoản -->
-    <button type="button" class="btn btn-success fw-bold shadow-sm mb-3" data-bs-toggle="modal" data-bs-target="#addUserModal">
-        <i class="fas fa-plus"></i> Thêm Tài Khoản Mới
-    </button>
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1"><i class="fas fa-users-cog text-primary"></i> Quản Lý Tài Khoản Hệ Thống</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 small">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index","Admin")" class="text-decoration-none">Trang Chủ</a></li>
+                    <li class="breadcrumb-item active">Quản Lý Tài Khoản</li>
+                </ol>
+            </nav>
+        </div>
+        <button type="button" class="btn btn-success fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addUserModal">
+            <i class="fas fa-user-plus me-1"></i> Thêm Tài Khoản Mới
+        </button>
+    </div>
 
-    <div class="mb-3" style="max-width: 380px;">
-        <div class="input-group">
-            <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
-            <input type="text" class="form-control" placeholder="Tìm kiếm tài khoản..." data-search-table="tblUsers" />
+    <!-- Stats Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm bg-primary text-white">
+                <div class="card-body d-flex align-items-center gap-3 py-3">
+                    <i class="fas fa-users fa-2x opacity-75"></i>
+                    <div>
+                        <div class="fs-4 fw-bold">@Model.Count</div>
+                        <div class="small opacity-75">Tổng tài khoản</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm bg-success text-white">
+                <div class="card-body d-flex align-items-center gap-3 py-3">
+                    <i class="fas fa-user-check fa-2x opacity-75"></i>
+                    <div>
+                        <div class="fs-4 fw-bold">@Model.Count(u => u.IsActive)</div>
+                        <div class="small opacity-75">Đang hoạt động</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm bg-warning text-dark">
+                <div class="card-body d-flex align-items-center gap-3 py-3">
+                    <i class="fas fa-user-lock fa-2x opacity-75"></i>
+                    <div>
+                        <div class="fs-4 fw-bold">@Model.Count(u => !u.IsActive)</div>
+                        <div class="small opacity-75">Đã bị khóa</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm bg-danger text-white">
+                <div class="card-body d-flex align-items-center gap-3 py-3">
+                    <i class="fas fa-user-shield fa-2x opacity-75"></i>
+                    <div>
+                        <div class="fs-4 fw-bold">@Model.Count(u => u.RoleID == 1)</div>
+                        <div class="small opacity-75">Quản trị viên</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="card shadow-sm border-0">
+    <!-- Table Card -->
+    <div class="card shadow border-0">
+        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <span class="fw-semibold text-secondary"><i class="fas fa-list me-1"></i> Danh sách tài khoản</span>
+            <div style="max-width: 320px; width: 100%;">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" class="form-control border-start-0 ps-0" placeholder="Tìm kiếm tài khoản..." data-search-table="tblUsers" />
+                </div>
+            </div>
+        </div>
         <div class="card-body p-0">
-            <table id="tblUsers" class="table table-hover table-bordered mb-0 align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th class="text-center">ID</th>
-                        <th>Tên Đăng Nhập</th>
-                        <th>Họ & Tên</th>
-                        <th>Nhóm Quyền</th>
-                        <th class="text-center">Trạng Thái</th>
-                        <th class="text-center">Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
+            <div class="table-responsive">
+                <table id="tblUsers" class="table table-hover table-bordered align-middle mb-0">
+                    <thead class="table-dark">
                         <tr>
-                            <td class="text-center fw-bold">@item.UserID</td>
-                            <td class="fw-bold text-primary">@item.Username</td>
-                            <td>@item.HoTen</td>
-                            <td>
-                                <span class="badge @(item.RoleID == 1 ? "bg-danger" : (item.RoleID == 2 ? "bg-warning text-dark" : "bg-success"))">
-                                    @item.RoleName
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <span class="badge @(item.IsActive ? "bg-success" : "bg-secondary")">
-                                    @(item.IsActive ? "Hoạt động" : "Bị khóa")
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <!-- Nút Đổi Quyền -->
-                                <button type="button" class="btn btn-sm btn-outline-info mb-1 shadow-sm" data-bs-toggle="modal" data-bs-target="#changeRoleModal_@item.UserID" title="Thay đổi phân quyền">
-                                    <i class="fas fa-user-shield"></i>
-                                </button>
-
-                                <!-- Nút Khóa / Mở khóa -->
-                                <form action="@Url.Action("ToggleStatus", "Admin")" method="post" class="d-inline">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="userId" value="@item.UserID" />
-                                    <input type="hidden" name="currentStatus" value="@(item.IsActive ? "true" : "false")" />
-                                    <button type="submit" class="btn btn-sm @(item.IsActive ? "btn-outline-warning" : "btn-outline-success") mb-1 shadow-sm" title="@(item.IsActive ? "Khóa tài khoản này" : "Mở khóa tài khoản")">
-                                        <i class="fas @(item.IsActive ? "fa-lock" : "fa-unlock")"></i>
-                                    </button>
-                                </form>
-
-                                <!-- Nút Xóa (FIX LỖI BẢO MẬT: dùng POST + AntiForgeryToken thay cho link GET) -->
-                                <form action="@Url.Action("DeleteUser", "Admin")" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa tài khoản này khỏi hệ thống không?');">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="id" value="@item.UserID" />
-                                    <button type="submit" class="btn btn-sm btn-outline-danger mb-1 shadow-sm" title="Xóa tài khoản">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                </form>
-                            </td>
+                            <th class="text-center" style="width:60px;">ID</th>
+                            <th>Tên Đăng Nhập</th>
+                            <th>Họ &amp; Tên</th>
+                            <th>Nhóm Quyền</th>
+                            <th class="text-center" style="width:130px;">Trạng Thái</th>
+                            <th class="text-center" style="width:130px;">Thao Tác</th>
                         </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="text-center fw-bold text-muted">@item.UserID</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="width:34px;height:34px;flex-shrink:0;">
+                                            <i class="fas fa-user text-primary small"></i>
+                                        </div>
+                                        <span class="fw-bold text-primary">@item.Username</span>
+                                    </div>
+                                </td>
+                                <td>@item.HoTen</td>
+                                <td>
+                                    <span class="badge @(item.RoleID == 1 ? "bg-danger" : (item.RoleID == 2 ? "bg-warning text-dark" : (item.RoleID == 3 ? "bg-info text-dark" : "bg-success"))) rounded-pill px-3">
+                                        @item.RoleName
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge @(item.IsActive ? "bg-success" : "bg-secondary") rounded-pill px-3">
+                                        <i class="fas @(item.IsActive ? "fa-circle-check" : "fa-ban") me-1"></i>
+                                        @(item.IsActive ? "Hoạt động" : "Bị khóa")
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <!-- Nút Đổi Quyền -->
+                                    <button type="button" class="btn btn-sm btn-outline-info me-1" data-bs-toggle="modal" data-bs-target="#changeRoleModal_@item.UserID" title="Thay đổi phân quyền">
+                                        <i class="fas fa-user-shield"></i>
+                                    </button>
 
-                        <!-- Modal Đổi Quyền cho từng User -->
-                        <div class="modal fade" id="changeRoleModal_@item.UserID" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <form action="@Url.Action("ChangeUserRole", "Admin")" method="post">
+                                    <!-- Nút Khóa / Mở khóa -->
+                                    <form action="@Url.Action("ToggleStatus", "Admin")" method="post" class="d-inline">
                                         @Html.AntiForgeryToken()
-                                        <div class="modal-header bg-info text-dark">
-                                            <h5 class="modal-title fw-bold"><i class="fas fa-user-shield"></i> Phân Quyền Tài Khoản</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                        </div>
-                                        <div class="modal-body text-start p-4">
-                                            <input type="hidden" name="userId" value="@item.UserID" />
-                                            <p>Tài khoản: <strong>@item.Username</strong> (@item.HoTen)</p>
-                                            <p>Quyền hiện tại: <strong class="text-danger">@item.RoleName</strong></p>
-                                            <hr />
-                                            <div class="mb-3">
-                                                <label class="form-label fw-bold">Nâng cấp / Giáng chức thành:</label>
-                                                <!-- ĐÃ ĐỔI THÀNH newRoleId ĐỂ HẾT BÁO LỖI NULL -->
-                                                <select name="newRoleId" class="form-select border-info" required>
-                                                    <option value="1" @(item.RoleID == 1 ? "selected" : "")>Admin (Quản trị viên)</option>
-                                                    <option value="2" @(item.RoleID == 2 ? "selected" : "")>Giảng Viên</option>
-                                                    <option value="3" @(item.RoleID == 3 ? "selected" : "")>Nhân Viên Đào Tạo</option>
-                                                    <option value="4" @(item.RoleID == 4 ? "selected" : "")>Sinh Viên</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                                            <button type="submit" class="btn btn-info fw-bold text-dark"><i class="fas fa-save"></i> Lưu Phân Quyền</button>
-                                        </div>
+                                        <input type="hidden" name="userId" value="@item.UserID" />
+                                        <input type="hidden" name="currentStatus" value="@(item.IsActive ? "true" : "false")" />
+                                        <button type="submit" class="btn btn-sm @(item.IsActive ? "btn-outline-warning" : "btn-outline-success") me-1" title="@(item.IsActive ? "Khóa tài khoản này" : "Mở khóa tài khoản")">
+                                            <i class="fas @(item.IsActive ? "fa-lock" : "fa-unlock")"></i>
+                                        </button>
                                     </form>
+
+                                    <!-- Nút Xóa (dùng POST + AntiForgeryToken) -->
+                                    <form action="@Url.Action("DeleteUser", "Admin")" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa tài khoản này khỏi hệ thống không?');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@item.UserID" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa tài khoản">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+
+                            <!-- Modal Đổi Quyền cho từng User -->
+                            <div class="modal fade" id="changeRoleModal_@item.UserID" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content border-0 shadow">
+                                        <form action="@Url.Action("ChangeUserRole", "Admin")" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <div class="modal-header bg-info bg-opacity-10 border-bottom">
+                                                <h5 class="modal-title fw-bold text-info"><i class="fas fa-user-shield me-2"></i>Phân Quyền Tài Khoản</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body p-4">
+                                                <input type="hidden" name="userId" value="@item.UserID" />
+                                                <div class="alert alert-light border d-flex align-items-center gap-3 mb-3 py-2">
+                                                    <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="width:38px;height:38px;flex-shrink:0;">
+                                                        <i class="fas fa-user text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <div class="fw-bold">@item.Username</div>
+                                                        <div class="small text-muted">@item.HoTen</div>
+                                                    </div>
+                                                </div>
+                                                <p class="mb-3 small text-muted">Quyền hiện tại: <span class="badge @(item.RoleID == 1 ? "bg-danger" : (item.RoleID == 2 ? "bg-warning text-dark" : "bg-success"))">@item.RoleName</span></p>
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-semibold">Đổi thành quyền:</label>
+                                                    <select name="newRoleId" class="form-select" required>
+                                                        <option value="1" @(item.RoleID == 1 ? "selected" : "")>Admin (Quản trị viên)</option>
+                                                        <option value="2" @(item.RoleID == 2 ? "selected" : "")>Giảng Viên</option>
+                                                        <option value="3" @(item.RoleID == 3 ? "selected" : "")>Nhân Viên Đào Tạo</option>
+                                                        <option value="4" @(item.RoleID == 4 ? "selected" : "")>Sinh Viên</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer border-top bg-light">
+                                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i>Hủy</button>
+                                                <button type="submit" class="btn btn-info btn-sm fw-bold"><i class="fas fa-save me-1"></i>Lưu Phân Quyền</button>
+                                            </div>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    }
-                </tbody>
-            </table>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-white border-top text-muted small py-2 px-3">
+            Tổng cộng <strong>@Model.Count</strong> tài khoản trong hệ thống.
         </div>
     </div>
 </div>
@@ -118,44 +198,54 @@
 <!-- Modal Thêm Tài Khoản Mới -->
 <!-- ========================================== -->
 <div class="modal fade" id="addUserModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
             <form action="@Url.Action("CreateUser", "Admin")" method="post">
                 @Html.AntiForgeryToken()
                 <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title fw-bold"><i class="fas fa-user-plus"></i> Tạo Tài Khoản Mới</h5>
+                    <h5 class="modal-title fw-bold"><i class="fas fa-user-plus me-2"></i>Tạo Tài Khoản Mới</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Tên đăng nhập (Username)</label>
-                        <input type="text" name="username" class="form-control border-dark" required placeholder="Nhập tên đăng nhập (VD: GV005)" />
+                        <label class="form-label fw-semibold">Tên đăng nhập (Username)</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-at text-muted"></i></span>
+                            <input type="text" name="username" class="form-control" required placeholder="VD: GV005" />
+                        </div>
                     </div>
-
-                    <!-- BỔ SUNG Ô NHẬP HỌ TÊN VÀO ĐÂY -->
+                    <!-- BỔ SUNG Ô NHẬP HỌ TÊN -->
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Họ & Tên hiển thị</label>
-                        <input type="text" name="hoTen" class="form-control border-dark" required placeholder="Nhập họ và tên (VD: Nguyễn Văn A)" />
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Mật khẩu</label>
-                        <input type="password" name="password" class="form-control border-dark" required placeholder="Nhập mật khẩu" />
+                        <label class="form-label fw-semibold">Họ &amp; Tên hiển thị</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-id-card text-muted"></i></span>
+                            <input type="text" name="hoTen" class="form-control" required placeholder="VD: Nguyễn Văn A" />
+                        </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Phân Quyền (Role)</label>
-                        <select name="roleId" class="form-select border-dark" required>
-                            <option value="">-- Chọn nhóm quyền --</option>
-                            <option value="1">Admin (Quản trị viên)</option>
-                            <option value="2">Giảng Viên</option>
-                            <option value="3">Nhân Viên Đào Tạo</option>
-                            <option value="4">Sinh Viên</option>
-                        </select>
+                        <label class="form-label fw-semibold">Mật khẩu</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock text-muted"></i></span>
+                            <input type="password" name="password" class="form-control" required placeholder="Nhập mật khẩu" />
+                        </div>
+                    </div>
+                    <div class="mb-1">
+                        <label class="form-label fw-semibold">Phân Quyền (Role)</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-shield-alt text-muted"></i></span>
+                            <select name="roleId" class="form-select" required>
+                                <option value="">-- Chọn nhóm quyền --</option>
+                                <option value="1">Admin (Quản trị viên)</option>
+                                <option value="2">Giảng Viên</option>
+                                <option value="3">Nhân Viên Đào Tạo</option>
+                                <option value="4">Sinh Viên</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="submit" class="btn btn-success fw-bold"><i class="fas fa-check-circle"></i> Tạo Tài Khoản</button>
+                <div class="modal-footer border-top bg-light">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i>Hủy</button>
+                    <button type="submit" class="btn btn-success btn-sm fw-bold"><i class="fas fa-check-circle me-1"></i>Tạo Tài Khoản</button>
                 </div>
             </form>
         </div>

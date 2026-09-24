@@ -3,28 +3,69 @@
     ViewBag.Title = "Quản lý Lớp Học Phần";
 }
 
-<div class="container mt-4">
-    <h2 class="mb-4"><i class="fas fa-layer-group"></i> Quản Lý Mở Lớp Học Phần</h2>
-
-    <!-- Nút gọi form -->
-    <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addLopHocPhanModal">
-        + Mở Lớp Học Phần Mới
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0"><i class="fas fa-layer-group text-primary"></i> Quản Lý Mở Lớp Học Phần</h2>
+    <button type="button" class="btn btn-success fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addLopHocPhanModal">
+        <i class="fas fa-plus-circle me-1"></i> Mở Lớp Học Phần Mới
     </button>
+</div>
 
-    <!-- Khu vực hiển thị thông báo -->
-    <!-- Bảng danh sách Lớp học phần -->
-    <div class="card shadow-sm">
-        <div class="card-body p-0">
-            <table class="table table-bordered table-hover mb-0">
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Stats Row -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm text-center py-3">
+            <div class="text-primary fs-2 fw-bold">@(Model?.Count ?? 0)</div>
+            <div class="text-muted small">Tổng lớp học phần</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm text-center py-3">
+            <div class="text-success fs-2 fw-bold">@(Model?.Count(x => x.TrangThai == "Đang mở") ?? 0)</div>
+            <div class="text-muted small">Đang mở</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm text-center py-3">
+            <div class="text-warning fs-2 fw-bold">@(Model?.Select(x => x.NamHoc).Distinct().Count() ?? 0)</div>
+            <div class="text-muted small">Năm học</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm text-center py-3">
+            <div class="text-info fs-2 fw-bold">@(Model?.Select(x => x.MaMon).Distinct().Count() ?? 0)</div>
+            <div class="text-muted small">Môn học</div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow border-0">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <span class="text-muted small"><i class="fas fa-list me-1"></i> Danh sách lớp học phần</span>
+        <div class="input-group" style="max-width: 320px;">
+            <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+            <input type="text" class="form-control border-start-0 bg-light" placeholder="Tìm theo tên môn, mã lớp..." data-search-table="lhpTable">
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle mb-0" id="lhpTable">
                 <thead class="table-dark">
                     <tr>
-                        <th class="text-center">Mã Lớp HP</th>
-                        <th>Tên Môn</th>
+                        <th class="text-center" style="width:130px;">Mã Lớp HP</th>
+                        <th>Tên Môn Học</th>
                         <th>Giảng Viên</th>
-                        <th class="text-center">Học Kỳ</th>
-                        <th class="text-center">Năm Học</th>
-                        <th class="text-center">Sỉ số</th>
-                        <th class="text-center">Trạng Thái</th>
+                        <th class="text-center" style="width:90px;">Học Kỳ</th>
+                        <th class="text-center" style="width:110px;">Năm Học</th>
+                        <th class="text-center" style="width:90px;">Sĩ Số Max</th>
+                        <th class="text-center" style="width:120px;">Trạng Thái</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -33,20 +74,42 @@
                         foreach (var item in Model)
                         {
                             <tr>
-                                <td class="text-center fw-bold">@item.MaLopHP</td>
-                                <td><span class="text-muted text-sm">@item.MaMon</span><br />@item.TenMon</td>
-                                <td>@item.TenGV</td>
-                                <td class="text-center">@item.HocKy</td>
-                                <td class="text-center">@item.NamHoc</td>
-                                <td class="text-center">@item.SoLuongMax</td>
-                                <td class="text-center"><span class="badge bg-success">@item.TrangThai</span></td>
+                                <td class="text-center">
+                                    <span class="badge bg-dark fs-6 fw-bold">@item.MaLopHP</span>
+                                </td>
+                                <td>
+                                    <div class="fw-bold">@item.TenMon</div>
+                                    <small class="text-muted"><i class="fas fa-tag me-1"></i>@item.MaMon</small>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="fas fa-user-tie text-primary"></i>
+                                        <span>@item.TenGV</span>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-secondary">HK @item.HocKy</span>
+                                </td>
+                                <td class="text-center fw-bold">@item.NamHoc</td>
+                                <td class="text-center">
+                                    <span class="badge bg-info text-dark">@item.SoLuongMax SV</span>
+                                </td>
+                                <td class="text-center">
+                                    @{
+                                        var badgeClass = item.TrangThai == "Đang mở" ? "bg-success" : (item.TrangThai == "Đã đóng" ? "bg-danger" : "bg-secondary");
+                                    }
+                                    <span class="badge @badgeClass">@item.TrangThai</span>
+                                </td>
                             </tr>
                         }
                     }
                     else
                     {
                         <tr>
-                            <td colspan="7" class="text-center text-muted">Chưa có lớp học phần nào được mở.</td>
+                            <td colspan="7" class="text-center text-muted py-5">
+                                <i class="fas fa-folder-open fa-2x mb-2 d-block text-secondary"></i>
+                                Chưa có lớp học phần nào được mở.
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -55,26 +118,25 @@
     </div>
 </div>
 
-<!-- Modal Form Mở Lớp (Bị ẩn đi, chỉ hiện khi bấm nút) -->
+<!-- Modal Mở Lớp Học Phần -->
 <div class="modal fade" id="addLopHocPhanModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form action="@Url.Action("AddLopHocPhan", "Staff")" method="post">
                 @Html.AntiForgeryToken()
-                <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title">Khởi Tạo Lớp Học Phần Mới</h5>
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-plus-circle me-2"></i>Khởi Tạo Lớp Học Phần Mới</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-
-                <!-- Ruột Form xịn xò với Dropdown -->
-                <div class="modal-body">
+                <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Mã Lớp Học Phần (Tự đặt)</label>
+                        <label class="form-label fw-bold">Mã Lớp Học Phần <span class="text-danger">*</span></label>
                         <input type="text" name="MaLopHP" class="form-control" placeholder="VD: LHP_PRJ301_02" required />
+                        <div class="form-text">Mã lớp do bạn tự đặt, không trùng với lớp đã có.</div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-6">
-                            <label class="form-label fw-bold">Môn Học</label>
+                            <label class="form-label fw-bold">Môn Học <span class="text-danger">*</span></label>
                             <select name="MaMon" class="form-select" required>
                                 <option value="">-- Chọn Môn Học --</option>
                                 @if (ViewBag.ListMonHoc != null)
@@ -87,7 +149,7 @@
                             </select>
                         </div>
                         <div class="col-6">
-                            <label class="form-label fw-bold">Giảng Viên</label>
+                            <label class="form-label fw-bold">Giảng Viên Phụ Trách <span class="text-danger">*</span></label>
                             <select name="MaGV" class="form-select" required>
                                 <option value="">-- Chọn Giảng Viên --</option>
                                 @if (ViewBag.ListGiangVien != null)
@@ -102,25 +164,39 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-4">
-                            <label class="form-label fw-bold">Học Kỳ</label>
-                            <input type="number" name="HocKy" class="form-control" value="1" required />
+                            <label class="form-label fw-bold">Học Kỳ <span class="text-danger">*</span></label>
+                            <input type="number" name="HocKy" class="form-control" value="1" min="1" max="3" required />
                         </div>
                         <div class="col-4">
-                            <label class="form-label fw-bold">Năm Học</label>
+                            <label class="form-label fw-bold">Năm Học <span class="text-danger">*</span></label>
                             <input type="text" name="NamHoc" class="form-control" value="2026-2027" required />
                         </div>
                         <div class="col-4">
-                            <label class="form-label fw-bold">Sỉ Số Max</label>
-                            <input type="number" name="SoLuongMax" class="form-control" value="40" required />
+                            <label class="form-label fw-bold">Sĩ Số Tối Đa <span class="text-danger">*</span></label>
+                            <input type="number" name="SoLuongMax" class="form-control" value="40" min="1" required />
                         </div>
                     </div>
                 </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="submit" class="btn btn-success">Mở Lớp Học Phần</button>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i>Hủy</button>
+                    <button type="submit" class="btn btn-success fw-bold"><i class="fas fa-door-open me-1"></i>Mở Lớp Học Phần</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('[data-search-table]').forEach(function (input) {
+            input.addEventListener('keyup', function () {
+                var tableId = this.getAttribute('data-search-table');
+                var filter = this.value.toLowerCase();
+                var rows = document.getElementById(tableId).querySelectorAll('tbody tr');
+                rows.forEach(function (row) {
+                    row.style.display = row.textContent.toLowerCase().includes(filter) ? '' : 'none';
+                });
+            });
+        });
+    });
+</script>

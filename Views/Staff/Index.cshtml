@@ -2,74 +2,157 @@
 @{
     ViewBag.Title = "Quản lý Hồ sơ Sinh viên";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var svList = Model?.ToList() ?? new List<StudentManagementSystem.Models.SinhVien>();
+    var dangHoc = svList.Count(x => x.TrangThaiHocTap == "Đang học");
+    var baoLuu = svList.Count(x => x.TrangThaiHocTap == "Bảo lưu");
+    var dinhChi = svList.Count(x => x.TrangThaiHocTap == "Đình chỉ");
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="fas fa-user-graduate text-primary"></i> Quản lý Hồ sơ Sinh viên</h2>
-    <div>
-        <!-- Nút gọi Modal Thêm Sinh Viên -->
-        <button class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#addStudentModal">
-            <i class="fas fa-plus-circle"></i> Thêm Sinh Viên
+    <h2 class="mb-0"><i class="fas fa-user-graduate text-primary"></i> Quản Lý Hồ Sơ Sinh Viên</h2>
+    <div class="d-flex gap-2">
+        <button class="btn btn-success fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addStudentModal">
+            <i class="fas fa-user-plus me-1"></i> Thêm Sinh Viên
         </button>
-        <button class="btn btn-primary"><i class="fas fa-file-excel"></i> Xuất Báo Cáo</button>
+        <button class="btn btn-outline-primary">
+            <i class="fas fa-file-excel me-1"></i> Xuất Báo Cáo
+        </button>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i> @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Stats Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm text-center py-3 border-top border-4 border-primary">
+            <div class="text-primary fs-2 fw-bold">@svList.Count</div>
+            <div class="text-muted small"><i class="fas fa-users me-1"></i>Tổng sinh viên</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm text-center py-3 border-top border-4 border-success">
+            <div class="text-success fs-2 fw-bold">@dangHoc</div>
+            <div class="text-muted small"><i class="fas fa-graduation-cap me-1"></i>Đang học</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm text-center py-3 border-top border-4 border-warning">
+            <div class="text-warning fs-2 fw-bold">@baoLuu</div>
+            <div class="text-muted small"><i class="fas fa-pause-circle me-1"></i>Bảo lưu</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm text-center py-3 border-top border-4 border-danger">
+            <div class="text-danger fs-2 fw-bold">@dinhChi</div>
+            <div class="text-muted small"><i class="fas fa-ban me-1"></i>Đình chỉ</div>
+        </div>
     </div>
 </div>
 
 <div class="card shadow border-0">
-    <div class="card-body">
+    <div class="card-header bg-white py-3 d-flex flex-wrap gap-2 justify-content-between align-items-center">
+        <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-sm btn-outline-secondary active" onclick="filterSVStatus(this, '')">Tất cả</button>
+            <button class="btn btn-sm btn-outline-success" onclick="filterSVStatus(this, 'Đang học')">
+                <i class="fas fa-graduation-cap me-1"></i>Đang học
+            </button>
+            <button class="btn btn-sm btn-outline-warning" onclick="filterSVStatus(this, 'Bảo lưu')">
+                <i class="fas fa-pause-circle me-1"></i>Bảo lưu
+            </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="filterSVStatus(this, 'Đình chỉ')">
+                <i class="fas fa-ban me-1"></i>Đình chỉ
+            </button>
+        </div>
+        <div class="input-group" style="max-width: 300px;">
+            <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+            <input type="text" class="form-control border-start-0 bg-light" placeholder="Tìm mã SV, họ tên, email..." data-search-table="svTable">
+        </div>
+    </div>
+    <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover table-bordered align-middle">
+            <table class="table table-hover table-bordered align-middle mb-0" id="svTable">
                 <thead class="table-dark text-center">
                     <tr>
-                        <th>Mã SV</th>
+                        <th style="width:100px;">Mã SV</th>
                         <th class="text-start">Họ Tên</th>
-                        <th>Thông tin</th>
-                        <th>Ngành Học</th>
-                        <th>Trạng Thái</th>
-                        <th>Cập nhật</th>
-                        <th>Xóa</th> <!-- Thêm cột Xóa -->
+                        <th>Thông Tin</th>
+                        <th style="width:160px;">Ngành Học</th>
+                        <th style="width:110px;">Trạng Thái</th>
+                        <th style="width:200px;">Cập Nhật TT</th>
+                        <th style="width:70px;">Xóa</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var sv in Model)
+                    @foreach (var sv in svList)
                     {
-                        <tr>
-                            <td class="text-center fw-bold">@sv.MaSV</td>
-                            <td>
-                                <b>@sv.HoTen</b><br />
-                                <small class="text-muted"><i class="fas fa-venus-mars"></i> @sv.GioiTinh | @(sv.NgaySinh?.ToString("dd/MM/yyyy"))</small>
+                        <tr data-status="@sv.TrangThaiHocTap">
+                            <td class="text-center">
+                                <span class="badge bg-dark fw-bold">@sv.MaSV</span>
                             </td>
                             <td>
-                                <small><i class="fas fa-envelope"></i> @sv.Email</small><br />
-                                <small><i class="fas fa-phone"></i> @sv.SoDienThoai</small>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="avatar-circle bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-bold"
+                                         style="width:38px;height:38px;min-width:38px;font-size:15px;">
+                                        @(sv.HoTen?.Length > 0 ? sv.HoTen.Trim().Split(' ').Last()[0].ToString().ToUpper() : "S")
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">@sv.HoTen</div>
+                                        <small class="text-muted"><i class="fas fa-venus-mars me-1"></i>@sv.GioiTinh &nbsp;|&nbsp; @(sv.NgaySinh?.ToString("dd/MM/yyyy"))</small>
+                                    </div>
+                                </div>
                             </td>
-                            <td class="text-center">@sv.TenNganh</td>
+                            <td>
+                                <div><small><i class="fas fa-envelope text-muted me-1"></i>@sv.Email</small></div>
+                                <div><small><i class="fas fa-phone text-muted me-1"></i>@sv.SoDienThoai</small></div>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-light text-dark border"><i class="fas fa-book me-1 text-primary"></i>@sv.TenNganh</span>
+                            </td>
                             <td class="text-center">
                                 @if (sv.TrangThaiHocTap == "Đang học")
-                                {<span class="badge bg-success">@sv.TrangThaiHocTap</span> }
-                            else if (sv.TrangThaiHocTap == "Bảo lưu")
-                            { <span class="badge bg-warning text-dark">@sv.TrangThaiHocTap</span> }
-                        else
-                        { <span class="badge bg-danger">@sv.TrangThaiHocTap</span>}
+                                {
+                                    <span class="badge bg-success"><i class="fas fa-circle me-1" style="font-size:0.5rem;"></i>@sv.TrangThaiHocTap</span>
+                                }
+                                else if (sv.TrangThaiHocTap == "Bảo lưu")
+                                {
+                                    <span class="badge bg-warning text-dark">@sv.TrangThaiHocTap</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">@sv.TrangThaiHocTap</span>
+                                }
                             </td>
                             <td class="text-center">
-                                <!-- Form cập nhật trạng thái nhanh -->
-                                <form action="@Url.Action("UpdateStatus", "Staff")" method="post" class="d-flex justify-content-center">
+                                <form action="@Url.Action("UpdateStatus", "Staff")" method="post" class="d-flex justify-content-center gap-1">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="maSV" value="@sv.MaSV" />
-                                    <select name="trangThai" class="form-select form-select-sm w-auto d-inline-block me-1">
+                                    <select name="trangThai" class="form-select form-select-sm w-auto">
                                         <option value="Đang học" @(sv.TrangThaiHocTap == "Đang học" ? "selected" : "")>Đang học</option>
                                         <option value="Bảo lưu" @(sv.TrangThaiHocTap == "Bảo lưu" ? "selected" : "")>Bảo lưu</option>
                                         <option value="Đình chỉ" @(sv.TrangThaiHocTap == "Đình chỉ" ? "selected" : "")>Đình chỉ</option>
                                     </select>
-                                    <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fas fa-save"></i></button>
+                                    <button type="submit" class="btn btn-sm btn-outline-primary" title="Lưu"><i class="fas fa-save"></i></button>
                                 </form>
                             </td>
                             <td class="text-center">
-                                <!-- Nút Xóa Sinh Viên -->
                                 <a href="@Url.Action("XoaSinhVien", "Staff", new { maSV = sv.MaSV })"
                                    class="btn btn-sm btn-outline-danger"
-                                   onclick="return confirm('Bạn có chắc chắn muốn xóa sinh viên @sv.HoTen không? Mọi dữ liệu liên quan có thể sẽ bị mất.');">
+                                   onclick="return confirm('Bạn có chắc chắn muốn xóa sinh viên @sv.HoTen không?\nMọi dữ liệu liên quan có thể sẽ bị mất.');"
+                                   title="Xóa sinh viên">
                                     <i class="fas fa-trash-alt"></i>
                                 </a>
                             </td>
@@ -79,6 +162,9 @@
             </table>
         </div>
     </div>
+    <div class="card-footer bg-white text-muted small py-2">
+        Hiển thị <strong>@svList.Count</strong> sinh viên &nbsp;|&nbsp; Hệ thống quản lý hồ sơ sinh viên
+    </div>
 </div>
 
 <!-- Modal Thêm Sinh Viên -->
@@ -86,12 +172,12 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-success text-white">
-                <h5 class="modal-title"><i class="fas fa-user-plus"></i> Thêm Sinh Viên Mới</h5>
+                <h5 class="modal-title fw-bold"><i class="fas fa-user-plus me-2"></i>Thêm Sinh Viên Mới</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="@Url.Action("ThemSinhVien", "Staff")" method="post">
                 @Html.AntiForgeryToken()
-                <div class="modal-body">
+                <div class="modal-body p-4">
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold">Mã Sinh Viên <span class="text-danger">*</span></label>
@@ -122,7 +208,6 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold">Ngành Học</label>
-                            <!-- Tạm thời gán ID Ngành tĩnh, bạn có thể chỉnh ID cho khớp với bảng Nganh trong SQL -->
                             <select class="form-select" name="MaNganh">
                                 <option value="1">Kỹ thuật phần mềm</option>
                                 <option value="2">Công nghệ thông tin</option>
@@ -131,11 +216,38 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy bỏ</button>
-                    <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Lưu Dữ Liệu</button>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i>Hủy bỏ</button>
+                    <button type="submit" class="btn btn-success fw-bold"><i class="fas fa-save me-1"></i>Lưu Dữ Liệu</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Search
+        document.querySelectorAll('[data-search-table]').forEach(function (input) {
+            input.addEventListener('keyup', function () {
+                var tableId = this.getAttribute('data-search-table');
+                var filter = this.value.toLowerCase();
+                document.getElementById(tableId).querySelectorAll('tbody tr').forEach(function (row) {
+                    row.style.display = row.textContent.toLowerCase().includes(filter) ? '' : 'none';
+                });
+            });
+        });
+    });
+
+    function filterSVStatus(btn, status) {
+        document.querySelectorAll('.btn[onclick^="filterSVStatus"]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('#svTable tbody tr').forEach(function (row) {
+            if (!status || row.getAttribute('data-status') === status) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+</script>
