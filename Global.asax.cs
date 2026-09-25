@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
@@ -22,12 +22,15 @@ namespace StudentManagementSystem
             BundleConfig.RegisterBundles(BundleTable.Bundles);
         }
 
-        // FIX FONT TIẾNG VIỆT: Buộc toàn bộ response dùng UTF-8
+        // FIX FONT TIẾNG VIỆT: Buộc toàn bộ request & response dùng UTF-8 chuẩn
         protected void Application_BeginRequest()
         {
             Response.ContentEncoding = Encoding.UTF8;
+            Response.HeaderEncoding = Encoding.UTF8;
+            Response.Charset = "utf-8";
             Request.ContentEncoding = Encoding.UTF8;
         }
+
 
         // 2. Hàm đọc Cookie và cấp quyền (Bắt buộc phải nằm gọn trong class này)
         protected void Application_AuthenticateRequest(Object sender, EventArgs e)

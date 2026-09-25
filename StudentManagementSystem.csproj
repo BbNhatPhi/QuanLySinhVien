@@ -179,7 +179,6 @@
     <Compile Include="Controllers\PaymentController.cs" />
     <Content Include="Views\Payment\VNPayResult.cshtml" />
     <Content Include="Views\Staff\LopHocPhanList.cshtml" />
-
     <Content Include="Views\Staff\GiangVienList.cshtml" />
     <Content Include="Views\Admin\ManageKhoa.cshtml" />
     <Content Include="Views\Admin\BackupData.cshtml" />

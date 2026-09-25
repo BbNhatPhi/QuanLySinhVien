@@ -1,3 +1,22 @@
 {
-    "dotnet.preferCSharpExtension": true
+    "dotnet.preferCSharpExtension": true,
+    "files.encoding": "utf8bom",
+    "[csharp]": {
+        "files.encoding": "utf8bom"
+    },
+    "[html]": {
+        "files.encoding": "utf8bom"
+    },
+    "[razor]": {
+        "files.encoding": "utf8bom"
+    },
+    "[aspnetcorerazor]": {
+        "files.encoding": "utf8bom"
+    },
+    "[css]": {
+        "files.encoding": "utf8bom"
+    },
+    "[javascript]": {
+        "files.encoding": "utf8bom"
+    }
 }

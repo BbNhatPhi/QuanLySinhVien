@@ -1,4 +1,6 @@
-﻿/* ============================================================
+﻿@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+
+/* ============================================================
    HỆ THỐNG QUẢN LÝ ĐÀO TẠO - ĐH NGUYỄN TẤT THÀNH
    Stylesheet tùy chỉnh (dùng chung với Bootstrap 5)
    ============================================================ */
@@ -26,8 +28,12 @@
 
 html, body { margin: 0; padding: 0; min-height: 100%; }
 
+/* Áp dụng font Be Vietnam Pro toàn diện cho mọi thành phần text, tiêu đề và form control */
+html, body, button, input, optgroup, select, textarea, .form-control, .form-select, .btn, .modal, .table, h1, h2, h3, h4, h5, h6 {
+    font-family: 'Be Vietnam Pro', 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif !important;
+}
+
 body {
-    font-family: 'Be Vietnam Pro', 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
     background: var(--bg);
     color: var(--text);
     font-size: 0.95rem;
@@ -36,6 +42,7 @@ body {
 }
 
 a { text-decoration: none; }
+
 
 /* ============ APP LAYOUT ============ */
 .app { display: flex; min-height: 100vh; }

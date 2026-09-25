@@ -1,0 +1,25 @@
+﻿# EditorConfig configuration for StudentManagementSystem
+# Enforces UTF-8 with BOM for all source code files across Visual Studio, VS Code, and other editors.
+
+root = true
+
+[*]
+charset = utf-8-bom
+end_of_line = crlf
+insert_final_newline = true
+trim_trailing_whitespace = false
+
+[*.{cshtml,vbhtml,html}]
+charset = utf-8-bom
+indent_style = space
+indent_size = 4
+
+[*.{cs,csx,vb}]
+charset = utf-8-bom
+indent_style = space
+indent_size = 4
+
+[*.{css,scss,less,js,ts,json}]
+charset = utf-8-bom
+indent_style = space
+indent_size = 4
