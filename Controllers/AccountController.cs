@@ -78,6 +78,9 @@ namespace StudentManagementSystem.Controllers
             {
                 ResetFailedLogin(username);
 
+                // Kiểm tra xem tài khoản có đang dùng mật khẩu mặc định 123456 không
+                bool isDefaultPassword = (user.PasswordHash == "123456" || password == "123456");
+
                 // FIX LỖI LOGIC: Lấy đúng thời gian timeout cấu hình trong Web.config (2880 phút = 48 tiếng)
                 // thay vì hard-code 60 phút như trước (khiến người dùng bị đăng xuất sớm hơn cấu hình rất nhiều).
                 double timeoutMinutes = FormsAuthentication.Timeout.TotalMinutes;
@@ -97,6 +100,12 @@ namespace StudentManagementSystem.Controllers
                 HttpCookie cookie = new HttpCookie(FormsAuthentication.FormsCookieName, encryptedTicket);
                 cookie.Expires = ticket.Expiration;
                 Response.Cookies.Add(cookie);
+
+                // Nếu là mật khẩu mặc định 123456, đánh dấu cờ cảnh báo trong Session
+                if (isDefaultPassword)
+                {
+                    Session["MustChangePassword"] = true;
+                }
 
                 // 3. Điều hướng theo phân quyền (Role-based Routing)
                 switch (user.RoleName)
@@ -121,17 +130,21 @@ namespace StudentManagementSystem.Controllers
         public ActionResult Logout()
         {
             FormsAuthentication.SignOut();
+            Session.Clear();
             return RedirectToAction("Login", "Account");
         }
 
         // ==========================================
-        // THÊM TÍNH NĂNG ĐỔI MẬT KHẨU
+        // TÍNH NĂNG ĐỔI MẬT KHẨU
         // ==========================================
 
         // GET: /Account/ChangePassword (Hiển thị trang đổi mật khẩu)
         [Authorize] // Bắt buộc phải đăng nhập mới được vào trang này
         public ActionResult ChangePassword()
         {
+            string username = User.Identity.Name;
+            User user = _userDAO.GetUserByUsername(username);
+            ViewBag.UserInfo = user;
             return View();
         }
 
@@ -142,24 +155,31 @@ namespace StudentManagementSystem.Controllers
         public ActionResult ChangePassword(string currentPassword, string newPassword, string confirmPassword)
         {
             string username = User.Identity.Name;
+            User currentUser = _userDAO.GetUserByUsername(username);
+            ViewBag.UserInfo = currentUser;
 
-            if (string.IsNullOrEmpty(currentPassword))
+            if (string.IsNullOrWhiteSpace(currentPassword))
             {
                 TempData["ErrorMsg"] = "Vui lòng nhập mật khẩu hiện tại!";
                 return RedirectToAction("ChangePassword");
             }
 
             // Xác thực mật khẩu hiện tại trước khi cho phép đổi
-            User currentUser = _userDAO.GetUserByUsername(username);
             if (currentUser == null || !SecurityHelper.VerifyPassword(currentPassword, currentUser.PasswordHash))
             {
-                TempData["ErrorMsg"] = "Mật khẩu hiện tại không đúng!";
+                TempData["ErrorMsg"] = "Mật khẩu hiện tại không chính xác!";
                 return RedirectToAction("ChangePassword");
             }
 
-            if (string.IsNullOrEmpty(newPassword) || newPassword.Length < 6)
+            if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 6)
             {
                 TempData["ErrorMsg"] = "Mật khẩu mới phải có ít nhất 6 ký tự!";
+                return RedirectToAction("ChangePassword");
+            }
+
+            if (newPassword == currentPassword)
+            {
+                TempData["ErrorMsg"] = "Mật khẩu mới không được trùng với mật khẩu hiện tại!";
                 return RedirectToAction("ChangePassword");
             }
 
@@ -173,11 +193,12 @@ namespace StudentManagementSystem.Controllers
 
             if (isSuccess)
             {
-                TempData["SuccessMsg"] = "Đổi mật khẩu thành công! Ở lần đăng nhập tiếp theo, hãy sử dụng mật khẩu mới này.";
+                Session.Remove("MustChangePassword");
+                TempData["SuccessMsg"] = "Đổi mật khẩu thành công! Mật khẩu mới đã được cập nhật an toàn vào hệ thống.";
             }
             else
             {
-                TempData["ErrorMsg"] = "Đã xảy ra lỗi hệ thống, vui lòng thử lại sau!";
+                TempData["ErrorMsg"] = "Đã xảy ra lỗi hệ thống khi cập nhật mật khẩu, vui lòng thử lại sau!";
             }
 
             return RedirectToAction("ChangePassword");

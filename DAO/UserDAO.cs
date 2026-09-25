@@ -19,7 +19,7 @@ namespace StudentManagementSystem.DAO
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 // Câu query SQL được tách biệt riêng
-                string sql = @"SELECT u.UserID, u.Username, u.PasswordHash, u.RoleID, r.RoleName 
+                string sql = @"SELECT u.UserID, u.Username, u.PasswordHash, u.RoleID, r.RoleName, u.HoTen, u.Email 
                                FROM Users u
                                INNER JOIN Roles r ON u.RoleID = r.RoleID
                                WHERE u.Username = @Username AND u.IsActive = 1";
@@ -39,10 +39,13 @@ namespace StudentManagementSystem.DAO
                             Username = reader["Username"].ToString(),
                             PasswordHash = reader["PasswordHash"].ToString(),
                             RoleID = Convert.ToInt32(reader["RoleID"]),
-                            RoleName = reader["RoleName"].ToString()
+                            RoleName = reader["RoleName"].ToString(),
+                            HoTen = reader["HoTen"] != DBNull.Value ? reader["HoTen"].ToString() : string.Empty,
+                            Email = reader["Email"] != DBNull.Value ? reader["Email"].ToString() : string.Empty
                         };
                     }
                 }
+
             }
             return user;
         }

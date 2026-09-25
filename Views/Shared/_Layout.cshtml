@@ -74,8 +74,9 @@
                     <a href="@Url.Action("ManageNganh","Admin")" class="menu-link @Nav("Admin","ManageNganh")"><i class="fas fa-graduation-cap"></i> Ngành học</a>
                     <a href="@Url.Action("ManagePhongHoc","Admin")" class="menu-link @Nav("Admin","ManagePhongHoc")"><i class="fas fa-chalkboard-user"></i> Phòng học</a>
 
-                    <div class="menu-group">Dữ liệu</div>
+                    <div class="menu-group">Dữ liệu & Cấu hình</div>
                     <a href="@Url.Action("BackupData","Admin")" class="menu-link @Nav("Admin","BackupData")"><i class="fas fa-database"></i> Sao lưu</a>
+                    <a href="@Url.Action("ChangePassword","Account")" class="menu-link @Nav("Account","ChangePassword")"><i class="fas fa-key"></i> Đổi mật khẩu</a>
                 }
                 else if (User.IsInRole("GiangVien"))
                 {
@@ -85,6 +86,9 @@
                     <a href="@Url.Action("ChonLopNhapDiem","Teacher")" class="menu-link @Nav("Teacher","ChonLopNhapDiem")"><i class="fas fa-pen-to-square"></i> Nhập điểm</a>
                     <a href="@Url.Action("ChonLopDiemDanh","Teacher")" class="menu-link @Nav("Teacher","ChonLopDiemDanh")"><i class="fas fa-clipboard-user"></i> Điểm danh</a>
                     <a href="@Url.Action("ChonLopInDiem","Teacher")" class="menu-link @Nav("Teacher","ChonLopInDiem")"><i class="fas fa-print"></i> In bảng điểm</a>
+
+                    <div class="menu-group">Tài khoản</div>
+                    <a href="@Url.Action("ChangePassword","Account")" class="menu-link @Nav("Account","ChangePassword")"><i class="fas fa-key"></i> Đổi mật khẩu</a>
                 }
                 else if (User.IsInRole("NhanVien"))
                 {
@@ -100,6 +104,9 @@
                     <div class="menu-group">Hành chính</div>
                     <a href="@Url.Action("ManageThongBao","Staff")" class="menu-link @Nav("Staff","ManageThongBao")"><i class="fas fa-bullhorn"></i> Thông báo</a>
                     <a href="@Url.Action("QuanLyYeuCau","Staff")" class="menu-link @Nav("Staff","QuanLyYeuCau")"><i class="fas fa-file-signature"></i> Duyệt giấy tờ</a>
+
+                    <div class="menu-group">Tài khoản</div>
+                    <a href="@Url.Action("ChangePassword","Account")" class="menu-link @Nav("Account","ChangePassword")"><i class="fas fa-key"></i> Đổi mật khẩu</a>
                 }
                 else if (User.IsInRole("SinhVien"))
                 {
@@ -119,12 +126,15 @@
                     <div class="menu-group">Thông tin</div>
                     <a href="@Url.Action("XemThongBao","Student")" class="menu-link @Nav("Student","XemThongBao")"><i class="fas fa-bell"></i> Thông báo</a>
                     <a href="@Url.Action("CapNhatThongTin","Student")" class="menu-link @Nav("Student","CapNhatThongTin")"><i class="fas fa-user-pen"></i> Hồ sơ cá nhân</a>
+                    <a href="@Url.Action("ChangePassword","Account")" class="menu-link @Nav("Account","ChangePassword")"><i class="fas fa-key"></i> Đổi mật khẩu</a>
                 }
             </nav>
 
             <div class="sidebar-footer">
+                <a href="@Url.Action("ChangePassword","Account")" class="btn-logout text-warning mb-1" title="Đổi mật khẩu"><i class="fas fa-key"></i> Đổi mật khẩu</a>
                 <a href="@Url.Action("Logout","Account")" class="btn-logout"><i class="fas fa-right-from-bracket"></i> Đăng xuất</a>
             </div>
+
         </aside>
 
         <main class="main">
