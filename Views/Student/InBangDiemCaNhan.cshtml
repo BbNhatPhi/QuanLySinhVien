@@ -1,0 +1,205 @@
+﻿@model IEnumerable<StudentManagementSystem.Models.KetQuaHocTap>
+@{
+    Layout = null;
+    var sv = ViewBag.SinhVien as StudentManagementSystem.Models.SinhVien;
+    var dsMon = Model != null ? Model.ToList() : new List<StudentManagementSystem.Models.KetQuaHocTap>();
+
+    int tongTinChi = dsMon.Sum(x => x.SoTinChi);
+    int tongTinChiDat = dsMon.Where(x => x.DiemTong >= 4.0).Sum(x => x.SoTinChi);
+
+    double tongDiemHe10NhanTC = dsMon.Sum(x => x.DiemTong * x.SoTinChi);
+    double gpa10 = tongTinChi > 0 ? Math.Round(tongDiemHe10NhanTC / tongTinChi, 2) : 0;
+
+    // Tính GPA Hệ 4 chuẩn đại học
+    double tongDiemHe4NhanTC = 0;
+    foreach (var m in dsMon)
+    {
+        double d4 = 0;
+        if (m.DiemTong >= 8.5) { d4 = 4.0; }
+        else if (m.DiemTong >= 8.0) { d4 = 3.5; }
+        else if (m.DiemTong >= 7.0) { d4 = 3.0; }
+        else if (m.DiemTong >= 6.5) { d4 = 2.5; }
+        else if (m.DiemTong >= 5.5) { d4 = 2.0; }
+        else if (m.DiemTong >= 5.0) { d4 = 1.5; }
+        else if (m.DiemTong >= 4.0) { d4 = 1.0; }
+        tongDiemHe4NhanTC += d4 * m.SoTinChi;
+    }
+    double gpa4 = tongTinChi > 0 ? Math.Round(tongDiemHe4NhanTC / tongTinChi, 2) : 0;
+
+    string xepLoai = "Chưa xếp loại";
+    if (gpa4 >= 3.6) { xepLoai = "Xuất sắc"; }
+    else if (gpa4 >= 3.2) { xepLoai = "Giỏi"; }
+    else if (gpa4 >= 2.5) { xepLoai = "Khá"; }
+    else if (gpa4 >= 2.0) { xepLoai = "Trung bình"; }
+    else if (tongTinChi > 0) { xepLoai = "Yếu"; }
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng Điểm Học Tập - @(sv != null ? sv.HoTen : "") (@(sv != null ? sv.MaSV : ""))</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', 'Times New Roman', serif;
+            color: #000;
+            background: #fff;
+            font-size: 0.95rem;
+        }
+        .table-bordered th, .table-bordered td {
+            border: 1px solid #333 !important;
+            padding: 6px 8px;
+        }
+        @@media print {
+            .no-print { display: none !important; }
+            body { padding: 0 !important; }
+            @@page { size: A4; margin: 15mm; }
+        }
+    </style>
+</head>
+<body class="p-4 p-md-5">
+
+    <!-- Thanh tác vụ trên màn hình (ẩn khi in) -->
+    <div class="no-print mb-4 d-flex justify-content-between align-items-center bg-light p-3 rounded border">
+        <span class="text-muted"><i class="fas fa-info-circle me-1"></i>Bản in bảng điểm kết quả học tập tích lũy chuẩn A4 dành cho sinh viên.</span>
+        <div>
+            <button onclick="window.print()" class="btn btn-primary btn-sm px-4 fw-bold">
+                In Bảng Điểm (Ctrl + P)
+            </button>
+            <button onclick="window.close()" class="btn btn-outline-secondary btn-sm px-3 ms-2">
+                Đóng
+            </button>
+        </div>
+    </div>
+
+    <!-- QUỐC HIỆU & TIÊU NGỮ -->
+    <div class="row align-items-start mb-4">
+        <div class="col-6 text-center">
+            <h6 class="text-uppercase mb-1 fw-bold" style="font-size: 0.85rem;">BỘ GIÁO DỤC VÀ ĐÀO TẠO</h6>
+            <h5 class="text-uppercase fw-bold mb-1" style="font-size: 0.95rem;">TRƯỜNG ĐẠI HỌC NGUYỄN TẤT THÀNH</h5>
+            <div style="width: 140px; margin: auto; border-top: 1.5px solid #000;"></div>
+        </div>
+        <div class="col-6 text-center">
+            <h6 class="text-uppercase mb-1 fw-bold" style="font-size: 0.85rem;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</h6>
+            <h6 class="fw-bold mb-1" style="font-size: 0.9rem;">Độc lập - Tự do - Hạnh phúc</h6>
+            <div style="width: 160px; margin: auto; border-top: 1.5px solid #000;"></div>
+        </div>
+    </div>
+
+    <!-- TIÊU ĐỀ -->
+    <div class="text-center my-4">
+        <h3 class="fw-bold text-uppercase mb-1">PHIẾU KẾT QUẢ HỌC TẬP TÍCH LŨY</h3>
+        <p class="mb-0 text-muted" style="font-size: 0.9rem;">(Đào tạo theo hệ thống tín chỉ)</p>
+    </div>
+
+    <!-- THÔNG TIN SINH VIÊN -->
+    @if (sv != null)
+    {
+        <div class="row mb-4" style="line-height: 1.8;">
+            <div class="col-6">
+                <div>Họ và tên: <strong class="text-uppercase fs-6">@sv.HoTen</strong></div>
+                <div>Mã số sinh viên: <strong>@sv.MaSV</strong></div>
+                <div>Ngày sinh: <strong>@(sv.NgaySinh.HasValue ? sv.NgaySinh.Value.ToString("dd/MM/yyyy") : "Chưa cập nhật")</strong></div>
+            </div>
+            <div class="col-6">
+                <div>Giới tính: <strong>@sv.GioiTinh</strong></div>
+                <div>Khoa / Đơn vị: <strong>@sv.TenKhoa</strong></div>
+                <div>Trạng thái học tập: <strong>@sv.TrangThaiHocTap</strong></div>
+            </div>
+        </div>
+    }
+
+    <!-- BẢNG ĐIỂM CHI TIẾT -->
+    <table class="table table-bordered align-middle text-center mb-4">
+        <thead class="table-light">
+            <tr>
+                <th style="width: 45px;">STT</th>
+                <th class="text-start">Tên Học Phần / Môn Học</th>
+                <th style="width: 60px;">Số TC</th>
+                <th style="width: 80px;">Điểm CC<br/><small>(10%)</small></th>
+                <th style="width: 80px;">Điểm GK<br/><small>(30%)</small></th>
+                <th style="width: 80px;">Điểm CK<br/><small>(60%)</small></th>
+                <th style="width: 85px;">Điểm TK<br/><small>(Hệ 10)</small></th>
+                <th style="width: 70px;">Điểm<br/>Chữ</th>
+                <th style="width: 70px;">Điểm<br/>Hệ 4</th>
+                <th style="width: 85px;">Kết Quả</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (dsMon.Any())
+            {
+                int stt = 1;
+                foreach (var item in dsMon)
+                {
+                    double d4 = 0;
+                    string chu = "F";
+                    if (item.DiemTong >= 8.5) { d4 = 4.0; chu = "A"; }
+                    else if (item.DiemTong >= 8.0) { d4 = 3.5; chu = "B+"; }
+                    else if (item.DiemTong >= 7.0) { d4 = 3.0; chu = "B"; }
+                    else if (item.DiemTong >= 6.5) { d4 = 2.5; chu = "C+"; }
+                    else if (item.DiemTong >= 5.5) { d4 = 2.0; chu = "C"; }
+                    else if (item.DiemTong >= 5.0) { d4 = 1.5; chu = "D+"; }
+                    else if (item.DiemTong >= 4.0) { d4 = 1.0; chu = "D"; }
+
+                    bool isPass = item.DiemTong >= 4.0;
+
+                    <tr>
+                        <td>@(stt++)</td>
+                        <td class="text-start fw-bold">@item.TenMon</td>
+                        <td>@item.SoTinChi</td>
+                        <td>@item.DiemCC.ToString("0.0")</td>
+                        <td>@item.DiemGK.ToString("0.0")</td>
+                        <td>@item.DiemCK.ToString("0.0")</td>
+                        <td class="fw-bold">@item.DiemTong.ToString("0.0")</td>
+                        <td class="fw-bold">@chu</td>
+                        <td>@d4.ToString("0.0")</td>
+                        <td class="fw-bold @(isPass ? "text-success" : "text-danger")">
+                            @(isPass ? "Đạt" : "Học lại")
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="10" class="text-center py-4 text-muted">Chưa có kết quả học tập nào được ghi nhận.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!-- TỔNG KẾT HỌC LỰC -->
+    <div class="border p-3 rounded mb-5" style="line-height: 2;">
+        <div class="row">
+            <div class="col-6">
+                <div>Tổng số tín chỉ đăng ký: <strong>@tongTinChi</strong> TC</div>
+                <div>Tổng số tín chỉ tích lũy đạt: <strong class="text-success">@tongTinChiDat</strong> TC</div>
+            </div>
+            <div class="col-6">
+                <div>Điểm trung bình tích lũy (Hệ 10): <strong>@gpa10.ToString("0.00")</strong></div>
+                <div>Điểm trung bình tích lũy (GPA Hệ 4): <strong class="text-primary fs-6">@gpa4.ToString("0.00")</strong></div>
+                <div>Xếp loại học lực: <strong class="text-uppercase">@xepLoai</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KHỐI CHỮ KÝ VÀ NGÀY THÁNG -->
+    <div class="row text-center mt-4">
+        <div class="col-6">
+            <p class="mb-5"><strong>NGƯỜI LẬP BẢNG</strong><br/><small class="text-muted">(Ký và ghi rõ họ tên)</small></p>
+            <div style="height: 60px;"></div>
+        </div>
+        <div class="col-6">
+            <p class="mb-0 text-muted small fst-italic">TP. Hồ Chí Minh, ngày @DateTime.Now.Day tháng @DateTime.Now.Month năm @DateTime.Now.Year</p>
+            <p class="mb-5"><strong>TRƯỞNG PHÒNG ĐÀO TẠO</strong><br/><small class="text-muted">(Ký, đóng dấu)</small></p>
+            <div style="height: 60px;"></div>
+        </div>
+    </div>
+
+</body>
+</html>

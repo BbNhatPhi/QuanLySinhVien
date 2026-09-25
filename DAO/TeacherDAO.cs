@@ -1,4 +1,4 @@
-using StudentManagementSystem.Models;
+﻿using StudentManagementSystem.Models;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -207,5 +207,35 @@ namespace StudentManagementSystem.DAO
             }
             return null;
         }
+
+        /// <summary>
+        /// Lấy danh sách email sinh viên đăng ký lớp học phần này (để gửi email thông báo điểm)
+        /// Returns list of KeyValuePair(HoTen, Email)
+        /// </summary>
+        public List<System.Collections.Generic.KeyValuePair<string, string>> GetEmailsSinhVienByLop(string maLopHP)
+        {
+            var result = new List<System.Collections.Generic.KeyValuePair<string, string>>();
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                string sql = @"
+                    SELECT sv.HoTen, sv.Email
+                    FROM DangKyHocPhan dkhp
+                    INNER JOIN SinhVien sv ON dkhp.MaSV = sv.MaSV
+                    WHERE dkhp.MaLopHP = @MaLopHP AND sv.Email IS NOT NULL AND sv.Email <> ''";
+                SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@MaLopHP", maLopHP);
+                conn.Open();
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        result.Add(new System.Collections.Generic.KeyValuePair<string, string>(
+                            reader["HoTen"].ToString(), reader["Email"].ToString()));
+                    }
+                }
+            }
+            return result;
+        }
     }
 }
+

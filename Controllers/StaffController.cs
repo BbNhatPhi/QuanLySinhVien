@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using StudentManagementSystem.DAO;
 using StudentManagementSystem.Models;
+using StudentManagementSystem.Utils;
 
 namespace StudentManagementSystem.Controllers
 {
@@ -31,6 +32,32 @@ namespace StudentManagementSystem.Controllers
             ViewBag.ListKhoa = _staffDAO.GetAllKhoa();
 
             return View(sinhViens);
+        }
+
+        // TÍNH NĂNG MỚI: Xuất danh sách sinh viên ra file CSV / Excel
+        public ActionResult ExportSinhVienExcel()
+        {
+            var list = _staffDAO.GetAllSinhVien();
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine("STT,Mã SV,Họ và Tên,Ngày Sinh,Giới Tính,Email,Số Điện Thoại,Địa Chỉ,Khoa,Trạng Thái");
+            int stt = 1;
+            foreach (var sv in list)
+            {
+                sb.AppendLine(string.Format("{0},\"{1}\",\"{2}\",\"{3}\",\"{4}\",\"{5}\",\"{6}\",\"{7}\",\"{8}\",\"{9}\"",
+                    stt++,
+                    sv.MaSV,
+                    sv.HoTen,
+                    sv.NgaySinh.HasValue ? sv.NgaySinh.Value.ToString("dd/MM/yyyy") : "",
+                    sv.GioiTinh,
+                    sv.Email,
+                    sv.SoDienThoai,
+                    sv.DiaChi,
+                    sv.TenKhoa,
+                    sv.TrangThaiHocTap
+                ));
+            }
+            byte[] buffer = System.Text.Encoding.UTF8.GetPreamble().Concat(System.Text.Encoding.UTF8.GetBytes(sb.ToString())).ToArray();
+            return File(buffer, "text/csv; charset=utf-8", string.Format("DanhSachSinhVien_{0:yyyyMMdd}.csv", DateTime.Now));
         }
 
         [HttpPost]
@@ -225,6 +252,23 @@ namespace StudentManagementSystem.Controllers
             return RedirectToAction("GiangVienList");
         }
 
+        // TÍNH NĂNG MỚI: Chỉnh sửa thông tin giảng viên
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditGiangVien(GiangVien gv)
+        {
+            string result = _staffDAO.UpdateGiangVien(gv);
+            if (result == "Success")
+            {
+                TempData["SuccessMsg"] = $"Cập nhật thông tin giảng viên {gv.MaGV} ({gv.HoTen}) thành công!";
+            }
+            else
+            {
+                TempData["ErrorMsg"] = "Lỗi khi cập nhật giảng viên: " + result;
+            }
+            return RedirectToAction("GiangVienList");
+        }
+
         // FIX LỖI BẢO MẬT: Xóa giảng viên phải dùng POST + AntiForgeryToken (chống CSRF)
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -312,6 +356,17 @@ namespace StudentManagementSystem.Controllers
             if (isSuccess)
             {
                 TempData["SuccessMsg"] = "Đăng bản tin thông báo mới thành công!";
+
+                // Gửi email thông báo cho sinh viên (bất đồng bộ)
+                var dsSV = _staffDAO.GetAllSinhVien();
+                string tomTat = noiDung.Length > 200 ? noiDung.Substring(0, 200) + "..." : noiDung;
+                foreach (var sv in dsSV)
+                {
+                    if (!string.IsNullOrWhiteSpace(sv.Email))
+                    {
+                        EmailHelper.GuiEmailThongBaoMoi(sv.Email, sv.HoTen, tieuDe, tomTat);
+                    }
+                }
             }
             else
             {
@@ -390,12 +445,18 @@ namespace StudentManagementSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult CapNhatTrangThaiYeuCau(int MaYC, string TrangThaiMoi)
+        public ActionResult CapNhatTrangThaiYeuCau(int MaYC, string TrangThaiMoi, string MaSV_Email = "", string HoTenSV = "", string LoaiDichVu = "")
         {
             bool check = _staffDAO.UpdateTrangThaiYeuCau(MaYC, TrangThaiMoi);
             if (check)
             {
                 TempData["SuccessMsg"] = $"Đã cập nhật yêu cầu #{MaYC} thành: {TrangThaiMoi}";
+
+                // Gửi email thông báo cho sinh viên (bất đồng bộ — không làm chậm trang)
+                if (!string.IsNullOrWhiteSpace(MaSV_Email))
+                {
+                    EmailHelper.GuiEmailDuyetYeuCau(MaSV_Email, HoTenSV, LoaiDichVu, TrangThaiMoi, MaYC);
+                }
             }
             else
             {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -463,6 +463,39 @@ namespace StudentManagementSystem.DAO
                     conn.Open();
                     cmd.ExecuteNonQuery();
                     return msgParam.Value.ToString();
+                }
+                catch (Exception ex)
+                {
+                    return ex.Message;
+                }
+            }
+        }
+
+        public string UpdateGiangVien(GiangVien gv)
+        {
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                try
+                {
+                    string sql = @"
+                        UPDATE GiangVien 
+                        SET HoTen = @HoTen, Email = @Email, SoDienThoai = @SoDienThoai, KhoaID = @KhoaID 
+                        WHERE MaGV = @MaGV;
+
+                        UPDATE Users 
+                        SET HoTen = @HoTen, Email = @Email 
+                        WHERE UserID = (SELECT UserID FROM GiangVien WHERE MaGV = @MaGV);";
+
+                    SqlCommand cmd = new SqlCommand(sql, conn);
+                    cmd.Parameters.AddWithValue("@MaGV", gv.MaGV);
+                    cmd.Parameters.AddWithValue("@HoTen", (object)gv.HoTen ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Email", (object)gv.Email ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@SoDienThoai", (object)gv.SoDienThoai ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@KhoaID", gv.KhoaID);
+
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                    return "Success";
                 }
                 catch (Exception ex)
                 {

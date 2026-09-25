@@ -1,10 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using StudentManagementSystem.DAO;
 using StudentManagementSystem.Models;
+using StudentManagementSystem.Utils;
 
 namespace StudentManagementSystem.Controllers
 {
@@ -182,6 +183,15 @@ namespace StudentManagementSystem.Controllers
                         _teacherDAO.UpdateDiem(maSV, maLopTC, cc, gk, ck);
                     }
                     TempData["SuccessMsg"] = "Đã lưu bảng điểm thành công! Điểm tổng kết đã tự động cập nhật.";
+
+                    // Gửi email thông báo điểm cho sinh viên (bất đồng bộ)
+                    string hocKy = _teacherDAO.GetHocKyByMaLopHP(maLopTC) ?? maLopTC;
+                    var emails = _teacherDAO.GetEmailsSinhVienByLop(maLopTC);
+                    foreach (var kv in emails)
+                    {
+                        EmailHelper.GuiEmailThongBaoDiem(kv.Value, kv.Key, "(xem trên hệ thống)", maLopTC, hocKy);
+                    }
+
                 }
             }
             catch (Exception ex)
@@ -199,6 +209,37 @@ namespace StudentManagementSystem.Controllers
             ViewBag.MaLopTC = maLopTC;
             var danhSachDiem = _teacherDAO.GetDanhSachDiem(maLopTC);
             return View(danhSachDiem);
+        }
+
+        // TÍNH NĂNG MỚI: Xuất bảng điểm lớp ra file Excel (CSV UTF-8)
+        public ActionResult ExportDiemExcel(string maLopTC)
+        {
+            if (string.IsNullOrEmpty(maLopTC)) return RedirectToAction("Index");
+            var danhSachDiem = _teacherDAO.GetDanhSachDiem(maLopTC);
+
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine("STT,Mã SV,Họ và Tên,Điểm CC (10%),Điểm GK (30%),Điểm CK (60%),Điểm TK,Điểm Chữ,Kết Quả");
+
+            int stt = 1;
+            foreach (var sv in danhSachDiem)
+            {
+                string diemChu = sv.DiemTong >= 8.5 ? "A" : (sv.DiemTong >= 7.0 ? "B" : (sv.DiemTong >= 5.5 ? "C" : (sv.DiemTong >= 4.0 ? "D" : "F")));
+                string ketQua = sv.DiemTong >= 4.0 ? "Đạt" : "Chưa đạt";
+                sb.AppendLine(string.Format("{0},\"{1}\",\"{2}\",{3},{4},{5},{6},{7},{8}",
+                    stt++,
+                    sv.MaSV,
+                    sv.HoTen,
+                    sv.DiemCC.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture),
+                    sv.DiemGK.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture),
+                    sv.DiemCK.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture),
+                    sv.DiemTong.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture),
+                    diemChu,
+                    ketQua
+                ));
+            }
+
+            byte[] buffer = System.Text.Encoding.UTF8.GetPreamble().Concat(System.Text.Encoding.UTF8.GetBytes(sb.ToString())).ToArray();
+            return File(buffer, "text/csv; charset=utf-8", string.Format("BangDiem_{0}.csv", maLopTC));
         }
     }
 }

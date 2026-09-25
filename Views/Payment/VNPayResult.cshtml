@@ -1,0 +1,121 @@
+﻿@{
+    ViewBag.Title = "Kết Quả Thanh Toán";
+    string status = ViewBag.PaymentStatus as string ?? "FAILED";
+    bool isSuccess = status == "SUCCESS";
+    bool isCancelled = status == "CANCELLED";
+    bool isInvalid = status == "INVALID";
+}
+
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+
+            @if (isSuccess)
+            {
+                <div class="card border-0 shadow-lg text-center">
+                    <div class="card-body p-5">
+                        <div class="mb-4">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success bg-opacity-10 p-4 mb-3" style="width:100px;height:100px;">
+                                <i class="fas fa-check-circle text-success" style="font-size:3.5rem;"></i>
+                            </div>
+                            <h3 class="fw-bold text-success mb-1">Thanh Toán Thành Công!</h3>
+                            <p class="text-muted">Giao dịch của bạn đã được VNPAY xác nhận</p>
+                        </div>
+
+                        <div class="bg-light rounded p-4 text-start mb-4">
+                            <div class="row g-2">
+                                <div class="col-6 text-muted small fw-semibold">Học phần:</div>
+                                <div class="col-6 fw-bold small">@ViewBag.MaLopHP</div>
+
+                                <div class="col-6 text-muted small fw-semibold">Tên môn:</div>
+                                <div class="col-6 fw-bold small">@ViewBag.TenMon</div>
+
+                                <div class="col-6 text-muted small fw-semibold">Số tiền:</div>
+                                <div class="col-6 fw-bold small text-success">@string.Format("{0:N0}", ViewBag.SoTien) VNĐ</div>
+
+                                <div class="col-6 text-muted small fw-semibold">Mã giao dịch VNPAY:</div>
+                                <div class="col-6 fw-bold small text-primary">@ViewBag.TransactionNo</div>
+
+                                <div class="col-6 text-muted small fw-semibold">Trạng thái DB:</div>
+                                <div class="col-6 small">
+                                    @if (ViewBag.DbUpdated == true)
+                                    {
+                                        <span class="badge bg-success">✅ Đã cập nhật</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark">⚠️ Cần kiểm tra thủ công</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-success small py-2 mb-4">
+                            <i class="fas fa-envelope me-1"></i>
+                            Email xác nhận đã được gửi tới địa chỉ email đăng ký của bạn.
+                        </div>
+
+                        <div class="d-flex gap-3 justify-content-center">
+                            <a href="@Url.Action("XemHocPhi", "Student")" class="btn btn-outline-primary fw-bold">
+                                <i class="fas fa-file-invoice-dollar me-1"></i> Xem Học Phí
+                            </a>
+                            <a href="@Url.Action("Index", "Student")" class="btn btn-primary fw-bold">
+                                <i class="fas fa-home me-1"></i> Trang Chủ
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (isCancelled)
+            {
+                <div class="card border-0 shadow-lg text-center">
+                    <div class="card-body p-5">
+                        <div class="mb-4">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-warning bg-opacity-10 p-4 mb-3" style="width:100px;height:100px;">
+                                <i class="fas fa-times-circle text-warning" style="font-size:3.5rem;"></i>
+                            </div>
+                            <h3 class="fw-bold text-warning mb-1">Giao Dịch Bị Hủy</h3>
+                            <p class="text-muted">Bạn đã hủy quá trình thanh toán. Học phí chưa được ghi nhận.</p>
+                        </div>
+                        <div class="d-flex gap-3 justify-content-center">
+                            <a href="@Url.Action("XemHocPhi", "Student")" class="btn btn-warning fw-bold text-dark">
+                                <i class="fas fa-redo me-1"></i> Thử Lại
+                            </a>
+                            <a href="@Url.Action("Index", "Student")" class="btn btn-outline-secondary fw-bold">
+                                <i class="fas fa-home me-1"></i> Trang Chủ
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card border-0 shadow-lg text-center">
+                    <div class="card-body p-5">
+                        <div class="mb-4">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-danger bg-opacity-10 p-4 mb-3" style="width:100px;height:100px;">
+                                <i class="fas fa-exclamation-circle text-danger" style="font-size:3.5rem;"></i>
+                            </div>
+                            <h3 class="fw-bold text-danger mb-1">Thanh Toán Thất Bại</h3>
+                            <p class="text-muted">@Html.Raw(ViewBag.Message)</p>
+                        </div>
+                        <div class="alert alert-warning small text-start">
+                            <strong>Lưu ý:</strong> Nếu tiền đã bị trừ khỏi tài khoản nhưng giao dịch thất bại,
+                            vui lòng liên hệ <strong>Phòng Đào tạo</strong> hoặc <strong>Phòng Tài chính</strong>
+                            và cung cấp mã giao dịch: <code>@ViewBag.TransactionNo</code>
+                        </div>
+                        <div class="d-flex gap-3 justify-content-center">
+                            <a href="@Url.Action("XemHocPhi", "Student")" class="btn btn-danger fw-bold">
+                                <i class="fas fa-redo me-1"></i> Thử Lại
+                            </a>
+                            <a href="@Url.Action("Index", "Student")" class="btn btn-outline-secondary fw-bold">
+                                <i class="fas fa-home me-1"></i> Trang Chủ
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>

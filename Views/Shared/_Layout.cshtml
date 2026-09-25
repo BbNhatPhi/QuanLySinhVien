@@ -202,8 +202,102 @@
                 table.querySelectorAll('tbody tr').forEach(function (row) {
                     row.style.display = row.textContent.toLowerCase().indexOf(q) > -1 ? '' : 'none';
                 });
+                // Re-paginate after search
+                if (table._paginate) table._paginate.render();
             });
         });
+    </script>
+
+    <script>
+    // ============================================================
+    // PHÂN TRANG DỮ LIỆU (CLIENT-SIDE PAGINATION)
+    // Cách dùng: <div data-paginate="tableId" data-page-size="20">
+    //             <table id="tableId">...</table>
+    //            </div>
+    // ============================================================
+    (function () {
+        function buildPaginator(table, pageSize) {
+            var state = { page: 1, pageSize: pageSize };
+
+            function getVisibleRows() {
+                return Array.from(table.querySelectorAll('tbody tr')).filter(function (r) {
+                    return r.style.display !== 'none' || r.getAttribute('data-pg-hidden') !== 'true';
+                });
+            }
+
+            function render() {
+                var rows = Array.from(table.querySelectorAll('tbody tr'));
+                var visibleRows = rows.filter(function (r) { return r.getAttribute('data-pg-hidden') !== 'true'; });
+                var total = visibleRows.length;
+                var totalPages = Math.max(1, Math.ceil(total / state.pageSize));
+                if (state.page > totalPages) state.page = totalPages;
+
+                visibleRows.forEach(function (row, idx) {
+                    var pageIdx = Math.floor(idx / state.pageSize) + 1;
+                    row.style.display = (pageIdx === state.page) ? '' : 'none';
+                });
+
+                renderControls(total, totalPages);
+            }
+
+            function renderControls(total, totalPages) {
+                var wrapper = table.closest('[data-paginate]');
+                if (!wrapper) return;
+                var ctrl = wrapper.querySelector('.pg-controls');
+                if (!ctrl) {
+                    ctrl = document.createElement('div');
+                    ctrl.className = 'pg-controls d-flex justify-content-between align-items-center mt-2 px-1';
+                    wrapper.appendChild(ctrl);
+                }
+
+                var startRow = (state.page - 1) * state.pageSize + 1;
+                var endRow = Math.min(state.page * state.pageSize, total);
+                var infoHtml = '<small class="text-muted">Hiển thị <strong>' + startRow + '-' + endRow + '</strong> / <strong>' + total + '</strong> dòng</small>';
+
+                var btns = '';
+                btns += '<nav><ul class="pagination pagination-sm mb-0">';
+                btns += '<li class="page-item' + (state.page <= 1 ? ' disabled' : '') + '"><a class="page-link" href="#" data-page="' + (state.page - 1) + '">&laquo;</a></li>';
+                var from = Math.max(1, state.page - 2), to = Math.min(totalPages, state.page + 2);
+                if (from > 1) { btns += '<li class="page-item"><a class="page-link" href="#" data-page="1">1</a></li>'; if (from > 2) btns += '<li class="page-item disabled"><span class="page-link">…</span></li>'; }
+                for (var p = from; p <= to; p++) {
+                    btns += '<li class="page-item' + (p === state.page ? ' active' : '') + '"><a class="page-link" href="#" data-page="' + p + '">' + p + '</a></li>';
+                }
+                if (to < totalPages) { if (to < totalPages - 1) btns += '<li class="page-item disabled"><span class="page-link">…</span></li>'; btns += '<li class="page-item"><a class="page-link" href="#" data-page="' + totalPages + '">' + totalPages + '</a></li>'; }
+                btns += '<li class="page-item' + (state.page >= totalPages ? ' disabled' : '') + '"><a class="page-link" href="#" data-page="' + (state.page + 1) + '">&raquo;</a></li>';
+
+                // Page size selector
+                var sizes = [10, 20, 50, 100];
+                var sizeSelect = '<select class="form-select form-select-sm ms-2" style="width:auto;display:inline-block;" id="pgSize_' + table.id + '">';
+                sizes.forEach(function (s) { sizeSelect += '<option value="' + s + '"' + (s === state.pageSize ? ' selected' : '') + '>' + s + ' dòng/trang</option>'; });
+                sizeSelect += '</select>';
+
+                btns += '</ul></nav>' + sizeSelect;
+
+                ctrl.innerHTML = infoHtml + '<div class="d-flex align-items-center">' + btns + '</div>';
+
+                ctrl.querySelectorAll('[data-page]').forEach(function (a) {
+                    a.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        var pg = parseInt(a.getAttribute('data-page'));
+                        if (pg >= 1 && pg <= totalPages) { state.page = pg; render(); }
+                    });
+                });
+                var sel = ctrl.querySelector('#pgSize_' + table.id);
+                if (sel) sel.addEventListener('change', function () { state.pageSize = parseInt(sel.value); state.page = 1; render(); });
+            }
+
+            table._paginate = { render: render, state: state };
+            render();
+        }
+
+        document.querySelectorAll('[data-paginate]').forEach(function (wrapper) {
+            var tableId = wrapper.getAttribute('data-paginate');
+            var pageSize = parseInt(wrapper.getAttribute('data-page-size') || '20');
+            var table = document.getElementById(tableId);
+            if (!table) return;
+            buildPaginator(table, pageSize);
+        });
+    })();
     </script>
     @RenderSection("scripts", required: false)
 </body>

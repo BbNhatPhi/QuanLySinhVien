@@ -2,27 +2,76 @@
 @{
     ViewBag.Title = "Quản Lý Sinh Viên";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var listSV = Model != null ? Model.ToList() : new List<StudentManagementSystem.Models.SinhVien>();
+    int tongSV = listSV.Count;
+    int dangHoc = listSV.Count(s => s.TrangThaiHocTap == "Đang học");
+    int baoLuu = listSV.Count(s => s.TrangThaiHocTap == "Bảo lưu");
+    int khac = tongSV - dangHoc - baoLuu;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="fas fa-user-graduate text-primary"></i> Quản Lý Hồ Sơ Sinh Viên</h2>
-    <!-- Nút mở Modal Thêm Sinh Viên -->
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStudentModal">
-        <i class="fas fa-plus-circle"></i> Thêm Sinh Viên Mới
-    </button>
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2 class="mb-1 fw-bold text-dark"><i class="fas fa-user-graduate text-primary me-2"></i>Quản Lý Hồ Sơ Sinh Viên</h2>
+        <p class="text-muted small mb-0">Hồ sơ sinh viên, thông tin học tập, phân khoa và tình trạng đào tạo</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="@Url.Action("ExportSinhVienExcel", "Staff")" class="btn btn-outline-success btn-sm">
+            <i class="fas fa-file-excel me-1"></i> Xuất Danh Sách Excel
+        </a>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addStudentModal">
+            <i class="fas fa-plus-circle me-1"></i> Thêm Sinh Viên Mới
+        </button>
+    </div>
 </div>
 
-<div class="mb-3" style="max-width: 380px;">
-    <div class="input-group">
-        <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
-        <input type="text" class="form-control" placeholder="Tìm kiếm sinh viên..." data-search-table="tblSinhVien" />
+<!-- KHỐI THỐNG KÊ KPI -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-sm-6">
+        <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-primary">
+            <div class="text-muted small fw-semibold text-uppercase">Tổng sinh viên</div>
+            <div class="fs-3 fw-bold text-primary mt-1">@tongSV <small class="fs-6 text-muted">hồ sơ</small></div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-success">
+            <div class="text-muted small fw-semibold text-uppercase">Đang theo học</div>
+            <div class="fs-3 fw-bold text-success mt-1">@dangHoc <small class="fs-6 text-muted">SV</small></div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-warning">
+            <div class="text-muted small fw-semibold text-uppercase">Tạm bảo lưu</div>
+            <div class="fs-3 fw-bold text-warning mt-1">@baoLuu <small class="fs-6 text-muted">SV</small></div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-secondary">
+            <div class="text-muted small fw-semibold text-uppercase">Trạng thái khác</div>
+            <div class="fs-3 fw-bold text-secondary mt-1">@khac <small class="fs-6 text-muted">SV</small></div>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div style="max-width: 380px; width: 100%;">
+        <div class="input-group">
+            <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+            <input type="text" class="form-control" placeholder="Tìm mã SV, họ tên, email, khoa..." data-search-table="tblSinhVien" />
+        </div>
+    </div>
+    <div class="d-flex gap-2 align-items-center">
+        <span class="text-muted small">Lọc nhanh:</span>
+        <button type="button" class="btn btn-outline-secondary btn-sm filter-status-btn active" data-filter="">Tất cả</button>
+        <button type="button" class="btn btn-outline-success btn-sm filter-status-btn" data-filter="Đang học">Đang học</button>
+        <button type="button" class="btn btn-outline-warning btn-sm filter-status-btn" data-filter="Bảo lưu">Bảo lưu</button>
     </div>
 </div>
 
 <div class="card shadow border-0">
-    <div class="card-body p-0 table-responsive">
+    <div class="card-body p-0 table-responsive" data-paginate="tblSinhVien" data-page-size="20">
         <table id="tblSinhVien" class="table table-hover table-bordered align-middle text-center mb-0">
             <thead class="table-dark">
+
                 <tr>
                     <th>Mã SV</th>
                     <th class="text-start">Họ Tên</th>
@@ -267,5 +316,23 @@
             var editModal = new bootstrap.Modal(document.getElementById('editStudentModal'));
             editModal.show();
         }
+
+        // Lọc trạng thái sinh viên nhanh
+        document.querySelectorAll('.filter-status-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-status-btn').forEach(function(b) { b.classList.remove('active'); });
+                this.classList.add('active');
+                var val = this.getAttribute('data-filter').toLowerCase();
+                document.querySelectorAll('#tblSinhVien tbody tr').forEach(function(row) {
+                    if (!val) {
+                        row.style.display = '';
+                    } else {
+                        var statusCell = row.querySelector('td:nth-child(7)');
+                        var text = statusCell ? statusCell.textContent.toLowerCase() : '';
+                        row.style.display = text.indexOf(val) > -1 ? '' : 'none';
+                    }
+                });
+            });
+        });
     </script>
 }

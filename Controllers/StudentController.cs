@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -35,6 +35,15 @@ namespace StudentManagementSystem.Controllers
                 return RedirectToAction("DanhGiaGiangVien");
             }
 
+            var bangDiem = _studentDAO.GetBangDiem(username);
+            return View(bangDiem);
+        }
+
+        // TÍNH NĂNG MỚI: In bảng điểm học tập tích lũy cá nhân
+        public ActionResult InBangDiemCaNhan()
+        {
+            string username = User.Identity.Name;
+            ViewBag.SinhVien = _studentDAO.GetThongTinCaNhan(username);
             var bangDiem = _studentDAO.GetBangDiem(username);
             return View(bangDiem);
         }

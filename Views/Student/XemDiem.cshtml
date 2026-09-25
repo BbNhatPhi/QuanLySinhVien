@@ -57,9 +57,9 @@
             <p class="text-muted mb-0 small">Bảng theo dõi điểm số, điểm chữ và điểm trung bình tích lũy theo quy chế đào tạo đại học.</p>
         </div>
         <div class="d-flex gap-2">
-            <button onclick="window.print()" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-print me-1"></i> In bảng điểm
-            </button>
+            <a href="@Url.Action("InBangDiemCaNhan", "Student")" target="_blank" class="btn btn-outline-primary btn-sm fw-bold">
+                <i class="fas fa-print me-1"></i> In Bảng Điểm Tích Lũy
+            </a>
         </div>
     </div>
 

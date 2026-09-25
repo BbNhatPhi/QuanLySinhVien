@@ -1,4 +1,4 @@
-@model IEnumerable<StudentManagementSystem.Models.SinhVienDiem>
+﻿@model IEnumerable<StudentManagementSystem.Models.SinhVienDiem>
 @{
     ViewBag.Title = "Nhập Điểm Học Phần";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -21,6 +21,9 @@
         <div class="d-flex gap-2">
             <a href="@Url.Action("Index", "Teacher")" class="btn btn-outline-secondary btn-sm">
                 <i class="fas fa-arrow-left me-1"></i> Lịch giảng dạy
+            </a>
+            <a href="@Url.Action("ExportDiemExcel", "Teacher", new { maLopTC = ViewBag.MaLopTC })" class="btn btn-outline-success btn-sm">
+                <i class="fas fa-file-excel me-1"></i> Xuất Excel
             </a>
             <a href="@Url.Action("InBangDiem", "Teacher", new { maLopTC = ViewBag.MaLopTC })" target="_blank" class="btn btn-outline-primary btn-sm">
                 <i class="fas fa-print me-1"></i> In Bảng Điểm
@@ -58,9 +61,17 @@
 
     <!-- BẢNG NHẬP ĐIỂM -->
     <div class="card shadow-sm border-0 rounded-3 mb-4">
-        <div class="card-header bg-dark text-white py-3 d-flex justify-content-between align-items-center">
-            <span class="fw-bold"><i class="fas fa-edit me-2"></i>Danh Sách Nhập Điểm - Lớp @ViewBag.MaLopTC</span>
-            <small class="text-light">Thang điểm 10 | Công thức: CC &times; 10% + GK &times; 30% + CK &times; 60%</small>
+        <div class="card-header bg-dark text-white py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <span class="fw-bold"><i class="fas fa-edit me-2"></i>Danh Sách Nhập Điểm - Lớp @ViewBag.MaLopTC</span>
+                <button type="button" class="btn btn-sm btn-outline-warning text-white" onclick="setAllCC(10)" title="Gán điểm chuyên cần 10 cho toàn bộ sinh viên trong lớp">
+                    <i class="fas fa-magic me-1"></i> Gán CC = 10 cả lớp
+                </button>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <input type="text" class="form-control form-control-sm bg-light" placeholder="Tìm sinh viên trong lớp..." data-search-table="tblNhapDiem" style="max-width: 220px;" />
+                <small class="text-light d-none d-md-inline">Thang 10: CC&times;10% + GK&times;30% + CK&times;60%</small>
+            </div>
         </div>
         <div class="card-body p-0">
             <form action="@Url.Action("LuuDiem", "Teacher")" method="post" id="formNhapDiem">
@@ -68,7 +79,7 @@
                 <input type="hidden" name="MaLopTC" value="@ViewBag.MaLopTC" />
 
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover align-middle text-center mb-0">
+                    <table class="table table-bordered table-hover align-middle text-center mb-0" id="tblNhapDiem">
                         <thead class="table-light">
                             <tr>
                                 <th style="width: 50px;">STT</th>
@@ -209,5 +220,12 @@
             inputGK.addEventListener('input', recalculate);
             inputCK.addEventListener('input', recalculate);
         });
+
+        function setAllCC(val) {
+            document.querySelectorAll('.input-cc').forEach(function(input) {
+                input.value = Number(val).toFixed(1);
+                input.dispatchEvent(new Event('input'));
+            });
+        }
     </script>
 }

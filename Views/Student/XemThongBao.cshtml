@@ -1,6 +1,7 @@
 ﻿@model List<StudentManagementSystem.Models.ThongBao>
 @{
     ViewBag.Title = "Bảng Thông Báo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container-fluid px-4 mt-4 mb-5">
@@ -29,11 +30,12 @@
     @if (Model != null && Model.Count > 0)
     {
         <!-- Latest notice highlight -->
+        var latest = Model.First();
         <div class="alert alert-danger border-0 shadow-sm d-flex gap-3 align-items-start mb-4">
             <i class="fas fa-exclamation-circle fa-lg mt-1 text-danger"></i>
             <div>
-                <strong>Thông báo mới nhất:</strong> @Model.First().TieuDe
-                <span class="text-muted small ms-2">— @Model.First().NgayDang.ToString("dd/MM/yyyy HH:mm")</span>
+                <strong>Thông báo mới nhất:</strong> @latest.TieuDe
+                <span class="text-muted small ms-2">— @latest.NgayDang.ToString("dd/MM/yyyy HH:mm")</span>
             </div>
         </div>
 
@@ -47,58 +49,57 @@
                 <div class="accordion accordion-flush" id="accordionThongBao">
                     @{
                         int index = 0;
-                        foreach (var item in Model)
-                        {
-                            string collapseId = "collapse" + item.MaTB;
-                            string headingId = "heading" + item.MaTB;
-                            bool isFirst = (index == 0);
                     }
-                    <div class="accordion-item border-bottom">
-                        <h2 class="accordion-header" id="@headingId">
-                            <button class="accordion-button @(isFirst ? "" : "collapsed") py-3 fw-semibold"
-                                    type="button"
-                                    data-bs-toggle="collapse"
-                                    data-bs-target="#@collapseId"
-                                    aria-expanded="@(isFirst ? "true" : "false")"
-                                    aria-controls="@collapseId">
-                                <div class="d-flex align-items-center gap-2 w-100 me-3">
-                                    @if (isFirst)
-                                    {
-                                        <span class="badge bg-danger flex-shrink-0">Mới</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-secondary flex-shrink-0">TB</span>
-                                    }
-                                    <span class="text-dark">@item.TieuDe</span>
-                                    <span class="ms-auto text-muted small fw-normal flex-shrink-0 d-none d-md-inline">
-                                        <i class="far fa-clock me-1"></i>@item.NgayDang.ToString("dd/MM/yyyy")
-                                    </span>
+                    @foreach (var item in Model)
+                    {
+                        var collapseId = "collapse" + item.MaTB;
+                        var headingId = "heading" + item.MaTB;
+                        var isFirst = (index == 0);
+
+                        <div class="accordion-item border-bottom">
+                            <h2 class="accordion-header" id="@headingId">
+                                <button class="accordion-button @(isFirst ? "" : "collapsed") py-3 fw-semibold"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#@collapseId"
+                                        aria-expanded="@(isFirst ? "true" : "false")"
+                                        aria-controls="@collapseId">
+                                    <div class="d-flex align-items-center gap-2 w-100 me-3">
+                                        @if (isFirst)
+                                        {
+                                            <span class="badge bg-danger flex-shrink-0">Mới</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary flex-shrink-0">TB</span>
+                                        }
+                                        <span class="text-dark">@item.TieuDe</span>
+                                        <span class="ms-auto text-muted small fw-normal flex-shrink-0 d-none d-md-inline">
+                                            <i class="far fa-clock me-1"></i>@item.NgayDang.ToString("dd/MM/yyyy")
+                                        </span>
+                                    </div>
+                                </button>
+                            </h2>
+                            <div id="@collapseId"
+                                 class="accordion-collapse collapse @(isFirst ? "show" : "")"
+                                 aria-labelledby="@headingId"
+                                 data-bs-parent="#accordionThongBao">
+                                <div class="accordion-body bg-light">
+                                    <div class="d-flex justify-content-between flex-wrap gap-2 mb-3 pb-2 border-bottom text-muted small">
+                                        <span>
+                                            <i class="fas fa-user-edit me-1 text-primary"></i>
+                                            Đăng bởi: <strong class="text-dark">@item.NguoiDang</strong>
+                                        </span>
+                                        <span>
+                                            <i class="far fa-clock me-1 text-primary"></i>
+                                            Ngày đăng: <strong class="text-dark">@item.NgayDang.ToString("dd/MM/yyyy HH:mm")</strong>
+                                        </span>
+                                    </div>
+                                    <p class="text-dark mb-0 lh-lg" style="white-space: pre-wrap;">@item.NoiDung</p>
                                 </div>
-                            </button>
-                        </h2>
-                        <div id="@collapseId"
-                             class="accordion-collapse collapse @(isFirst ? "show" : "")"
-                             aria-labelledby="@headingId"
-                             data-bs-parent="#accordionThongBao">
-                            <div class="accordion-body bg-light">
-                                <div class="d-flex justify-content-between flex-wrap gap-2 mb-3 pb-2 border-bottom text-muted small">
-                                    <span>
-                                        <i class="fas fa-user-edit me-1 text-primary"></i>
-                                        Đăng bởi: <strong class="text-dark">@item.NguoiDang</strong>
-                                    </span>
-                                    <span>
-                                        <i class="far fa-clock me-1 text-primary"></i>
-                                        Ngày đăng: <strong class="text-dark">@item.NgayDang.ToString("dd/MM/yyyy HH:mm")</strong>
-                                    </span>
-                                </div>
-                                <p class="text-dark mb-0 lh-lg" style="white-space: pre-wrap;">@item.NoiDung</p>
                             </div>
                         </div>
-                    </div>
-                    @{
-                            index++;
-                        }
+                        index++;
                     }
                 </div>
             </div>
