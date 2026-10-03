@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -203,6 +203,7 @@ namespace StudentManagementSystem.Controllers
         public ActionResult TKBList()
         {
             ViewBag.ListLopHocPhan = _staffDAO.GetAllLopHocPhan();
+            ViewBag.ListPhongHoc = new AdminDAO().GetAllPhongHoc();
             return View(_staffDAO.GetAllTKB());
         }
 

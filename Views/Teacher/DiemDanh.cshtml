@@ -1,0 +1,118 @@
+﻿@model List<StudentManagementSystem.Models.DiemDanh>
+@{
+    ViewBag.Title = "Điểm Danh Lớp Học";
+}
+
+<div class="hero-3d-banner p-4 mb-4 rounded-3 text-white">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h2 class="fw-bold mb-2"><i class="fas fa-user-check me-2"></i>Điểm Danh Sinh Viên</h2>
+            <p class="mb-0 text-white-50">Lớp Học Phần: <strong class="text-white">@ViewBag.MaLopHP</strong> | Ngày: <strong class="text-white">@ViewBag.NgayHoc</strong></p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <a href="@Url.Action("XemLop", "Teacher")" class="btn btn-outline-light btn-3d"><i class="fas fa-arrow-left me-2"></i>Trở lại danh sách</a>
+        </div>
+    </div>
+</div>
+
+<div class="glass-panel p-4" data-tilt-3d>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold text-primary mb-0">Danh Sách Sinh Viên</h4>
+        <button type="button" class="btn btn-primary btn-3d" id="btnSaveAttendance">
+            <i class="fas fa-save me-2"></i>Lưu Điểm Danh
+        </button>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" id="attendanceTable">
+            <thead class="table-dark">
+                <tr>
+                    <th style="width:120px;">Mã SV</th>
+                    <th>Họ Tên</th>
+                    <th class="text-center" style="width:250px;">Trạng Thái</th>
+                    <th>Ghi Chú</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Count > 0)
+                {
+                    foreach (var sv in Model)
+                    {
+                        <tr class="attendance-row" data-masv="@sv.MaSV">
+                            <td class="fw-bold">@sv.MaSV</td>
+                            <td>@sv.HoTenSV</td>
+                            <td>
+                                <div class="d-flex gap-2 justify-content-center">
+                                    <input type="radio" class="btn-check" name="tt_@sv.MaSV" id="cmat_@sv.MaSV" value="Có mặt" @(sv.TrangThai == "Có mặt" || sv.TrangThai == "Chưa điểm danh" ? "checked" : "")>
+                                    <label class="btn btn-outline-success btn-sm fw-bold rounded-pill" for="cmat_@sv.MaSV">Có mặt</label>
+
+                                    <input type="radio" class="btn-check" name="tt_@sv.MaSV" id="vang_@sv.MaSV" value="Vắng" @(sv.TrangThai == "Vắng" ? "checked" : "")>
+                                    <label class="btn btn-outline-danger btn-sm fw-bold rounded-pill" for="vang_@sv.MaSV">Vắng</label>
+
+                                    <input type="radio" class="btn-check" name="tt_@sv.MaSV" id="tre_@sv.MaSV" value="Trễ" @(sv.TrangThai == "Trễ" ? "checked" : "")>
+                                    <label class="btn btn-outline-warning btn-sm fw-bold rounded-pill" for="tre_@sv.MaSV">Trễ</label>
+                                </div>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control form-control-sm ghi-chu-input" value="@sv.GhiChu" placeholder="Nhập ghi chú...">
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-4">Lớp hiện chưa có sinh viên nào.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const btnSave = document.getElementById('btnSaveAttendance');
+    if (btnSave) {
+        btnSave.addEventListener('click', async function () {
+            btnSave.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...';
+            btnSave.disabled = true;
+
+            const rows = document.querySelectorAll('.attendance-row');
+            let promises = [];
+            const maLopHP = '@ViewBag.MaLopHP';
+            const ngayHoc = '@ViewBag.NgayHoc';
+
+            rows.forEach(row => {
+                const maSV = row.getAttribute('data-masv');
+                const trangThai = row.querySelector('input[name="tt_' + maSV + '"]:checked').value;
+                const ghiChu = row.querySelector('.ghi-chu-input').value;
+
+                // Chuẩn bị form data
+                const formData = new FormData();
+                formData.append('maLopHP', maLopHP);
+                formData.append('maSV', maSV);
+                formData.append('ngayHoc', ngayHoc);
+                formData.append('trangThai', trangThai);
+                formData.append('ghiChu', ghiChu);
+
+                let p = fetch('@Url.Action("LuuDiemDanhNgay", "Teacher")', {
+                    method: 'POST',
+                    body: formData
+                });
+                promises.push(p);
+            });
+
+            try {
+                await Promise.all(promises);
+                alert("Đã lưu điểm danh thành công!");
+            } catch (err) {
+                alert("Có lỗi xảy ra khi lưu!");
+            } finally {
+                btnSave.innerHTML = '<i class="fas fa-save me-2"></i>Lưu Điểm Danh';
+                btnSave.disabled = false;
+            }
+        });
+    }
+});
+</script>

@@ -18,8 +18,27 @@ namespace StudentManagementSystem.Controllers
         public ActionResult Index()
         {
             string username = User.Identity.Name;
+            
+            ViewBag.ThongTin = _studentDAO.GetThongTinCaNhan(username);
+            ViewBag.TienDo = _studentDAO.GetTienDoHocTap(username);
+            
             var tkb = _studentDAO.GetTKB(username);
-            return View(tkb);
+            var lichThi = _studentDAO.GetLichThiSinhVien(username);
+            var thongBao = _studentDAO.GetThongBao();
+
+            ViewBag.SoLichHoc = tkb.Count;
+            ViewBag.SoLichThi = lichThi.Count;
+            ViewBag.SoThongBao = thongBao.Count;
+            ViewBag.DanhSachMon = tkb; // Để hiển thị "Lớp học phần" ở góc dưới phải
+
+            return View();
+        }
+
+        public ActionResult TKB()
+        {
+            string username = User.Identity.Name;
+            var tkb = _studentDAO.GetTKB(username);
+            return View("TKB", tkb);
         }
 
         // GET: /Student/XemDiem
@@ -28,12 +47,7 @@ namespace StudentManagementSystem.Controllers
             string username = User.Identity.Name;
 
             // KIỂM TRA NGHIỆP VỤ: Đã đánh giá giảng viên hết chưa?
-            int soMonChuaDanhGia = _studentDAO.DemSoMonChuaDanhGia(username);
-            if (soMonChuaDanhGia > 0)
-            {
-                TempData["WarningMsg"] = $"Bạn còn {soMonChuaDanhGia} học phần chưa hoàn thành đánh giá giảng viên. Theo quy định đào tạo, bạn cần hoàn tất khảo sát để mở khóa bảng điểm!";
-                return RedirectToAction("DanhGiaGiangVien");
-            }
+            
 
             var bangDiem = _studentDAO.GetBangDiem(username);
             return View(bangDiem);
@@ -54,7 +68,7 @@ namespace StudentManagementSystem.Controllers
             string username = User.Identity.Name;
 
             // 1. Lấy danh sách các lớp đang mở
-            var danhSachLop = _studentDAO.GetLopHocPhanMoDangKy();
+            var danhSachLop = _studentDAO.GetLopHocPhanMoDangKy(User.Identity.Name);
 
             // 2. BẮT BUỘC: Lấy các lớp đã đăng ký và truyền sang View để làm mờ nút
             ViewBag.ListMaLopDaDK = _studentDAO.GetMaLopDaDangKy(username);
@@ -217,6 +231,8 @@ namespace StudentManagementSystem.Controllers
         {
             string username = User.Identity.Name;
             var tienDo = _studentDAO.GetTienDoHocTap(username);
+            ViewBag.ChuongTrinhKhung = _studentDAO.GetChuongTrinhKhung(username);
+            ViewBag.ThongTin = _studentDAO.GetThongTinCaNhan(username);
             return View(tienDo);
         }
 
@@ -240,34 +256,6 @@ namespace StudentManagementSystem.Controllers
                 TempData["ErrorMsg"] = "Lỗi: " + result;
 
             return RedirectToAction("DichVuHanhChinh");
-        }
-
-        // GET: /Student/DanhGiaGiangVien
-        public ActionResult DanhGiaGiangVien()
-        {
-            string username = User.Identity.Name;
-            var list = _studentDAO.GetDanhSachCanDanhGia(username);
-            return View(list);
-        }
-
-        // POST: /Student/LuuDanhGia
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult LuuDanhGia(string maLopHP, int diemDanhGia, string nhanXet)
-        {
-            string username = User.Identity.Name;
-            string result = _studentDAO.LuuDanhGia(username, maLopHP, diemDanhGia, nhanXet);
-
-            if (result == "Success")
-            {
-                TempData["SuccessMsg"] = $"Đã lưu đánh giá cho học phần {maLopHP} thành công!";
-            }
-            else
-            {
-                TempData["ErrorMsg"] = "Lỗi: " + result;
-            }
-
-            return RedirectToAction("DanhGiaGiangVien");
         }
 
         // GET: /Student/XemDiemRenLuyen

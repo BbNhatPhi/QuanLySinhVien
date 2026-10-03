@@ -6,116 +6,194 @@
     bool isInvalid = status == "INVALID";
 }
 
-<div class="container mt-5 mb-5">
-    <div class="row justify-content-center">
-        <div class="col-md-7">
+<style>
+    /* Styling riêng cho trang biên lai 3D */
+    .receipt-container-3d {
+        perspective: 1200px;
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    
+    .receipt-card-3d {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 3rem;
+        width: 100%;
+        max-width: 600px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        transform-style: preserve-3d;
+        position: relative;
+        overflow: hidden;
+    }
 
-            @if (isSuccess)
-            {
-                <div class="card border-0 shadow-lg text-center">
-                    <div class="card-body p-5">
-                        <div class="mb-4">
-                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success bg-opacity-10 p-4 mb-3" style="width:100px;height:100px;">
-                                <i class="fas fa-check-circle text-success" style="font-size:3.5rem;"></i>
-                            </div>
-                            <h3 class="fw-bold text-success mb-1">Thanh Toán Thành Công!</h3>
-                            <p class="text-muted">Giao dịch của bạn đã được VNPAY xác nhận</p>
-                        </div>
+    /* Hiệu ứng ánh sáng lướt qua thẻ */
+    .receipt-card-3d::before {
+        content: '';
+        position: absolute;
+        top: 0; left: -100%;
+        width: 50%; height: 100%;
+        background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
+        transform: skewX(-20deg);
+        animation: scan-light 4s infinite;
+    }
 
-                        <div class="bg-light rounded p-4 text-start mb-4">
-                            <div class="row g-2">
-                                <div class="col-6 text-muted small fw-semibold">Học phần:</div>
-                                <div class="col-6 fw-bold small">@ViewBag.MaLopHP</div>
+    @keyframes scan-light {
+        0% { left: -100%; }
+        100% { left: 200%; }
+    }
 
-                                <div class="col-6 text-muted small fw-semibold">Tên môn:</div>
-                                <div class="col-6 fw-bold small">@ViewBag.TenMon</div>
+    /* Các thành phần trôi nổi 3D */
+    .floating-icon-3d {
+        font-size: 5rem;
+        transform: translateZ(50px);
+        margin-bottom: 1.5rem;
+        display: inline-block;
+        filter: drop-shadow(0 10px 10px rgba(0,0,0,0.2));
+    }
+    
+    .receipt-title {
+        transform: translateZ(40px);
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+    
+    .receipt-desc {
+        transform: translateZ(30px);
+        margin-bottom: 2rem;
+    }
 
-                                <div class="col-6 text-muted small fw-semibold">Số tiền:</div>
-                                <div class="col-6 fw-bold small text-success">@string.Format("{0:N0}", ViewBag.SoTien) VNĐ</div>
+    .receipt-details-3d {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transform: translateZ(20px);
+        box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+    }
 
-                                <div class="col-6 text-muted small fw-semibold">Mã giao dịch VNPAY:</div>
-                                <div class="col-6 fw-bold small text-primary">@ViewBag.TransactionNo</div>
+    .btn-action-group {
+        transform: translateZ(35px);
+        margin-top: 2rem;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+    }
 
-                                <div class="col-6 text-muted small fw-semibold">Trạng thái DB:</div>
-                                <div class="col-6 small">
-                                    @if (ViewBag.DbUpdated == true)
-                                    {
-                                        <span class="badge bg-success">✅ Đã cập nhật</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-warning text-dark">⚠️ Cần kiểm tra thủ công</span>
-                                    }
-                                </div>
-                            </div>
-                        </div>
+    .btn-3d {
+        padding: 10px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        border: none;
+    }
+    
+    .btn-3d:hover {
+        transform: translateY(-2px) translateZ(10px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+    }
+</style>
 
-                        <div class="alert alert-success small py-2 mb-4">
-                            <i class="fas fa-envelope me-1"></i>
-                            Email xác nhận đã được gửi tới địa chỉ email đăng ký của bạn.
-                        </div>
+<div class="receipt-container-3d mt-4 mb-5">
+    <div class="receipt-card-3d text-center" data-tilt-3d>
+        @if (isSuccess)
+        {
+            <!-- ICON THÀNH CÔNG -->
+            <div class="floating-icon-3d text-success">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            
+            <h2 class="receipt-title text-success">Thanh Toán Thành Công!</h2>
+            <p class="receipt-desc text-muted">Học phí của bạn đã được VNPAY xác nhận thanh toán.</p>
 
-                        <div class="d-flex gap-3 justify-content-center">
-                            <a href="@Url.Action("XemHocPhi", "Student")" class="btn btn-outline-primary fw-bold">
-                                <i class="fas fa-file-invoice-dollar me-1"></i> Xem Học Phí
-                            </a>
-                            <a href="@Url.Action("Index", "Student")" class="btn btn-primary fw-bold">
-                                <i class="fas fa-home me-1"></i> Trang Chủ
-                            </a>
-                        </div>
+            <div class="receipt-details-3d text-start">
+                <div class="row g-3">
+                    <div class="col-5 text-muted fw-bold">Mã Học Phần:</div>
+                    <div class="col-7 fw-bold text-dark">@ViewBag.MaLopHP</div>
+                    
+                    <div class="col-5 text-muted fw-bold">Tên Môn Học:</div>
+                    <div class="col-7 text-dark">@ViewBag.TenMon</div>
+                    
+                    <div class="col-5 text-muted fw-bold">Số Tiền:</div>
+                    <div class="col-7 fw-bold text-success fs-5">@string.Format("{0:N0}", ViewBag.SoTien) VNĐ</div>
+                    
+                    <div class="col-5 text-muted fw-bold">Mã Giao Dịch:</div>
+                    <div class="col-7 text-primary font-monospace">@ViewBag.TransactionNo</div>
+                    
+                    <div class="col-5 text-muted fw-bold">Trạng Thái DB:</div>
+                    <div class="col-7">
+                        @if (ViewBag.DbUpdated == true)
+                        {
+                            <span class="badge bg-success rounded-pill px-3"><i class="fas fa-check me-1"></i> Đã Gạch Nợ</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark rounded-pill px-3"><i class="fas fa-exclamation-triangle me-1"></i> Cần Cập Nhật</span>
+                        }
                     </div>
                 </div>
-            }
-            else if (isCancelled)
-            {
-                <div class="card border-0 shadow-lg text-center">
-                    <div class="card-body p-5">
-                        <div class="mb-4">
-                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-warning bg-opacity-10 p-4 mb-3" style="width:100px;height:100px;">
-                                <i class="fas fa-times-circle text-warning" style="font-size:3.5rem;"></i>
-                            </div>
-                            <h3 class="fw-bold text-warning mb-1">Giao Dịch Bị Hủy</h3>
-                            <p class="text-muted">Bạn đã hủy quá trình thanh toán. Học phí chưa được ghi nhận.</p>
-                        </div>
-                        <div class="d-flex gap-3 justify-content-center">
-                            <a href="@Url.Action("XemHocPhi", "Student")" class="btn btn-warning fw-bold text-dark">
-                                <i class="fas fa-redo me-1"></i> Thử Lại
-                            </a>
-                            <a href="@Url.Action("Index", "Student")" class="btn btn-outline-secondary fw-bold">
-                                <i class="fas fa-home me-1"></i> Trang Chủ
-                            </a>
-                        </div>
-                    </div>
+            </div>
+            
+            <div class="btn-action-group">
+                <a href="@Url.Action("XemHocPhi", "Student")" class="btn btn-primary btn-3d">
+                    <i class="fas fa-file-invoice-dollar me-2"></i>Xem Học Phí
+                </a>
+                <a href="@Url.Action("Index", "Student")" class="btn btn-outline-secondary btn-3d bg-white">
+                    <i class="fas fa-home me-2"></i>Trang Chủ
+                </a>
+            </div>
+        }
+        else if (isCancelled)
+        {
+            <!-- ICON HỦY BỎ -->
+            <div class="floating-icon-3d text-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            
+            <h2 class="receipt-title text-warning text-dark">Giao Dịch Đã Hủy</h2>
+            <p class="receipt-desc text-muted">Bạn đã hủy quá trình thanh toán trên cổng VNPAY.</p>
+            
+            <div class="receipt-details-3d text-start bg-warning bg-opacity-10 border border-warning">
+                <p class="mb-0 text-dark">Học phí của học phần <strong>@ViewBag.MaLopHP</strong> chưa được thanh toán. Vui lòng thực hiện lại nếu cần thiết.</p>
+            </div>
+            
+            <div class="btn-action-group">
+                <a href="@Url.Action("XemHocPhi", "Student")" class="btn btn-warning btn-3d text-dark">
+                    <i class="fas fa-redo me-2"></i>Thử Lại Ngay
+                </a>
+                <a href="@Url.Action("Index", "Student")" class="btn btn-outline-secondary btn-3d bg-white">
+                    <i class="fas fa-home me-2"></i>Trang Chủ
+                </a>
+            </div>
+        }
+        else
+        {
+            <!-- ICON LỖI -->
+            <div class="floating-icon-3d text-danger">
+                <i class="fas fa-times-hexagon"></i>
+            </div>
+            
+            <h2 class="receipt-title text-danger">Thanh Toán Thất Bại!</h2>
+            <p class="receipt-desc text-muted">@Html.Raw(ViewBag.Message)</p>
+            
+            <div class="receipt-details-3d text-start border border-danger">
+                <p class="mb-2 text-danger fw-bold"><i class="fas fa-info-circle me-1"></i> Lỗi Giao Dịch</p>
+                <p class="mb-1 small">Nếu bạn đã bị trừ tiền trong tài khoản nhưng hệ thống báo lỗi, vui lòng liên hệ <strong>Phòng Đào Tạo</strong> và cung cấp mã giao dịch bên dưới:</p>
+                <div class="p-2 bg-light rounded text-center mt-2 font-monospace fw-bold text-dark fs-5">
+                    @ViewBag.TransactionNo
                 </div>
-            }
-            else
-            {
-                <div class="card border-0 shadow-lg text-center">
-                    <div class="card-body p-5">
-                        <div class="mb-4">
-                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-danger bg-opacity-10 p-4 mb-3" style="width:100px;height:100px;">
-                                <i class="fas fa-exclamation-circle text-danger" style="font-size:3.5rem;"></i>
-                            </div>
-                            <h3 class="fw-bold text-danger mb-1">Thanh Toán Thất Bại</h3>
-                            <p class="text-muted">@Html.Raw(ViewBag.Message)</p>
-                        </div>
-                        <div class="alert alert-warning small text-start">
-                            <strong>Lưu ý:</strong> Nếu tiền đã bị trừ khỏi tài khoản nhưng giao dịch thất bại,
-                            vui lòng liên hệ <strong>Phòng Đào tạo</strong> hoặc <strong>Phòng Tài chính</strong>
-                            và cung cấp mã giao dịch: <code>@ViewBag.TransactionNo</code>
-                        </div>
-                        <div class="d-flex gap-3 justify-content-center">
-                            <a href="@Url.Action("XemHocPhi", "Student")" class="btn btn-danger fw-bold">
-                                <i class="fas fa-redo me-1"></i> Thử Lại
-                            </a>
-                            <a href="@Url.Action("Index", "Student")" class="btn btn-outline-secondary fw-bold">
-                                <i class="fas fa-home me-1"></i> Trang Chủ
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            }
-
-        </div>
+            </div>
+            
+            <div class="btn-action-group">
+                <a href="@Url.Action("XemHocPhi", "Student")" class="btn btn-danger btn-3d">
+                    <i class="fas fa-redo-alt me-2"></i>Quay lại Học Phí
+                </a>
+            </div>
+        }
     </div>
 </div>

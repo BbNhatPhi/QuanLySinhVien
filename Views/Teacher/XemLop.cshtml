@@ -47,8 +47,17 @@
                         <div class="mt-auto pt-3 border-top d-flex flex-wrap gap-2">
                             @if (chucNang == "DiemDanh" || chucNang == null)
                             {
-                                <a href="@Url.Action("DanhSachSinhVien", "Teacher", new { maLopTC = item.MaLopHP })" class="btn btn-outline-primary btn-sm flex-fill">
+                                <a href="@Url.Action("DiemDanh", "Teacher", new { maLopHP = item.MaLopHP, ngayHoc = "" })" class="btn btn-outline-primary btn-sm flex-fill">
                                     <i class="fas fa-clipboard-user me-1"></i> Điểm danh
+                                </a>
+                            }
+                            @if (chucNang == null)
+                            {
+                                <a href="@Url.Action("QuanLyThongBao", "Teacher", new { maLopTC = item.MaLopHP })" class="btn btn-outline-info text-dark btn-sm flex-fill" title="Đăng thông báo">
+                                    <i class="fas fa-bullhorn"></i> TB
+                                </a>
+                                <a href="@Url.Action("QuanLyTaiLieu", "Teacher", new { maLopTC = item.MaLopHP })" class="btn btn-outline-success btn-sm flex-fill" title="Upload Tài liệu">
+                                    <i class="fas fa-file-upload"></i> TL
                                 </a>
                             }
                             @if (chucNang == "NhapDiem" || chucNang == null)

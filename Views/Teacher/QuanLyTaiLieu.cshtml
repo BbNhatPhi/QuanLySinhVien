@@ -1,0 +1,93 @@
+﻿@model List<StudentManagementSystem.Models.TaiLieuLop>
+@{
+    ViewBag.Title = "Tài Liệu Học Tập";
+}
+
+<div class="hero-3d-banner p-4 mb-4 rounded-3 text-white">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h2 class="fw-bold mb-2"><i class="fas fa-folder-open me-2"></i>Tài Liệu Môn Học</h2>
+            <p class="mb-0 text-white-50">Lớp Học Phần: <strong class="text-white">@ViewBag.MaLopTC</strong></p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <a href="@Url.Action("XemLop", "Teacher")" class="btn btn-outline-light btn-3d"><i class="fas fa-arrow-left me-2"></i>Trở lại danh sách</a>
+        </div>
+    </div>
+</div>
+
+@if (TempData["SuccessMsg"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMsg"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["ErrorMsg"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i> @TempData["ErrorMsg"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-lg-4 mb-4">
+        <div class="stat-card-3d h-100 p-4">
+            <h4 class="fw-bold text-primary mb-4"><i class="fas fa-upload me-2"></i>Upload File Mới</h4>
+            <form action="@Url.Action("AddTaiLieuLop", "Teacher")" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="maLopTC" value="@ViewBag.MaLopTC" />
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Tên Tài Liệu <span class="text-danger">*</span></label>
+                    <input type="text" name="TenTaiLieu" class="form-control" required placeholder="VD: Slide Chương 1..." />
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Chọn File <span class="text-danger">*</span></label>
+                    <input type="file" name="fileUpload" class="form-control" required />
+                    <div class="form-text">Cho phép upload PDF, Word, PowerPoint, Excel, Zip...</div>
+                </div>
+                <button type="submit" class="btn btn-success w-100 btn-3d"><i class="fas fa-cloud-upload-alt me-2"></i>Tải Lên Máy Chủ</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-8 mb-4">
+        <div class="glass-panel p-4 h-100" data-tilt-3d>
+            <h4 class="fw-bold text-primary mb-4">Danh Sách Tài Liệu Đã Chia Sẻ</h4>
+            
+            @if (Model != null && Model.Count > 0)
+            {
+                <div class="row g-3">
+                    @foreach (var tl in Model)
+                    {
+                        string icon = "fa-file-alt text-secondary";
+                        if (tl.DuongDan.EndsWith(".pdf")) { icon = "fa-file-pdf text-danger"; }
+                        else if (tl.DuongDan.EndsWith(".doc") || tl.DuongDan.EndsWith(".docx")) { icon = "fa-file-word text-primary"; }
+                        else if (tl.DuongDan.EndsWith(".ppt") || tl.DuongDan.EndsWith(".pptx")) { icon = "fa-file-powerpoint text-warning"; }
+                        else if (tl.DuongDan.EndsWith(".zip") || tl.DuongDan.EndsWith(".rar")) { icon = "fa-file-archive text-success"; }
+
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center p-3 border rounded shadow-sm bg-white stat-card-3d" style="height: 100%;">
+                                <div class="fs-1 me-3">
+                                    <i class="fas @icon"></i>
+                                </div>
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <h6 class="fw-bold mb-1 text-truncate" title="@tl.TenTaiLieu">@tl.TenTaiLieu</h6>
+                                    <small class="text-muted d-block mb-2">@tl.NgayTaiLen.ToString("dd/MM/yyyy")</small>
+                                    <a href="@tl.DuongDan" class="btn btn-sm btn-outline-primary rounded-pill w-100" download><i class="fas fa-download me-1"></i>Tải Về</a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5 text-muted">
+                    <i class="fas fa-folder-open fa-3x mb-3 text-secondary opacity-50"></i>
+                    <p>Chưa có tài liệu nào được chia sẻ.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -151,7 +151,16 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Phòng Học <span class="text-danger">*</span></label>
-                        <input type="text" name="PhongHoc" class="form-control" placeholder="VD: A1-202" required />
+                        <select name="PhongHoc" class="form-select" required>
+                            <option value="">-- Chọn Phòng Học --</option>
+                            @if (ViewBag.ListPhongHoc != null)
+                            {
+                                foreach (var phong in ViewBag.ListPhongHoc)
+                                {
+                                    <option value="@phong.MaPhong">@phong.MaPhong (Tòa: @phong.ToaNha - SC: @phong.SucChua)</option>
+                                }
+                            }
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer bg-light">

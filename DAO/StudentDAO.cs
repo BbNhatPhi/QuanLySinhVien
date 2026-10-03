@@ -17,7 +17,7 @@ namespace StudentManagementSystem.DAO
         // 1. TÍNH NĂNG ĐĂNG KÝ HỌC PHẦN 
         // ==========================================
 
-        public List<LopHocPhan> GetLopHocPhanMoDangKy()
+        public List<LopHocPhan> GetLopHocPhanMoDangKy(string username)
         {
             List<LopHocPhan> list = new List<LopHocPhan>();
             using (SqlConnection conn = new SqlConnection(connStr))
@@ -29,10 +29,14 @@ namespace StudentManagementSystem.DAO
                     INNER JOIN MonHoc m ON lhp.MaMon = m.MaMon
                     INNER JOIN GiangVien gv ON lhp.MaGV = gv.MaGV
                     LEFT JOIN DangKyHocPhan dk ON lhp.MaLopHP = dk.MaLopHP
-                    WHERE lhp.TrangThai = N'Mở đăng ký'
+                    INNER JOIN ChuongTrinhKhung ctk ON ctk.MaMon = m.MaMon
+                    INNER JOIN SinhVien sv ON sv.NganhID = ctk.NganhID
+                    INNER JOIN Users u ON sv.UserID = u.UserID
+                    WHERE u.Username = @Username AND lhp.TrangThai = N'Mở đăng ký'
                     GROUP BY lhp.MaLopHP, m.TenMon, m.SoTinChi, gv.HoTen, lhp.HocKy, lhp.NamHoc, lhp.SoLuongMax";
 
                 SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@Username", username);
                 conn.Open();
                 using (SqlDataReader reader = cmd.ExecuteReader())
                 {
@@ -42,7 +46,7 @@ namespace StudentManagementSystem.DAO
                         {
                             MaLopHP = reader["MaLopHP"].ToString(),
                             TenMon = reader["TenMon"].ToString(),
-                            SoTinChi = reader["SoTinChi"] != DBNull.Value ? Convert.ToInt32(reader["SoTinChi"]) : 0,
+                            SoTinChi = Convert.ToInt32(reader["SoTinChi"]),
                             TenGV = reader["TenGV"].ToString(),
                             HocKy = Convert.ToInt32(reader["HocKy"]),
                             NamHoc = reader["NamHoc"].ToString(),
@@ -55,7 +59,6 @@ namespace StudentManagementSystem.DAO
             return list;
         }
 
-        // ĐÃ BỔ SUNG: Hàm lấy danh sách mã lớp học phần sinh viên đã đăng ký
         public List<string> GetMaLopDaDangKy(string username)
         {
             List<string> list = new List<string>();
@@ -670,5 +673,54 @@ namespace StudentManagementSystem.DAO
             }
             return list;
         }
+    
+        public List<ChuongTrinhKhungItem> GetChuongTrinhKhung(string username)
+        {
+            List<ChuongTrinhKhungItem> list = new List<ChuongTrinhKhungItem>();
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                string sql = @"
+                    SELECT 
+                        c.MaMon, m.TenMon, m.SoTinChi, c.HocKyTieuChuan,
+                        (SELECT TOP 1 
+                            CASE 
+                                WHEN d.DiemTong >= 4.0 THEN N'Qua môn'
+                                WHEN d.DiemTong < 4.0 AND (d.DiemCC > 0 OR d.DiemGK > 0) THEN N'Học lại'
+                                ELSE N'Đang học'
+                            END
+                         FROM Diem d 
+                         INNER JOIN LopHocPhan lhp ON d.MaLopHP = lhp.MaLopHP
+                         WHERE lhp.MaMon = c.MaMon AND d.MaSV = sv.MaSV
+                         ORDER BY lhp.NamHoc DESC, lhp.HocKy DESC
+                        ) AS TrangThaiMon
+                    FROM ChuongTrinhKhung c
+                    INNER JOIN MonHoc m ON c.MaMon = m.MaMon
+                    INNER JOIN SinhVien sv ON sv.NganhID = c.NganhID
+                    INNER JOIN Users u ON u.UserID = sv.UserID
+                    WHERE u.Username = @Username
+                    ORDER BY c.HocKyTieuChuan, m.TenMon";
+
+                SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@Username", username);
+
+                conn.Open();
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        list.Add(new ChuongTrinhKhungItem
+                        {
+                            MaMon = reader["MaMon"].ToString(),
+                            TenMon = reader["TenMon"].ToString(),
+                            SoTinChi = Convert.ToInt32(reader["SoTinChi"]),
+                            HocKyTieuChuan = Convert.ToInt32(reader["HocKyTieuChuan"]),
+                            TrangThai = reader["TrangThaiMon"] != DBNull.Value ? reader["TrangThaiMon"].ToString() : "Chưa học"
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
     }
 }
