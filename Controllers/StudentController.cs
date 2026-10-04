@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using StudentManagementSystem.Helpers;
 using StudentManagementSystem.DAO;
 using StudentManagementSystem.Models;
 
@@ -132,7 +133,17 @@ namespace StudentManagementSystem.Controllers
         public ActionResult ThanhToan(string maLopHP, string tenMon, double soTien)
         {
             ViewBag.MaLopHP = maLopHP;
-            ViewBag.TenMon = tenMon;
+            
+            // Nếu có nhiều môn (phân cách bằng dấu phẩy)
+            if (maLopHP != null && maLopHP.Contains(","))
+            {
+                ViewBag.TenMon = "Thanh toán nhiều học phần";
+            }
+            else
+            {
+                ViewBag.TenMon = tenMon;
+            }
+            
             ViewBag.SoTien = soTien;
             return View();
         }
@@ -194,20 +205,26 @@ namespace StudentManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult XacNhanThanhToan(string maLopHP, double soTien)
         {
-            // Lấy tài khoản sinh viên đang đăng nhập
             string username = User.Identity.Name;
-
-            // Gọi DAO để cập nhật trạng thái môn này thành "Đã thanh toán"
-            // FIX LỖI LOGIC: Kiểm tra kết quả trả về, không báo thành công khi giao dịch thất bại
-            bool isSuccess = _studentDAO.ThanhToanHocPhi(username, maLopHP);
-
-            if (isSuccess)
+            bool allSuccess = true;
+            
+            // Xử lý thanh toán nhiều môn cùng lúc
+            string[] maLopList = maLopHP.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            
+            foreach(var ma in maLopList)
             {
-                TempData["SuccessMsg"] = $"Giao dịch thành công! Bạn đã nộp {soTien:N0} VNĐ cho học phần {maLopHP}.";
+                bool isSuccess = _studentDAO.ThanhToanHocPhi(username, ma.Trim());
+                if (!isSuccess) allSuccess = false;
+            }
+
+            if (allSuccess)
+            {
+                StudentManagementSystem.Helpers.LogHelper.Log($"Sinh viên thanh toán thành công {soTien:N0} VNĐ cho {maLopList.Length} môn.");
+                TempData["SuccessMsg"] = $"Giao dịch thành công! Bạn đã thanh toán {soTien:N0} VNĐ cho {maLopList.Length} học phần.";
             }
             else
             {
-                TempData["ErrorMsg"] = $"Thanh toán thất bại cho học phần {maLopHP}. Vui lòng thử lại hoặc liên hệ Phòng Đào tạo!";
+                TempData["ErrorMsg"] = "Có lỗi xảy ra trong quá trình thanh toán một số môn!";
             }
 
             return RedirectToAction("XemHocPhi");

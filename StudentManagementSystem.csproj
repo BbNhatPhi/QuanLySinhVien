@@ -204,6 +204,8 @@
     <Content Include="Views\Student\XemDiemRenLuyen.cshtml" />
     <Content Include="Views\Staff\QuanLyYeuCau.cshtml" />
     <Compile Include="Models\ChuongTrinhKhungItem.cs" />
+    <Compile Include="Models\SystemLog.cs" />
+    <Compile Include="Helpers\LogHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap-grid.css" />

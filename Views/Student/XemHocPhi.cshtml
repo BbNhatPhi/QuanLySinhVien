@@ -2,143 +2,430 @@
 @{
     ViewBag.Title = "Thông Tin Học Phí";
     var lichSuGiaoDich = ViewBag.LichSuGiaoDich as List<StudentManagementSystem.Models.HocPhi>;
+    
+    double tongNo = Model != null ? Model.Sum(m => m.ThanhTien) : 0;
+    double daNop = lichSuGiaoDich != null ? lichSuGiaoDich.Sum(m => m.ThanhTien) : 0;
 }
 
-<div class="container mt-4 mb-5">
-    <h2 class="mb-4"><i class="fas fa-file-invoice-dollar text-success"></i> Quản Lý Công Nợ & Học Phí</h2>
+<style>
+    .hp-header {
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        border-radius: 15px;
+        color: white;
+        padding: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+    .hp-header::after {
+        content: '\f155';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        position: absolute;
+        right: -20px;
+        bottom: -40px;
+        font-size: 150px;
+        opacity: 0.1;
+        transform: rotate(-15deg);
+    }
+    .stat-box {
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 10px;
+        padding: 20px;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    .nav-pills .nav-link {
+        color: #495057;
+        font-weight: 600;
+        border-radius: 8px;
+        padding: 12px 24px;
+        transition: all 0.3s;
+    }
+    .nav-pills .nav-link.active {
+        background-color: #0d6efd;
+        color: white;
+        box-shadow: 0 4px 10px rgba(13,110,253,0.3);
+    }
+    .payment-method {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 15px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .payment-method:hover {
+        border-color: #0d6efd;
+        background-color: #f8f9fa;
+    }
+    .payment-method img {
+        height: 40px;
+        object-fit: contain;
+    }
+    .custom-table {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    .custom-table thead {
+        background-color: #f8f9fa;
+        color: #495057;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+</style>
 
-    <!-- Nút Tab Bootstrap -->
-    <ul class="nav nav-tabs fw-bold mb-3" id="hocPhiTabs" role="tablist">
+<div class="container-fluid mt-4 mb-5">
+    
+    <!-- HEADER THỐNG KÊ -->
+    <div class="hp-header shadow-lg mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-5">
+                <h2 class="fw-bold mb-1">Cổng Thanh Toán Học Phí</h2>
+                <p class="mb-0 text-white-50"><i class="fas fa-university me-2"></i>Năm học 2026-2027</p>
+            </div>
+            <div class="col-md-7">
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="stat-box">
+                            <p class="mb-1 text-white-50 fw-bold small text-uppercase">Tổng dư nợ hiện tại</p>
+                            <h3 class="fw-bold text-warning mb-0">@tongNo.ToString("N0") <small>VNĐ</small></h3>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="stat-box">
+                            <p class="mb-1 text-white-50 fw-bold small text-uppercase">Đã thanh toán (Lũy kế)</p>
+                            <h3 class="fw-bold text-success mb-0">@daNop.ToString("N0") <small>VNĐ</small></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABS NAVIGATION -->
+    <ul class="nav nav-pills mb-4 gap-2" id="hocPhiTabs" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active text-danger" id="congno-tab" data-bs-toggle="tab" data-bs-target="#congno" type="button" role="tab">
-                <i class="fas fa-exclamation-circle"></i> Học Phí Chưa Đóng
+            <button class="nav-link active" id="congno-tab" data-bs-toggle="pill" data-bs-target="#congno" type="button" role="tab">
+                <i class="fas fa-file-invoice-dollar me-2"></i>Chưa thanh toán
+                @if(Model != null && Model.Count > 0){ <span class="badge bg-danger ms-2 rounded-pill">@Model.Count</span> }
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link text-success" id="lichsu-tab" data-bs-toggle="tab" data-bs-target="#lichsu" type="button" role="tab">
-                <i class="fas fa-history"></i> Lịch Sử Giao Dịch
+            <button class="nav-link" id="lichsu-tab" data-bs-toggle="pill" data-bs-target="#lichsu" type="button" role="tab">
+                <i class="fas fa-history me-2"></i>Lịch sử giao dịch
             </button>
         </li>
     </ul>
 
-    <!-- Nội dung của các Tab -->
+    <!-- TABS CONTENT -->
     <div class="tab-content" id="hocPhiTabsContent">
-
-        <!-- ================= TAB 1: CÔNG NỢ ================= -->
+        
+        <!-- TAB CÔNG NỢ -->
         <div class="tab-pane fade show active" id="congno" role="tabpanel">
-            <div class="card shadow-sm border-0 border-start border-4 border-danger">
-                <div class="card-body p-0">
-                    <table class="table table-hover table-bordered mb-0 align-middle">
-                        <thead class="table-dark">
-                            <tr>
-                                <th class="text-center">STT</th>
-                                <th class="text-center">Mã Lớp HP</th>
-                                <th>Môn Học</th>
-                                <th class="text-center">Số Tín Chỉ</th>
-                                <th class="text-end">Đơn Giá / Tín Chỉ</th>
-                                <th class="text-end">Thành Tiền</th>
-                                <th class="text-center">Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (Model != null && Model.Count > 0)
-                            {
-                                int stt = 1;
-                                double tongTien = 0;
-                                int tongTinChi = 0;
+            @if (TempData["SuccessMsg"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert">
+                    <i class="fas fa-check-circle fs-5 me-2 align-middle"></i>
+                    <strong>Thành công!</strong> @TempData["SuccessMsg"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
 
-                                foreach (var item in Model)
+            <div class="card border-0 shadow-sm custom-table">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="ps-4 py-3" width="5%">
+                                        <input type="checkbox" id="selectAll" class="form-check-input border-primary" style="transform: scale(1.2);" />
+                                    </th>
+                                    <th class="py-3">Mã Lớp HP</th>
+                                    <th class="py-3">Tên Môn Học</th>
+                                    <th class="text-center py-3">Tín chỉ</th>
+                                    <th class="text-end py-3">Số Tiền (VNĐ)</th>
+                                    <th class="text-center py-3">Trạng thái</th>
+                                    <th class="text-center pe-4 py-3">Thanh Toán</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model != null && Model.Count > 0)
                                 {
-                                    tongTien += item.ThanhTien;
-                                    tongTinChi += item.SoTinChi;
+                                    foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td class="ps-4">
+                                                <input type="checkbox" class="form-check-input border-secondary subject-checkbox" 
+                                                       value="@item.MaLopHP" data-amount="@item.ThanhTien" style="transform: scale(1.2);" />
+                                            </td>
+                                            <td class="fw-bold text-primary">@item.MaLopHP</td>
+                                            <td class="fw-bold">@item.TenMon</td>
+                                            <td class="text-center fw-bold">@item.SoTinChi</td>
+                                            <td class="text-end fw-bold text-danger fs-5">@item.ThanhTien.ToString("N0")</td>
+                                            <td class="text-center">
+                                                <span class="badge bg-danger-subtle text-danger px-3 py-2 rounded-pill fw-bold">
+                                                    <i class="fas fa-exclamation-circle me-1"></i> Chưa nộp
+                                                </span>
+                                            </td>
+                                            <td class="text-center pe-4">
+                                                <a href="@Url.Action("ThanhToan", "Student", new { maLopHP = item.MaLopHP, tenMon = item.TenMon, soTien = item.ThanhTien })" class="btn btn-primary fw-bold px-4 rounded-pill shadow-sm">
+                                                    Thanh toán <i class="fas fa-arrow-right ms-1"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
                                     <tr>
-                                        <td class="text-center fw-bold">@(stt++)</td>
-                                        <td class="text-center fw-bold text-primary">@item.MaLopHP</td>
-                                        <td class="fw-bold">@item.TenMon</td>
-                                        <td class="text-center text-danger fw-bold">@item.SoTinChi</td>
-                                        <td class="text-end">@string.Format("{0:N0}", item.DonGia) đ</td>
-                                        <td class="text-end text-danger fw-bold">@string.Format("{0:N0}", item.ThanhTien) đ</td>
-                                        <td class="text-center">
-                                            <a href="@Url.Action("ThanhToan", "Student", new { maLopHP = item.MaLopHP, tenMon = item.TenMon, soTien = item.ThanhTien })" class="btn btn-sm btn-outline-primary fw-bold shadow-sm">
-                                                <i class="fas fa-credit-card"></i> Thanh toán
-                                            </a>
+                                        <td colspan="6" class="text-center py-5">
+                                            <img src="https://cdn-icons-png.flaticon.com/512/1055/1055644.png" alt="No Debt" style="width: 80px; opacity: 0.5" class="mb-3">
+                                            <h5 class="text-muted fw-bold">Bạn đã thanh toán đầy đủ học phí!</h5>
+                                            <p class="text-muted mb-0">Chúc bạn có một học kỳ thật tuyệt vời.</p>
                                         </td>
                                     </tr>
                                 }
-                                <tr class="table-warning fw-bold fs-5">
-                                    <td colspan="3" class="text-end text-danger">TỔNG NỢ CẦN ĐÓNG:</td>
-                                    <td class="text-center text-danger">@tongTinChi</td>
-                                    <td></td>
-                                    <td class="text-end text-danger">@string.Format("{0:N0}", tongTien) VNĐ</td>
-                                    <td></td>
-                                </tr>
-                            }
-                            else
-                            {
-                                <tr>
-                                    <td colspan="7" class="text-center py-5 text-success fw-bold fs-5">
-                                        <i class="fas fa-laugh-beam fa-2x mb-2"></i><br />
-                                         Bạn không có khoản công nợ nào cần thanh toán.
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
+            <!-- THANH TOÁN HÀNG LOẠT -->
+            <div id="batchPayContainer" class="card border-0 shadow mt-4 p-4 d-none" style="background: linear-gradient(to right, #ffffff, #f8f9fa); border-left: 5px solid #0d6efd !important;">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h5 class="fw-bold mb-1 text-primary">Thanh toán theo lô</h5>
+                        <p class="mb-0 text-muted">Bạn đã chọn <strong id="selectedCount" class="text-dark">0</strong> học phần</p>
+                    </div>
+                    <div class="text-end">
+                        <h4 class="fw-bold text-danger mb-2" id="selectedTotal">0 <small class="text-muted fs-6">VNĐ</small></h4>
+                        <button type="button" class="btn btn-primary fw-bold px-4 rounded-pill shadow-sm" onclick="processBatchPayment()">
+                            <i class="fas fa-credit-card me-2"></i>Thanh toán ngay
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const selectAll = document.getElementById('selectAll');
+                    const checkboxes = document.querySelectorAll('.subject-checkbox');
+                    const batchContainer = document.getElementById('batchPayContainer');
+                    const selectedCountLabel = document.getElementById('selectedCount');
+                    const selectedTotalLabel = document.getElementById('selectedTotal');
+                    
+                    function updateBatchUI() {
+                        let count = 0;
+                        let total = 0;
+                        checkboxes.forEach(cb => {
+                            if (cb.checked) {
+                                count++;
+                                total += parseFloat(cb.getAttribute('data-amount'));
+                            }
+                        });
+                        
+                        selectedCountLabel.innerText = count;
+                        selectedTotalLabel.innerHTML = total.toLocaleString('vi-VN') + ' <small class="text-muted fs-6">VNĐ</small>';
+                        
+                        if (count > 0) {
+                            batchContainer.classList.remove('d-none');
+                        } else {
+                            batchContainer.classList.add('d-none');
+                            selectAll.checked = false;
+                        }
+                    }
+
+                    if(selectAll) {
+                        selectAll.addEventListener('change', function() {
+                            checkboxes.forEach(cb => cb.checked = this.checked);
+                            updateBatchUI();
+                        });
+                    }
+                    
+                    checkboxes.forEach(cb => {
+                        cb.addEventListener('change', updateBatchUI);
+                    });
+                });
+
+                function processBatchPayment() {
+                    const checkboxes = document.querySelectorAll('.subject-checkbox:checked');
+                    if (checkboxes.length === 0) return;
+                    
+                    let maLopHPs = [];
+                    let totalAmount = 0;
+                    
+                    checkboxes.forEach(cb => {
+                        maLopHPs.push(cb.value);
+                        totalAmount += parseFloat(cb.getAttribute('data-amount'));
+                    });
+                    
+                    const maLopHPString = maLopHPs.join(',');
+                    
+                    // Redirect to ThanhToan action
+                    window.location.href = '@Url.Action("ThanhToan", "Student")' + '?maLopHP=' + encodeURIComponent(maLopHPString) + '&tenMon=Batch&soTien=' + totalAmount;
+                }
+            </script>
+
+            
+            @if(Model != null && Model.Count > 0)
+            {
+                <div class="card border-0 shadow-sm mt-4 p-4">
+                    <h5 class="fw-bold mb-3">Phương thức thanh toán hỗ trợ</h5>
+                    <div class="row g-3">
+                        <div class="col-md-3 col-6">
+                            <div class="payment-method">
+                                <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-VNPAY-QR-1.png" alt="VNPay" />
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="payment-method">
+                                <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-MoMo-Circle.png" alt="MoMo" />
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="payment-method">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" alt="Visa" />
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="payment-method">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Mastercard_2019_logo.svg" alt="Mastercard" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
 
-        <!-- ================= TAB 2: LỊCH SỬ GIAO DỊCH ================= -->
+        <!-- TAB LỊCH SỬ -->
         <div class="tab-pane fade" id="lichsu" role="tabpanel">
-            <div class="card shadow-sm border-0 border-start border-4 border-success">
+            <div class="card border-0 shadow-sm custom-table">
                 <div class="card-body p-0">
-                    <table class="table table-hover table-bordered mb-0 align-middle">
-                        <thead class="table-success text-dark">
-                            <tr>
-                                <th class="text-center">STT</th>
-                                <th class="text-center">Mã Lớp HP</th>
-                                <th>Môn Học</th>
-                                <th class="text-end">Số Tiền Đã Nộp</th>
-                                <th class="text-center">Trạng Thái</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (lichSuGiaoDich != null && lichSuGiaoDich.Count > 0)
-                            {
-                                int stt = 1;
-                                double tongDaNop = 0;
-
-                                foreach (var item in lichSuGiaoDich)
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="ps-4 py-3" width="5%">
+                                        <input type="checkbox" id="selectAll" class="form-check-input border-primary" style="transform: scale(1.2);" />
+                                    </th>
+                                    <th class="py-3">Mã Lớp HP</th>
+                                    <th class="py-3">Tên Môn Học</th>
+                                    <th class="text-center py-3">Số Tiền (VNĐ)</th>
+                                    <th class="text-center py-3">Trạng thái</th>
+                                    <th class="text-center pe-4 py-3">Thời gian</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (lichSuGiaoDich != null && lichSuGiaoDich.Count > 0)
                                 {
-                                    tongDaNop += item.ThanhTien;
+                                    foreach (var item in lichSuGiaoDich)
+                                    {
+                                        <tr>
+                                            <td class="ps-4 fw-bold text-dark">@item.MaLopHP</td>
+                                            <td class="text-muted">@item.TenMon</td>
+                                            <td class="text-center fw-bold text-success">+@item.ThanhTien.ToString("N0")</td>
+                                            <td class="text-center">
+                                                <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-bold">
+                                                    <i class="fas fa-check-circle me-1"></i> Thành công
+                                                </span>
+                                            </td>
+                                            <td class="text-center pe-4 text-muted small">@DateTime.Now.ToString("dd/MM/yyyy HH:mm")</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
                                     <tr>
-                                        <td class="text-center fw-bold">@(stt++)</td>
-                                        <td class="text-center fw-bold text-primary">@item.MaLopHP</td>
-                                        <td class="fw-bold text-secondary">@item.TenMon</td>
-                                        <td class="text-end fw-bold">@string.Format("{0:N0}", item.ThanhTien) đ</td>
-                                        <td class="text-center">
-                                            <span class="badge bg-success"><i class="fas fa-check"></i> Đã thanh toán</span>
+                                        <td colspan="5" class="text-center py-5 text-muted">
+                                            <i class="fas fa-receipt fs-1 mb-3 text-light"></i>
+                                            <h5 class="fw-bold">Chưa có giao dịch nào!</h5>
                                         </td>
                                     </tr>
                                 }
-                                <tr class="table-light fw-bold fs-5">
-                                    <td colspan="3" class="text-end text-success">TỔNG HỌC PHÍ ĐÃ NỘP:</td>
-                                    <td class="text-end text-success">@string.Format("{0:N0}", tongDaNop) VNĐ</td>
-                                    <td></td>
-                                </tr>
-                            }
-                            else
-                            {
-                                <tr>
-                                    <td colspan="5" class="text-center py-4 text-muted">
-                                        Bạn chưa thực hiện giao dịch thanh toán nào!
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
+            <!-- THANH TOÁN HÀNG LOẠT -->
+            <div id="batchPayContainer" class="card border-0 shadow mt-4 p-4 d-none" style="background: linear-gradient(to right, #ffffff, #f8f9fa); border-left: 5px solid #0d6efd !important;">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h5 class="fw-bold mb-1 text-primary">Thanh toán theo lô</h5>
+                        <p class="mb-0 text-muted">Bạn đã chọn <strong id="selectedCount" class="text-dark">0</strong> học phần</p>
+                    </div>
+                    <div class="text-end">
+                        <h4 class="fw-bold text-danger mb-2" id="selectedTotal">0 <small class="text-muted fs-6">VNĐ</small></h4>
+                        <button type="button" class="btn btn-primary fw-bold px-4 rounded-pill shadow-sm" onclick="processBatchPayment()">
+                            <i class="fas fa-credit-card me-2"></i>Thanh toán ngay
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const selectAll = document.getElementById('selectAll');
+                    const checkboxes = document.querySelectorAll('.subject-checkbox');
+                    const batchContainer = document.getElementById('batchPayContainer');
+                    const selectedCountLabel = document.getElementById('selectedCount');
+                    const selectedTotalLabel = document.getElementById('selectedTotal');
+                    
+                    function updateBatchUI() {
+                        let count = 0;
+                        let total = 0;
+                        checkboxes.forEach(cb => {
+                            if (cb.checked) {
+                                count++;
+                                total += parseFloat(cb.getAttribute('data-amount'));
+                            }
+                        });
+                        
+                        selectedCountLabel.innerText = count;
+                        selectedTotalLabel.innerHTML = total.toLocaleString('vi-VN') + ' <small class="text-muted fs-6">VNĐ</small>';
+                        
+                        if (count > 0) {
+                            batchContainer.classList.remove('d-none');
+                        } else {
+                            batchContainer.classList.add('d-none');
+                            selectAll.checked = false;
+                        }
+                    }
+
+                    if(selectAll) {
+                        selectAll.addEventListener('change', function() {
+                            checkboxes.forEach(cb => cb.checked = this.checked);
+                            updateBatchUI();
+                        });
+                    }
+                    
+                    checkboxes.forEach(cb => {
+                        cb.addEventListener('change', updateBatchUI);
+                    });
+                });
+
+                function processBatchPayment() {
+                    const checkboxes = document.querySelectorAll('.subject-checkbox:checked');
+                    if (checkboxes.length === 0) return;
+                    
+                    let maLopHPs = [];
+                    let totalAmount = 0;
+                    
+                    checkboxes.forEach(cb => {
+                        maLopHPs.push(cb.value);
+                        totalAmount += parseFloat(cb.getAttribute('data-amount'));
+                    });
+                    
+                    const maLopHPString = maLopHPs.join(',');
+                    
+                    // Redirect to ThanhToan action
+                    window.location.href = '@Url.Action("ThanhToan", "Student")' + '?maLopHP=' + encodeURIComponent(maLopHPString) + '&tenMon=Batch&soTien=' + totalAmount;
+                }
+            </script>
+
         </div>
 
     </div>

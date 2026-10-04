@@ -1,163 +1,122 @@
 ﻿@{ ViewBag.Title = "Thanh Toán Học Phí"; }
 
-<div class="container-fluid px-4 mt-4 mb-5">
+<style>
+    body { background-color: #f8f9fa; }
+    .payment-container {
+        max-width: 800px;
+        margin: 40px auto;
+    }
+    .payment-card {
+        border-radius: 20px;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+    .payment-header {
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        padding: 40px 30px;
+        color: white;
+        text-align: center;
+        position: relative;
+    }
+    .payment-header::after {
+        content: '';
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 20px 20px 0;
+        border-style: solid;
+        border-color: #2c5364 transparent transparent transparent;
+        display: block;
+        width: 0;
+    }
+    .invoice-details {
+        background: white;
+        padding: 40px 30px;
+        border-radius: 0 0 20px 20px;
+    }
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px 0;
+        border-bottom: 1px dashed #dee2e6;
+    }
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+    .amount-total {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #dc3545;
+        margin: 20px 0;
+    }
+    .btn-pay {
+        background: linear-gradient(to right, #0062E6, #33AEFF);
+        border: none;
+        padding: 15px 40px;
+        font-size: 1.2rem;
+        border-radius: 50px;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-pay:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 98, 230, 0.3);
+    }
+</style>
 
-    <!-- Page Header -->
-    <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom">
-        <div>
-            <h2 class="mb-0 fw-bold text-dark">
-                <i class="fas fa-credit-card text-primary me-2"></i>Cổng Thanh Toán Học Phí Trực Tuyến
-            </h2>
-            <nav aria-label="breadcrumb" class="mt-1">
-                <ol class="breadcrumb mb-0 small">
-                    <li class="breadcrumb-item"><a href="@Url.Action("Index","Student")" class="text-decoration-none">Trang chủ</a></li>
-                    <li class="breadcrumb-item"><a href="@Url.Action("XemHocPhi","Student")" class="text-decoration-none">Học Phí</a></li>
-                    <li class="breadcrumb-item active">Thanh Toán</li>
-                </ol>
-            </nav>
-        </div>
-        <a href="@Url.Action("XemHocPhi", "Student")" class="btn btn-outline-secondary fw-bold">
-            <i class="fas fa-arrow-left me-1"></i>Quay lại
+<div class="container-fluid payment-container">
+    <div class="mb-3">
+        <a href="@Url.Action("XemHocPhi", "Student")" class="text-decoration-none text-muted fw-bold">
+            <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách nợ
         </a>
     </div>
 
-    <div class="row justify-content-center g-4">
-        <div class="col-md-4">
-            <div class="card shadow border-0 h-100">
-                <div class="card-header bg-primary text-white py-3">
-                    <h6 class="mb-0 fw-bold"><i class="fas fa-receipt me-2"></i>Chi Tiet Thanh Toán</h6>
-                </div>
-                <div class="card-body p-4">
-                    <dl class="row mb-0">
-                        <dt class="col-6 text-muted small">Học phần:</dt>
-                        <dd class="col-6 fw-bold small">@ViewBag.TenMon</dd>
-                        <dt class="col-6 text-muted small">Mã lớp HP:</dt>
-                        <dd class="col-6 fw-bold small text-primary">@ViewBag.MaLopHP</dd>
-                        <dt class="col-6 text-muted small">Nội dung CK:</dt>
-                        <dd class="col-6 fw-bold small">NTTU @ViewBag.MaLopHP</dd>
-                    </dl>
-                    <hr />
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="fw-bold text-dark">Tổng cộng:</span>
-                        <span class="fs-5 fw-bold text-danger">@string.Format("{0:N0}", ViewBag.SoTien) <small>VNĐ</small></span>
-                    </div>
-                </div>
-                <div class="card-footer bg-light text-muted small">
-                    <i class="fas fa-shield-alt text-success me-1"></i>
-                    Giao dịch được bảo mật bằng SSL 256-bit
-                </div>
+    <div class="card payment-card">
+        <div class="payment-header">
+            <div class="mb-3">
+                <i class="fas fa-file-invoice-dollar fs-1 text-info"></i>
             </div>
+            <h3 class="fw-bold mb-1">Xác nhận thanh toán</h3>
+            <p class="mb-0 text-white-50">Vui lòng kiểm tra kỹ thông tin trước khi tiếp tục</p>
         </div>
-
-        <div class="col-md-7">
-            <div class="card shadow border-0">
-                <div class="card-header bg-white border-bottom py-3">
-                    <h6 class="mb-0 fw-bold text-dark"><i class="fas fa-lock text-success me-2"></i>Chon Phuong Thuc Thanh Toán</h6>
-                </div>
-                <div class="card-body p-4">
-                    <ul class="nav nav-tabs mb-4" id="paymentTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active fw-bold" data-bs-toggle="tab" data-bs-target="#vnpayPanel" type="button" role="tab">
-                                <span style="color:#e41d24;">&#9679; </span>VNPAY
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link fw-bold" data-bs-toggle="tab" data-bs-target="#momo" type="button" role="tab">
-                                <span class="text-danger">&#9679; </span>Ví MoMo
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link fw-bold" data-bs-toggle="tab" data-bs-target="#bank" type="button" role="tab">
-                                <span class="text-primary">&#9679; </span>Thẻ Ngân Hàng
-                            </button>
-                        </li>
-                    </ul>
-
-                    <div class="tab-content">
-                        <div class="tab-pane fade show active" id="vnpayPanel" role="tabpanel">
-                            <div class="text-center py-3">
-                                <div class="mb-3">
-                                    <div class="d-inline-block p-3 border border-2 rounded-3" style="border-color:#e41d24 !important;">
-                                        <span class="fw-bold fs-3" style="color:#e41d24;">VNPAY</span>
-                                    </div>
-                                </div>
-                                <p class="text-muted mb-2">Thanh Toán an toan qua cong VNPAY ho tro ATM, VISA, MasterCard, QR Pay</p>
-                                <div class="alert alert-info text-start small py-2 mb-3">
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    Ban se duoc chuyen den trang Thanh Toán bao mat cua <strong>VNPAY</strong>.
-                                    Sau khi hoan tat, he thong tu dong cap nhat trang thai Học Phí.
-                                </div>
-                                <a href="@Url.Action("VNPay", "Payment", new { maLopHP = ViewBag.MaLopHP, soTien = ViewBag.SoTien, tenMon = ViewBag.TenMon })"
-                                   class="btn btn-lg fw-bold w-100 text-white" style="background:#e41d24;">
-                                    <i class="fas fa-external-link-alt me-2"></i>
-                                    Thanh Toán Qua VNPAY - @string.Format("{0:N0}", ViewBag.SoTien) VND
-                                </a>
-                            </div>
-                        </div>
-
-                        <div class="tab-pane fade" id="momo" role="tabpanel">
-                            <form action="@Url.Action("XacNhanThanhToan", "Student")" method="post">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="maLopHP" value="@ViewBag.MaLopHP" />
-                                <input type="hidden" name="soTien" value="@ViewBag.SoTien" />
-                                <div class="text-center py-3">
-                                    <h6 class="text-danger mb-3 fw-bold"><i class="fas fa-qrcode me-2"></i>Quét mã QR bằng ứng dụng MoMo</h6>
-                                    <div class="p-4 border border-danger rounded d-inline-block bg-light mb-3">
-                                        <i class="fas fa-qrcode" style="font-size:8rem; color:#a50064;"></i>
-                                    </div>
-                                    <div class="alert alert-light border text-center py-2">
-                                        <small class="text-muted">Nội dung chuyển khoản:</small><br />
-                                        <strong>NTTU @ViewBag.MaLopHP</strong>
-                                    </div>
-                                </div>
-                                <hr />
-                                <button type="submit" class="btn btn-danger btn-lg w-100 fw-bold">
-                                    <i class="fas fa-check-circle me-2"></i>
-                                    Xác Nhận Đã Chuyển Khoản MoMo
-                                </button>
-                            </form>
-                        </div>
-
-                        <div class="tab-pane fade" id="bank" role="tabpanel">
-                            <form action="@Url.Action("XacNhanThanhToan", "Student")" method="post">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="maLopHP" value="@ViewBag.MaLopHP" />
-                                <input type="hidden" name="soTien" value="@ViewBag.SoTien" />
-                                <div class="py-2">
-                                    <h6 class="text-primary mb-4 fw-bold"><i class="fas fa-credit-card me-2"></i>Thông Tin Thẻ ATM / Visa / Mastercard</h6>
-                                    <div class="mb-3">
-                                        <label class="form-label fw-bold small">Số thẻ</label>
-                                        <input type="text" class="form-control" placeholder="XXXX XXXX XXXX XXXX" maxlength="19" />
-                                    </div>
-                                    <div class="row g-3">
-                                        <div class="col-6">
-                                            <label class="form-label fw-bold small">Ngày hết hạn</label>
-                                            <input type="text" class="form-control" placeholder="MM/YY" maxlength="5" />
-                                        </div>
-                                        <div class="col-6">
-                                            <label class="form-label fw-bold small">Mã CVV</label>
-                                            <input type="password" class="form-control" placeholder="***" maxlength="3" />
-                                        </div>
-                                    </div>
-                                    <div class="mt-3">
-                                        <label class="form-label fw-bold small">Tên in trên thẻ (Không dấu)</label>
-                                        <input type="text" class="form-control text-uppercase" placeholder="NGUYEN VAN A" />
-                                    </div>
-                                </div>
-                                <hr class="mt-4" />
-                                <div class="alert alert-warning small py-2 mb-3">
-                                    <i class="fas fa-exclamation-triangle me-1"></i>
-                                    Vui lòng kiểm tra lại thông tin trước khi xác nhận thanh toán.
-                                </div>
-                                <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold">
-                                    <i class="fas fa-check-circle me-2"></i>
-                                    Xac Nhan Thanh Toán - @string.Format("{0:N0}", ViewBag.SoTien) VND
-                                </button>
-                            </form>
-                        </div>
-                    </div>
+        
+        <div class="invoice-details">
+            <div class="detail-row">
+                <span class="text-muted fw-bold">Mã lớp học phần:</span>
+                <span class="fw-bold text-primary fs-5">@ViewBag.MaLopHP</span>
+            </div>
+            <div class="detail-row">
+                <span class="text-muted fw-bold">Tên môn học:</span>
+                <span class="fw-bold text-dark fs-5">@ViewBag.TenMon</span>
+            </div>
+            <div class="detail-row">
+                <span class="text-muted fw-bold">Sinh viên:</span>
+                <span class="fw-bold">@User.Identity.Name</span>
+            </div>
+            
+            <div class="text-center mt-5">
+                <p class="text-muted fw-bold text-uppercase mb-0">Tổng tiền cần thanh toán</p>
+                <div class="amount-total">
+                    @String.Format("{0:N0}", ViewBag.SoTien) <small class="fs-4 text-muted">VNĐ</small>
                 </div>
             </div>
+
+            <form action="@Url.Action("XacNhanThanhToan", "Student")" method="post" class="text-center mt-4">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="maLopHP" value="@ViewBag.MaLopHP" />
+                <input type="hidden" name="soTien" value="@ViewBag.SoTien" />
+                
+                <button type="submit" class="btn btn-primary btn-pay fw-bold text-white shadow">
+                    <i class="fas fa-lock me-2"></i>Thanh toán an toàn với VNPay
+                </button>
+                
+                <div class="mt-4">
+                    <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-VNPAY-QR-1.png" alt="VNPay" height="30" class="mx-2" />
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" alt="Visa" height="20" class="mx-2" />
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Mastercard_2019_logo.svg" alt="Mastercard" height="25" class="mx-2" />
+                </div>
+            </form>
         </div>
     </div>
 </div>

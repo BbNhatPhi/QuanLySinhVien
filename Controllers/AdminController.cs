@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Configuration;
 using StudentManagementSystem.DAO;
 using StudentManagementSystem.Models;
 namespace StudentManagementSystem.Controllers
@@ -234,5 +235,31 @@ namespace StudentManagementSystem.Controllers
 
             return RedirectToAction("ManagePhongHoc");
         }
-    }
+    
+        public ActionResult SystemLogs()
+        {
+            List<StudentManagementSystem.Models.SystemLog> logs = new List<StudentManagementSystem.Models.SystemLog>();
+            using (System.Data.SqlClient.SqlConnection conn = new System.Data.SqlClient.SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString))
+            {
+                string sql = "SELECT TOP 100 * FROM SystemLogs ORDER BY CreatedAt DESC";
+                System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(sql, conn);
+                conn.Open();
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        logs.Add(new StudentManagementSystem.Models.SystemLog
+                        {
+                            LogID = Convert.ToInt32(reader["LogID"]),
+                            Username = reader["Username"].ToString(),
+                            Action = reader["Action"].ToString(),
+                            CreatedAt = Convert.ToDateTime(reader["CreatedAt"]),
+                            IPAddress = reader["IPAddress"] != DBNull.Value ? reader["IPAddress"].ToString() : ""
+                        });
+                    }
+                }
+            }
+            return View(logs);
+        }
+}
 }

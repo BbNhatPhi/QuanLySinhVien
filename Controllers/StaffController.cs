@@ -1,8 +1,9 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using StudentManagementSystem.Helpers;
 using StudentManagementSystem.DAO;
 using StudentManagementSystem.Models;
 using StudentManagementSystem.Utils;
@@ -465,5 +466,41 @@ namespace StudentManagementSystem.Controllers
             }
             return RedirectToAction("QuanLyYeuCau");
         }
-    }
+    
+        // ==========================================
+        // QUẢN LÝ MÔN TIÊN QUYẾT (AJAX)
+        // ==========================================
+        [HttpGet]
+        public JsonResult GetMonTienQuyet(string maMon)
+        {
+            var data = _staffDAO.GetMonTienQuyet(maMon);
+            var allMonHoc = _staffDAO.GetAllMonHoc();
+            return Json(new { success = true, data = data, all = allMonHoc }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult AddMonTienQuyet(string maMon, string maMonTQ)
+        {
+            if(maMon == maMonTQ) return Json(new { success = false, message = "Môn tiên quyết không thể là chính nó!" });
+            string result = _staffDAO.AddMonTienQuyet(maMon, maMonTQ);
+            if (result == "Success")
+            {
+                StudentManagementSystem.Helpers.LogHelper.Log($"Giáo vụ thêm môn tiên quyết {maMonTQ} cho môn {maMon}");
+                return Json(new { success = true });
+            }
+            return Json(new { success = false, message = result });
+        }
+
+        [HttpPost]
+        public JsonResult RemoveMonTienQuyet(string maMon, string maMonTQ)
+        {
+            string result = _staffDAO.RemoveMonTienQuyet(maMon, maMonTQ);
+            if (result == "Success")
+            {
+                StudentManagementSystem.Helpers.LogHelper.Log($"Giáo vụ xóa môn tiên quyết {maMonTQ} khỏi môn {maMon}");
+                return Json(new { success = true });
+            }
+            return Json(new { success = false, message = result });
+        }
+}
 }

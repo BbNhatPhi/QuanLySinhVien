@@ -1,0 +1,52 @@
+﻿@model List<StudentManagementSystem.Models.SystemLog>
+@{
+    ViewBag.Title = "Lịch sử thao tác hệ thống";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0 text-primary fw-bold">
+            <i class="fas fa-history me-2"></i> Lịch Sử Thao Tác (Audit Logs)
+        </h2>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle mb-0">
+                    <thead class="table-dark text-center">
+                        <tr>
+                            <th>ID</th>
+                            <th>Tài khoản</th>
+                            <th class="text-start">Hành động</th>
+                            <th>Thời gian</th>
+                            <th>IP Client</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        @if (Model != null && Model.Count > 0)
+                        {
+                            foreach (var log in Model)
+                            {
+                                <tr>
+                                    <td class="text-muted fw-bold">#@log.LogID</td>
+                                    <td><span class="badge bg-primary">@log.Username</span></td>
+                                    <td class="text-start fw-bold text-dark">@log.Action</td>
+                                    <td class="text-muted small">@log.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                                    <td><span class="badge bg-secondary">@log.IPAddress</span></td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="py-4 text-muted">Chưa có lịch sử thao tác nào được ghi nhận.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
